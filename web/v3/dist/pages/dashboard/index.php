@@ -86,9 +86,9 @@
                         <thead>
                             <tr>
                                 <th>프로젝트명</th>
-                                <th>기기 수</th>
-                                <th>최근 배포</th>
-                                <th>상태</th>
+                                <th>해상도</th>
+                                <th>수정일</th>
+                                <th>방향</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -210,33 +210,23 @@
  */
 async function loadDashboardData() {
     try {
-        // Fetch main dashboard summary
-        const response = await V3Api.get('/dashboard');
+        // Load projects from tb_home (user's projects)
+        const homesRes = await V3Api.get('/homes');
+        if (homesRes.code === 100 && homesRes.data) {
+            const projects = homesRes.data;
 
-        if (response.success && response.data) {
-            const data = response.data;
-            const stats = data.stats || {};
+            // Update stats
+            document.getElementById('stat-projects').textContent = projects.length;
+            document.getElementById('stat-devices').textContent = '-';
+            document.getElementById('stat-deployments').textContent = '-';
+            document.getElementById('stat-alerts').textContent = '-';
 
-            // Update stats cards
-            document.getElementById('stat-projects').textContent = stats.projects || 0;
-            document.getElementById('stat-devices').textContent = stats.devices?.online || 0;
-            document.getElementById('stat-deployments').textContent = stats.today_deployments || 0;
-            document.getElementById('stat-alerts').textContent = stats.alerts || 0;
-
-            // Load recent projects from summary
-            if (data.recent_projects) {
-                renderRecentProjects(data.recent_projects);
-            }
-
-            // Load recent activities from audit logs
-            if (data.recent_activities) {
-                renderRecentActivitiesFromAudit(data.recent_activities);
-            }
+            // Render project list
+            renderRecentProjects(projects);
         }
 
-        // Load chart data
-        loadDeviceStatusChart();
-        loadDeploymentHistoryChart();
+        // Activities placeholder
+        renderRecentActivitiesFromAudit([]);
 
     } catch (error) {
         cerror('Dashboard data load failed:', error);
@@ -262,21 +252,23 @@ function renderRecentProjects(projects) {
         return;
     }
 
-    const statusBadges = {
-        active: '<span class="badge badge-success">활성</span>',
-        inactive: '<span class="badge badge-light">비활성</span>',
-        maintenance: '<span class="badge badge-warning">점검중</span>',
-        archived: '<span class="badge badge-secondary">보관</span>'
-    };
+    const orientBadge = (o) => o === 'L'
+        ? '<span class="badge badge-info">가로</span>'
+        : '<span class="badge badge-primary">세로</span>';
 
-    tbody.innerHTML = projects.map(p => `
-        <tr style="cursor: pointer;" onclick="loadPage('project', { id: ${p.id} })">
-            <td><strong>${escapeHtml(p.name)}</strong></td>
-            <td>${p.device_count || 0}대</td>
-            <td>${p.last_deploy_at ? formatDateTime(p.last_deploy_at) : '-'}</td>
-            <td>${statusBadges[p.status] || statusBadges.inactive}</td>
-        </tr>
-    `).join('');
+    tbody.innerHTML = projects.map(p => {
+        const name = p.hm_projectname || p.hm_projectid;
+        const w = p.hm_width || (p.hm_orientation === 'L' ? 1920 : 1080);
+        const h = p.hm_height || (p.hm_orientation === 'L' ? 1080 : 1920);
+
+        return `<tr style="cursor: pointer;" onclick="loadPage('channel')">
+            <td><strong>${escapeHtml(name)}</strong><br>
+                <span style="font-size:11px;color:var(--text-muted);">${escapeHtml(p.hm_projectid)}</span></td>
+            <td>${w}×${h}</td>
+            <td>${p.hm_date ? formatDateTime(p.hm_date) : '-'}</td>
+            <td>${orientBadge(p.hm_orientation)}</td>
+        </tr>`;
+    }).join('');
 }
 
 /**

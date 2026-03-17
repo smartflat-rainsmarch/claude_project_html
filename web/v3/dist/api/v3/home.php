@@ -40,14 +40,30 @@ function listHomes($query) {
     $where = ['1=1'];
     $params = [];
 
+    // Filter by user's projects and group
+    $user = Auth::user();
+    $userinfo = $user['userinfo'] ?? $user;
+    $projectIds = $userinfo['projectids'] ?? '';
+    $groupIdx = $userinfo['groupidx'] ?? $user['group_id'] ?? null;
+
+    if (!empty($projectIds)) {
+        $projectList = array_unique(array_filter(explode(',', $projectIds)));
+        if (count($projectList) > 0) {
+            $placeholders = implode(',', array_fill(0, count($projectList), '?'));
+            $where[] = "hm_projectid IN ({$placeholders})";
+            $params = array_merge($params, $projectList);
+        }
+    }
+
+    if ($groupIdx !== null && $groupIdx !== '') {
+        $where[] = 'hm_gr_idx = ?';
+        $params[] = (int)$groupIdx;
+    }
+
+    // Allow explicit overrides via query params
     if (!empty($query['project_id'])) {
         $where[] = 'hm_projectid = ?';
         $params[] = $query['project_id'];
-    }
-
-    if (!empty($query['group_idx'])) {
-        $where[] = 'hm_gr_idx = ?';
-        $params[] = (int)$query['group_idx'];
     }
 
     $whereClause = implode(' AND ', $where);
@@ -72,7 +88,7 @@ function listHomes($query) {
             LENGTH(hm_content_data) as content_data_size
         FROM tb_home
         WHERE {$whereClause}
-        ORDER BY hm_idx ASC
+        ORDER BY hm_projectid ASC
     ", $params);
 
     ApiResponse::success($items);
