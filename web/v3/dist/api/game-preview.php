@@ -29,7 +29,15 @@ if (!$home) {
 }
 
 $projectId = $home['hm_projectid'];
-$grIdx = $home['hm_gr_idx'] ?? 0;
+$grIdx = (int)($home['hm_gr_idx'] ?? 0);
+
+// Validate projectId to prevent path traversal
+if (!preg_match('/^[a-zA-Z0-9_-]+$/', $projectId)) {
+    http_response_code(400);
+    echo 'Invalid project ID';
+    exit;
+}
+
 $gamePath = "../../../game/school/{$projectId}/v{$grIdx}/";
 
 // Build the game page with injected data
