@@ -58,7 +58,7 @@
             <tbody>
                 <tr>
                     <td style="width: 200px; color: var(--text-gray);">버전</td>
-                    <td><?php echo CMS_VERSION; ?></td>
+                    <td><?php echo defined('CMS_VERSION') ? CMS_VERSION : '3.0.0'; ?></td>
                 </tr>
                 <tr>
                     <td style="color: var(--text-gray);">PHP 버전</td>
