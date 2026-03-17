@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카탈로그</title>
+    <link href="./libs/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <script src="./libs/swiper/swiper-bundle.min.js"></script>
+    <script src="./libs/jquery/jquery-3.5.1.min.js"></script>
+    <script src="./js/scripts.js"></script>
+    
+
+    
+    
+    <style>
+        body {
+            background-color: #fff;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        #div_list {
+            padding: 20px;
+            min-height: calc(100vh - 210px);
+            box-sizing: border-box;
+        }
+        .list-item {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background: #f7f7f7;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .list-item:hover {
+            background-color: #e0f7fa;
+        }
+        #bottomBar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #fff;      /* 바탕을 흰색으로 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;                 /* 글자를 검정색으로 */
+            border-top: 1px solid #ddd;  /* 얇은 구분선 추가 (선택) */
+            z-index: 9999;
+        }
+
+        .page-button {
+            background: none;
+            border: none;
+            color: #000;                 /* 기본 글자 검정 */
+            font-size: 18px;
+            margin: 0 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .page-button:hover {
+            background: #f0f0f0;         /* 호버 시 연한 회색 */
+        }
+
+        .page-button.active {
+            background: #000;            /* 활성 페이지는 검정 배경 */
+            color: #fff;                 /* 활성 페이지 글자는 흰색 */
+        }
+
+        .list-table th, .list-table td {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .list-table tr:hover {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+ <div id="div_title_parent" style='width:100%;'>
+ <div id="div_title" align="center" style='display:flex;padding-bottom:15px;'>
+    
+ </div>
+ </div>
+
+ <div id='div_top' align="center" style="display:flex;border: 1px solid #e9e9e9;height: 50px;">
+   <div id="div_floor_edit" style="min-width:230px;padding:10px;border: 1px solid #e9e9e9;">
+       
+   </div>
+   <div id="div_floor_titles_edit" style="width:50%;padding:10px;border: 1px solid #e9e9e9;">
+       
+   </div>
+   <div id="div_floor_datas_edit" style="width:50%;padding:10px;border: 1px solid #e9e9e9;">
+       <label id='label_popup_title' style='float:left;size:28px;color:#323232;font-weight:bold'>*정보 클릭시 내용</label>
+   </div>
+   
+</div>
+<div id='div_main' align="center" style="display:flex">
+   <div id="div_floor" style="min-width:230px;padding:10px;border: 1px solid #e9e9e9;">
+       
+   </div>
+   <div id="div_floor_titles" style="width:50%;padding:10px;border: 1px solid #e9e9e9;">
+       
+   </div>
+   <div id="div_floor_datas" style="width:50%;padding:10px;border: 1px solid #e9e9e9;">
+       
+   </div>
+   
+</div>
+<div id='div_bottom' align="center" style="border: 1px solid #e9e9e9;height: 60px;">
+    
+</div>
+<script>
+    var base64_btn_add = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAMAAAANf8AYAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAXdQTFRFnlc2AAAAnlc2+fXznlc2n14+nVY1n2VKnlc2nls9vZ6O/Pr5////nVU1nlc2nlk4+PPwnVU1upqLzLiu/vz81MG3r5KEn2BDz7uynlo6+vX0/Pn5nVY1nlc2/fz7nFU1nVY1nFY2nVY1n15AzrmwnVY1nlc2nVc21cG4nVc2nVY1+PTyn2RInFY1nFY1nVY1nlc2nFY1nVY1nFY1nFY1nVQ10LuyjFwtoU0jnVQ1uIdynVQ1nlc2s5SG/v7+/fr6oGNHnVY1nVY2oU0ju5yNnlc2nlc2jFwtnV5BtZaHnVc2nmJHnVY1+vf0nlc2nlc21cC2nlconFU1lz4nnFY1nVc2lFkynVc0nlc2nVQ1kkct3s7GwaWWro59+vf3onxo8+/tnVc1nlc2nVY1nWBFnU4rt5OBm1EznVU0mmZPn1QtnFQ0oGtRnVY1nVU0nFQz9e7pnlc2spaJm1Y2tpSEnVY2nVc2m1c2z7mullkv597b0L+4pGZKMpSMXAAAAH10Uk5T/wD+//3/zP/7/////+zz//90/////////////5f4/+j0SaL///jn6f9ygP//YS+u6zLON1iN/wEBgP9Wyv////+Y/wX/i80E//+F/43/v8z/CjkLErEPE+3ACv///////2/mlP8R/xNi/xGE/zNNMP/B/5r/6qAv/w////+cv/hpAAAC6klEQVR4nJ2WZ1siQQyAs7uwIE0QVJTeQSnSVARFRUERsffeu2fXKz/+Bj1kYbOrXL7ss5l5n2QymSRA1csAtRl3JB9X2Hxmjo2Yk474AjXYsAfqf9d+HhypvRqahorQEs2h2hw4ORNhCtFUWQMf+6tCg33jKloQYsIh2zNg0mcLveJMwmmhUYQYs7ykMUYXkwsQFZGzAT5TVEtEEACJr6eRmZQL+VXzb7KeKYr5VRVLD5fRqb+y8m7JF6gxiZj4WaoiYdNVJuxEPJuSHo/zlPKX1w+mELIgyN782xBfbQkV3pmoDTmMdJ7Rdkh5atoWrTDLqT7E9VGjdbati6/vuzqjYGC1jCAg0xsYBbawcTIIlM6OLXW2m3qHW5AFe4CCpTEMqTDMNMaAeQHi+HXK9CO4b7Q6Dg4vamemP9uNxQDg0AFJDcq4/Eos1kQ0SXjEMy3otjITrdiKxAwrAoxQrIGOQIzzOyUdlXV2ymZcweCfLeXuw3XQNVNRjLqCnNxjIc9B9uaN+vZ2fb/frd/6pVLtG93+/orC6Hdzcm8OMrUfkmNWg8k0klVaDUoVEYNVmR0xmchHu1OLR4ZQn3L8pp1lehmmW8swuwRRMoy2myGaWe3daS0eeeLdp4wPdbQphqcVbR0Tiod9lfL39gRRTA8TxdMF9zwRbtykXdDSAl3SVrg2GphtaK0puHEz489a9H5KTedBqfl8897+R14vwkKz7+dos/l3ekDB4OU97ptAjpZXB4BaK64jS4J1J7VcqW83WH0TiPW/+kblzpE6GnRr7574d2oJ5YTr9fjQzukFTyt3hqt9Ic0iCSTlW5HEErX+E/B9r//ouH2ux/MNxlPX50g/9XzZTz0N/ZRY8jXdt8mZWNH5IKbD5pC02BziTGBzCEX9OH/G0uh93glTOEPlbor3dv5cVU5Fc5QQQ+a3S93Yulcj+ZzfvOox3epy/aYGhsyES3FHyRxh5zJ5MieWbheXyOxYL38BboRllXopXvsAAAAASUVORK5CYII=";
+    var base64_btn_x = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAMAAAANf8AYAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAANVQTFRFAAAAIEBgK1lwLVtxLF1yLVxyLVxyLVxyLV1zHFVxKlxwLFxyLFxxIFBwLFxyLFxyAAAALVxyLF1yLFxxKVpuLF1yKlpyLFxyK1xyLFxyLFtxLFxyLVtxLFtyLVlsLVxyLFxyAFVVLFtxLFpyIlVmLFtyLVxxLVxyWHJ+5uzvZHuGSmh2////LFxxLFxxUWx5LF1yLFtxLFxyLFxxLFxyLFxyLFtxoq+1K1txHlppLFxyLFxxLFxyK1pxK1xyLVxyK1xyLFtyLVxyLFxyKltyLFxyKVpxeSCOHwAAAEd0Uk5TAAhCfqjO5fD/CVu19xCA6wJn7e4lyVXxd/6Mi3hXKPXKA2huD3n/6v//////VrL/s63Q0en58v+BEWlvy1h974Jct/hDf0QNSRh4AAAB9UlEQVR4nJ2W+UsCQRTH38vSwg4tiegiLK2ISsvooqC/vB8iin6IwsgOuw9MxDI7SFqn2XWxGeftts33h4V5+/2ws3O89xAUoS1mSzU0jNu4+VsMNHPq043pQPxSPxxgrOzEhBA/VMJUsMpeSCaCZdVdnwErEEwvlpwRgC6WV5g+fHZDAMIs18D0F90JUz0PEjNYcLb+KnIvMEPff0zMnp6RrzPD+OQF4QthFGwm1OKyyLL68KrGRB+9IgADFxYzVnTYfUrBcNZkYndSdPi2wSYHhs45g/EbMTaCeCkhUcauhWHglSH0voqO0arPkKAo8xlNF0IglkaYOROZ8YoPRIgjYPhPBcfEAWJQumI1Ux2SR5aaDWzyAzhCBAJQwc4KOEIkAn5MZhqZupVGYBLnjhXGNgONwBSmjlTGgkxRCFRxIU0wNkQiMIOtFAIw+84fwUPyndZ3dP5HZ9109kfnHOicN51zDYkTMeLp/sD0uch4u6fYKZUpT/kAlg4kzx95J7Fr5qrl0//kt/iOlUdX9r0z89v/ztephyv9ugCwlvVWfyLWxbHr3PqeF0aqc1r1VKtua/UHfLbtOcpsT+ON6kP4PnWX3mli8a5I9ztcHVMZqq9Kfu2IY6V/W8I96RKuMrbr2r/VsFXcRAyXup4Z28CtT8XwA88b8q6F7lHGAAAAAElFTkSuQmCC";
+    var base64_btn_edit = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAMAAAANf8AYAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAVlQTFRFAAAAIEBgK1lwLVtxLF1yLVxyLVxyLVxyLV1zHFVxKlxwLFxyLFxxIFBwLFxyLFxyAAAALVxyLF1yLFxxKVpuLF1yKlpyLFxyK1xyLFxyLFtxLFxyLVtxLFtyLVlsLVxyL191UXmLqb3G8fT2obfAPmp/MGB1TXaIyNTa+fv7////qLzFPWp+LFxyAFVVLFtxZIiY/Pz99/n5THWILFpyIlVmnrS+7/L0L150LFtybo+eztnffZuoLVxyjaezQGyAQ26Ct8jP8/X35+3v9vj5lq65OWZ7WX+RoLbALFxxLFxx/f39RnGEtsbO8/b3orfBNWN4LF1y6u/xT3eJ5evtcZKhNmR5P2t/LFtxWoCRLFxyLFxxLFxyLFxysMLKLFtxiqWxUnqMLl1z+/z8K1txHlppLFxyLFxxLFxyK1pxK1xyLVxyK1xyLFtyLVxyLFxyKltyLFxyKVpxVVcuIwAAAHN0Uk5TAAhCfqjO5fD/CVu19xCA6wJn7e4lyVXxd/6Mi3hXKPX/////////////////ygNo/////24P////ef///+r//////////////1ay////////s////////63/0NHp+f/y/////4ERaW/LWH3vgly3+EN/RCdb3HoAAALASURBVHicnZbBTxNBFMbnYWkLzbYlYlOaFgIBw8GIGkkgMRoPHtCYoByqCNFElGjiX+PBGAgHY7yggr3gwahp1IbQREOi0VgOCCqSRoRqaTdtx9nZYZndndmSfpfdeTO/7Pvmzc4MIJuACTPZB1jaDWRwiQ+4CLXtxCgARfuHPRjnZEwQIG8nNPkq+I+QaYacfbSRAc4KmBBsyhGEAnjdxoRhwwlBqAmvWZjIb2dC0/7vJiaalQ/dVfMqx8RKVRJj6ZXXDaYVfsmGhemSWGGtQDnLmGC9dJJbNYKspgxrd8GizvR8kWbTXWggC8Nb9H5kgUNpyvQuSapPdDhHk1f+Kh/0gK9jQWP630sRdIxVTalPs8jRFGHgxILES6Mf5vsAaClb3rKoZwsDCm1JEIAoQPKUqs0pbnu9Ez89B+jsSzGj2W8vu170KUuoE+D5TnxgBsBXEiKxfWSSUXe+kjynZg5+XjY6XGWoc4uRnk/02a6q8+g8JLguFfyqyEtjoY69eoKhZ+ZON1yaFSC0+kyRAzPm3kEYfmpn9Orr6gRPwtw7BCOPbYhuXxfm7euqwOi0DWH2aWKRQsLaHwevJcLZJ0j0R9KeuvU7Jvu4d02AxK1+nO1TVSzzdvKbo32qIXN9Yv1p411kn2qQXwfEPldKoX1Nbm69hT1V7VOp3Lq+nKpqXxNZ1+jCHGucycjsDz/iGuT/QQOvWONKyvBisW9itP8U/CyjDiN8PLWCZKL7ARp7aGYc7BONTGp71Y0neZ5xsE/kuzhB99GbDzhGVn2mq/dN+zVlpNXXde3dYvVzwazdcwGhW7N7O3+O0FqyMt6e2gtjOudqOk9rOrdruh+QbFu+ypGun6J7CKlT2+o/MXH9zbL4vkOkxKdF96rR4gTftt3fxmDKdLiMYzzpeH/TsXG4C9C0GdjA+A7c27YN+A/HauWePAVsMgAAAABJRU5ErkJggg==";
+        
+    var base64_empty = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA8AAAAABAQMAAAArRFVUAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRFAAAAp3o92gAAAAF0Uk5TAEDm2GYAAAAMSURBVHicY2AYIAAAAHkAAZGAPAoAAAAASUVORK5CYII=";
+
+    console.log("********* TYPE FLOOR");
+    var projectid = getParam("projectid") ? getParam("projectid") : "sample";  //프로젝트 아이디
+    var groupidx = getParam("groupidx") ? getParam("groupidx") : 0;  //프로젝트 아이디
+    var json_url = getParam("jsonurl") ? getParam("jsonurl") : "contentdata/floor/floor.json";  //floor json_file_url  
+    var editmode = getParam("editmode") ? getParam("editmode") : 0;  //수정모드
+
+    var game_path = "../school/"+projectid+"/v"+groupidx+"/";
+    var json_path = game_path+json_url;
+    var json_floor = null;
+    // getParam 함수도 추가 필요 시 정의
+    
+        // 예: 클릭 감지
+    document.addEventListener("click", () => {
+      window.parent.postMessage("iframe_clicked", "*");
+    });
+    // ✅ 스크롤 이벤트
+    window.addEventListener("scroll", () => {
+      window.parent.postMessage("iframe_scrolled", "*");
+    });
+    
+    console.log("타입플루어!!!!");
+    console.log("타입플루어!!!!");
+    console.log("타입플루어!!!!");
+    console.log("타입플루어!!!!");
+    console.log("타입플루어!!!!");
+    console.log("타입플루어!!!!");
+    console.log("타입플루어!!!!");
+    console.log("타입플루어!!!!");
+    console.log("타입플루어!!!!");
+    
+    var div_top = document.getElementById("div_top");
+    var div_title = document.getElementById("div_title");
+    var div_main = document.getElementById("div_main");
+    var div_floor_edit = document.getElementById("div_floor_edit");
+    var div_floor_titles_edit = document.getElementById("div_floor_titles_edit");
+    var div_floor_datas_edit = document.getElementById("div_floor_datas_edit");
+    
+    var div_floor = document.getElementById("div_floor");
+    var div_floor_titles = document.getElementById("div_floor_titles");
+    var div_floor_datas = document.getElementById("div_floor_datas");
+   
+    var div_bottom = document.getElementById("div_bottom");
+    
+    var now_floor_index = 0;
+    var now_title_index = 0;
+    var select_language = "ko";
+    
+    var savekey = projectid+"_"+groupidx+"_floor_language";
+    $(document).ready(function() {
+       select_language = projectid != "yclib" && getData(savekey) ? getData(savekey) : "ko";
+       json_path = select_language == "en" ? game_path+"contentdata/floor/floor_en.json" : game_path+"contentdata/floor/floor.json";
+        loadJSON(json_path, function(err, data) {
+            if (err) {
+                console.error("JSON 로드 실패:", err);
+            } else {
+                console.log("JSON 데이터:", data);
+                json_floor = data;
+                init(true);
+                // 원하는 작업 수행
+            }
+        });
+
+    });
+    //초기화
+    function init(isfirst){
+        //제목입력
+        
+      
+        var option_en_selected = select_language == "en" ? "selected" : "";
+        div_title.innerHTML = getTag_Label(null,"타이틀 입력 : ","margin-top:10px;margin-right:20px",true)+ getTag_Input("input_title", "type_text", json_floor.floortitle, 300, null, "타이틀 입력" ,null,  null,  null,  null,  null,  "updateTitle()")+
+        getTag_Label(null,"언어선택 : ","float:right;margin-top:10px;margin-left:30px;margin-right:20px",true)+ 
+            "<select id='select_language' style='width:150px;height:45px;padding:10px;float:right;border-radius:10px;border:0;background-color:#f2faf9' onchange='onChangeLanguage()'><option value='ko'>한국어</option><option value='en' "+option_en_selected+">영어</option></select>"+
+        getTag_Button(null,"저장하기", "onclickSaveJsonData()",null ,null ,null ,null ,null, "margin-top: 7px;margin-left: auto;margin-right:10px");
+        if(editmode == 1){
+            //수정 추가 버튼 
+            div_floor_edit.innerHTML = "<label style='float:left;size:28px;color:#323232;font-weight:bold'>*구분</label><img id='editmode_addfloor' src='"+base64_btn_add+"' onclick='add_floor()' style='float:right;width:30px;height:30px;margin-left:10px;'/>";
+            div_floor_titles_edit.innerHTML = "<label id='label_floortitle' style='float:left;size:28px;color:#323232;font-weight:bold'>*층별 정보안내</label><img id='editmode_addfloortitle' src='"+base64_btn_add+"' onclick='add_title()'  style='float:right;width:30px;height:30px;margin-left:10px;'/>";
+
+            //하단 저장버튼 생성
+            div_bottom.innerHTML = getTag_Button(null,"저장하기", "onclickSaveJsonData()",null ,null ,null ,null ,null, "float:right;margin:10px");
+        }
+        setFloor(isfirst);
+        
+        
+    }
+    function onChangeLanguage(){
+        select_language = document.getElementById("select_language").value ? document.getElementById("select_language").value : "";
+       
+        saveData(savekey,select_language);
+        
+        json_path = select_language == "en" ? game_path+"contentdata/floor/floor_en.json" : game_path+"contentdata/floor/floor.json";
+        loadJSON(json_path, function(err, data) {
+            if (err) {
+                console.error("JSON 로드 실패:", err);
+            } else {
+                console.log("JSON 데이터:", data);
+                json_floor = data;
+                init();
+                // 원하는 작업 수행
+            }
+        });
+        
+    }
+    function add_floor(){
+        console.log("now_floor_index" + now_floor_index);
+        json_floor.floordata.push({"fname":"", "height":192, "floorbg":"res\/global\/floor_bg.png", "data":[]});
+        init();
+    }
+    function add_title(){
+        console.log("now_floor_index" + now_floor_index);
+        var data = {
+             "title": "",
+            "x": -1,
+            "y": -1,
+            "fontsize": "30",
+            "fontcolor": "#313131",
+            "event": {
+                "type": "popup",
+                "message": "",
+                "img": ""
+            }
+        }
+        if(!json_floor.floordata[now_floor_index].data)json_floor.floordata[now_floor_index].data = [];
+        json_floor.floordata[now_floor_index].data.push(data);
+        init();
+    }
+    //층삭제
+    function delete_floor_popup(findex){
+         C_showConfirmPopup({
+                message: `"${json_floor.floordata[findex].fname}" 층을 삭제하시겠습니까? `,
+                onConfirm: () => delete_floor(findex)
+                
+            });
+    }    
+    function delete_floor(findex){
+        var new_floordatas = [];
+        for(var i = 0 ; i < json_floor.floordata.length;i++){
+            if(i != findex){
+                new_floordatas.push(json_floor.floordata[i]);
+            }
+        }
+        json_floor.floordata = new_floordatas;
+        
+        removeElementByIdFromDiv(div_floor, "div_mfloor_"+findex);
+//        saveJsonData();
+        
+        now_floor_index = 0;
+        now_title_index = 0;
+       
+        init();
+    }
+    
+    
+    //층안의 타이틀 삭제
+    function delete_floor_title_popup(findex,idx){
+         C_showConfirmPopup({
+                message: `"${json_floor.floordata[findex].data[idx].title}" 을 삭제하시겠습니까?`,
+                onConfirm: () => delete_floor_title(findex,idx)
+                
+            });
+    }   
+    function delete_floor_title(findex,idx){
+        var new_floortitle_datas = [];
+        for(var i = 0 ; i < json_floor.floordata[findex].data.length;i++){
+            if(i != idx){
+                new_floortitle_datas.push(json_floor.floordata[findex].data[i]);
+            }
+        }
+        json_floor.floordata[findex].data = new_floortitle_datas;
+        removeElementByIdFromDiv(div_floor, "div_mtitle_"+findex+"_"+idx);
+//        saveJsonData();
+        now_floor_index = 0;
+        now_title_index = 0;
+        init();
+    }
+    function onclickSaveJsonData(){
+         C_showConfirmPopup({
+                message: `"수정한 정보를 저장하시겠습니까?`,
+                onConfirm: () => saveJsonData(),
+                oktext : "저장하기"
+            });
+    }
+    function saveJsonData(){
+        var filename = select_language == "en" ? "floor_en.json" : "floor.json";
+        const _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "jsondata" : json_floor, //층별안내 이미지를 바꾼다 , 서버에서이게 있으면 경로를 바꾼다. 코드 재활용
+                "imgfoldername" : "floor", //층별안내 이미지를 바꾼다 , 서버에서이게 있으면 경로를 바꾼다. 코드 재활용
+                "filename":filename
+            };
+        console.log("saveJsonData _data is ",_data);
+            AJAX_AdmGetGame("savefloordata", _data, function (res) {
+                console.log("getgallerydata res is ", res);
+                const code = parseInt(res.code);
+                if (code === 100) {
+                    
+//                    reloadPage();
+                    alertMsg("데이터정보를 저장하였습니다.");
+                    
+                } else {
+                    alert("데이터를 불러오지 못했습니다.");
+                }
+            });
+    }
+    //맨왼쪽 층 그려주기
+    function setFloor(isfirst){
+        var floor_tag = "";
+        for(var i = 0; i < json_floor.floordata.length;i++){
+            var bgtag = "background-color:#ffffff"
+            if(isfirst && i == 0 || !isfirst && i == now_floor_index)
+                bgtag = "background-color:#facccc";
+            
+            var floordata = json_floor.floordata[i];
+            
+            var delete_floor_tag = editmode == 1 ?  "<img src='"+base64_btn_x+"' onclick='delete_floor_popup("+i+")'  style='position:absolute;width:30px;height:30px;margin-left:2px;'/>" : "";
+            floor_tag += 
+                "<div id='div_mfloor_"+i+"' style='padding:10px;"+bgtag+"' onclick='clickFloor("+i+")'>"+
+                    getTag_Input("input_floor_"+i, "type_text", floordata.fname, "150px", "30px", "층이름", null,  null,  null, null,  null,  "updateFloorName("+i+")")+
+                    delete_floor_tag+
+                "</div>";
+        }
+        div_floor.innerHTML = floor_tag;
+        setFloorTitles(now_floor_index);
+        setFloorData(now_floor_index,now_title_index);
+    }
+    //가운데 타이틀 그려주기
+
+    function setFloorTitles(findex){
+        now_title_index = 0;
+        var fdata = json_floor.floordata && json_floor.floordata.length > findex > 0 ? json_floor.floordata[findex] : null;
+        if(!fdata)return;
+        var floor_tag = "";
+        if(fdata.data)
+        for(var i = 0; i < fdata.data.length;i++){
+            var data = fdata.data[i];
+            var bgtag = i == 0 ? "background-color:#facccc":"#ffffff";
+            
+            var editmode_floortitle_delete = editmode == 1 ? "&nbsp;&nbsp;<img src='"+base64_btn_x+"' onclick='delete_floor_title_popup("+findex+", "+i+")'  style='position:absolute;float:right;width:30px;height:30px;'/>" : "";
+            var datax = data.x ? data.x :-1;
+            var datay = data.y ? data.y :-1;
+            var xtag = editmode == 1 ? "&nbsp;&nbsp;x:"+getTag_Input("input_titleX_"+findex+"_"+i, "type_number", datax, "50px", "30px", "X좌표", null,  null,  null, null,  null,  "updateFloorX("+findex+","+i+")") : "";
+            var ytag = editmode == 1 ? "&nbsp;&nbsp;y:"+getTag_Input("input_titleY_"+findex+"_"+i, "type_number", datay, "50px", "30px", "Y좌표", null,  null,  null, null,  null,  "updateFloorY("+findex+","+i+")") : "";
+            var title_width = xtag && ytag ? 100 : 150;
+            floor_tag += "<div id='div_mtitle_"+findex+"_"+i+"' style='padding:10px;"+bgtag+"'  onclick='clickFloorTitle("+findex+","+i+")'>"+
+                "제목:"+getTag_Input("input_floortitle_"+findex+"_"+i, "type_text", data.title, title_width+"px", "30px", "방 이름", null,  null,  null, null,  null,  "updateFloorTitle("+findex+","+i+")")+
+                xtag+ytag+editmode_floortitle_delete+
+                "</div>";
+        }
+        div_floor_titles.innerHTML = floor_tag;
+        document.getElementById("label_floortitle").innerHTML = json_floor.floordata[findex].fname+" 정보안내";
+    }
+    function updateTitle(){
+        var input_title = document.getElementById("input_title");
+        json_floor.floortitle = input_title.value;
+        
+    }
+    function updateFloorName(findex){
+        var input_floor = document.getElementById("input_floor_"+findex);
+        json_floor.floordata[findex].fname = input_floor.value;
+    }
+    function updateFloorX(findex,idx){
+        var input_titleX = document.getElementById("input_titleX_"+findex+"_"+idx);
+        json_floor.floordata[findex].data[idx].x = input_titleX ? input_titleX.value : 0;
+        
+    }
+    function updateFloorY(findex,idx){
+        var input_titleY = document.getElementById("input_titleY_"+findex+"_"+idx);        
+        json_floor.floordata[findex].data[idx].y = input_titleY ? input_titleY.value : 0;
+        
+        
+    }
+    function updateFloorTitle(findex, idx){
+        var input_floortitle = document.getElementById("input_floortitle_"+findex+"_"+idx);
+        json_floor.floordata[findex].data[idx].title = input_floortitle.value;
+        
+    }
+    //오른쪽 내용 그려주기
+     function setFloorData(findex,idx){
+        var mdata =  json_floor.floordata &&  json_floor.floordata.length > findex && json_floor.floordata[findex].data && json_floor.floordata[findex].data.length > idx ? json_floor.floordata[findex].data[idx] : null;
+//         if(!mdata)return;
+        //var img = mdata.event.img ? mdata.event.img : "";
+       
+       var img_arr = ["","","","","","","","",""];//최대 9개까지
+       for(var i = 0 ; i < 9; i++){
+           img_arr[i] = "contentdata/floor/"+getNowImageFileName(findex,idx,i);
+       }
+
+        var message = mdata && mdata.event && mdata.event.message ? mdata.event.message : "";
+        
+        
+        var img_tag_arr = [];
+        var message_tag = "";
+        console.log("img_arr ",img_arr);
+        
+          var timestamp = new Date().getTime();
+        for(var i = 0 ; i < 9; i++){
+            var img_tag = "";
+            var img_src = "../school/"+projectid+"/v"+groupidx+"/"+img_arr[i]+"?"+timestamp;
+            var editmode_imgdelete_tag = editmode == 1 ? "<img src='"+base64_btn_x+"' onclick='delete_dataimg("+findex+","+idx+","+i+")'  style='position:absolute;width:25px;height:25px;margin-left:-28px;margin-top:3px;'/>" : "";
+            var editmode_imgedit_tag = editmode == 1 ? "<img src='"+base64_btn_edit+"' onclick='edit_dataimg("+findex+","+idx+","+i+")'  style='position:absolute;width:25px;height:25px;margin-left:-55px;margin-top:3px;'/>" : "";
+            var display = projectid == "yclib" && i > 0 ? "display:none;":"display:block;"; 
+            var height =  projectid == "yclib" ? "":"height:130px;"; 
+            img_tag = 
+                "<label style='"+display+"float:left;font-weight:bold;color:blue;'>"+(i+1)+"번째 이미지</label><br>"+
+                "<div style='"+display+"width:90%;layout-weight:33%;"+height+"min-height:30px;background-color:#f2faf9;border-radius:10px;border:1px solid #aaaaaa;margin:7px;'>"+
+                    "<img id = 'img_imagedata_"+findex+"_"+idx+"_"+i+"' src='"+img_src+"' style='width:100%;height:100%;border-radius:10px' onerror='this.src=\""+base64_empty+"\"'/>"+
+                    editmode_imgdelete_tag+editmode_imgedit_tag+
+                "</div>";
+            img_tag_arr.push(img_tag);
+        }
+        
+        var table_tag = "<table style='width:100%;'><tr><td style='width:33%'>"+img_tag_arr[0]+"</td><td style='width:33%'>"+img_tag_arr[1]+"</td><td style='width:33%'>"+img_tag_arr[2]+"</td></tr><tr><td>"+img_tag_arr[3]+"</td><td>"+img_tag_arr[4]+"</td><td>"+img_tag_arr[5]+"</td></tr><tr><td>"+img_tag_arr[6]+"</td><td>"+img_tag_arr[7]+"</td><td>"+img_tag_arr[8]+"</td></tr></table>";
+        console.log("table_tag "+table_tag);
+        //메세지는 빈메세지여도 보여진다.
+        var readonly = editmode == 1 ? "" : "readonly";
+        var textcolor = editmode == 1 ? "#323232" : "gray";
+        message_tag = "<label style='float:left;font-weight:bold;color:blue;margin-top:20px'>내용입력</label><br><div id='div_messagedata_"+findex+"_"+idx+" style='width:100%;padding:10px;margin-top:10px'>"+
+            getTag_TextArea("textarea_"+findex+"_"+idx , message, null, "설명내용 입력..","95%","250px","#e9e9e9",textcolor,"onkeyup='messageUpdate("+findex+","+idx+")' "+readonly+" ","padding-left:10px;padding-top:10px")+
+        "</div>";
+        
+         
+        div_floor_datas.innerHTML = table_tag+message_tag;
+        
+        document.getElementById("label_popup_title").innerHTML = json_floor.floordata[findex].data[idx].title+" 클릭시 내용";
+    }
+    
+    
+    
+    
+    //맨왼쪽 층 클릭
+    function clickFloor(idx){
+        if(now_floor_index >= 0){
+            var bfloor = document.getElementById("div_mfloor_"+now_floor_index);            
+            if(bfloor)bfloor.style.backgroundColor = "#ffffff";
+        }
+        now_floor_index = idx;
+        var nfloor = document.getElementById("div_mfloor_"+now_floor_index);
+        if(nfloor)nfloor.style.backgroundColor = "#facccc";
+        setFloorTitles(now_floor_index);
+        setFloorData(now_floor_index,0);
+    }
+    //가운데 타이틀 클릭
+    function clickFloorTitle(findex, idx){
+        if(now_title_index >= 0){
+            var btitle = document.getElementById("div_mtitle_"+findex+"_"+now_title_index);
+            if(btitle)btitle.style.backgroundColor = "#ffffff";
+        }
+        now_title_index = idx;
+        var ntitle = document.getElementById("div_mtitle_"+findex+"_"+now_title_index);
+        if(ntitle)ntitle.style.backgroundColor = "#facccc";
+        setFloorData(findex, idx);
+    }
+    function delete_dataimg(findex, idx, imgidx){
+        //팝업을 띄워서 삭제하시겠습니까 ? 
+        var imagedata = {"filename": getNowImageFileName(findex,idx, imgidx)};
+        deleteImage(imagedata,findex,idx, imgidx);
+    }
+   function edit_dataimg(findex, idx, imgidx){
+        //팝업을 띄워서 삭제하시겠습니까 ? 
+        var imagedata = {"filename": getNowImageFileName(findex,idx, imgidx)};
+        var imgid = "img_imagedata_"+findex+"_"+idx+"_"+imgidx;
+       
+       
+        updateImage(imagedata, imgid, getNowImageFileName(findex,idx, imgidx), findex, idx);
+    }
+    function messageUpdate(findex, idx){
+        console.log("messageUpdate !!  findex "+findex+" idx "+idx);
+        var textarea = document.getElementById("textarea_"+findex+"_"+idx);
+        json_floor.floordata[findex].data[idx].event.message = textarea.value;
+        console.log("floordata ",json_floor.floordata[findex].data[idx]);
+    }
+    function getNowImageFileName(findex, idx, imgidx){
+        
+        var floorname = json_floor.floordata && json_floor.floordata.length > findex ? json_floor.floordata[findex].fname : "";
+        var titlename = "";
+        var img = "";
+        if(json_floor.floordata && json_floor.floordata.length > findex &&  json_floor.floordata[findex].data && json_floor.floordata[findex].data.length > idx){
+            titlename = json_floor.floordata[findex].data[idx].title;
+            img = json_floor.floordata[findex].data[idx].event.img;
+        }
+//        var filename = floorname+"_"+titlename+"_"+imgidx+".jpg";
+        var filename = select_language+"_"+findex+"_"+idx+"_"+imgidx+".jpg";
+        
+            
+        return filename;
+    }
+    
+    function updateImage(imagedata, imgid, filename, findex, idx) {
+          
+         
+         
+            let input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+
+            input.onchange = function () {
+                let file = input.files[0];
+                if (!file) return;
+
+                const _data = {
+                    "projectid": projectid,
+                    "groupidx": groupidx,
+                    "listnameid": "",
+                    "filename" : filename,
+                    "imgfoldername" : "floor" //층별안내 이미지를 바꾼다 , 서버에서이게 있으면 경로를 바꾼다. 코드 재활용
+                };
+                uploadFormProcess("../../ssapi/adm_game.php","updatefloorimage",_data,null,null,input,function(res){
+                    console.log("imgid : ",res);
+                   console.log("res",res);
+                    if (res == "success") {
+                        console.log("갤러리이미지 업데이트 성공!!");
+                        
+                        
+                        //////////////////////////////////////////
+                        // 이미지 새로고침
+                        //////////////////////////////////////////
+                        const el = document.getElementById(imgid);
+                        if (!el){
+                          return;  
+                        } 
+                         var timestamp = new Date().getTime();
+                        el.src = "../school/"+projectid+"/v"+groupidx+"/contentdata/floor/"+filename+"?cb="+timestamp;
+                        // 공통: 기존 src에서 쿼리스트링 제거하고 타임스탬프를 붙여 유니크하게 변경
+//                        const base = el.getAttribute('src').split('?')[0];
+//                        const newSrc = `${base}?_=${Date.now()}`;
+//                        el.src = newSrc;
+                        
+//                        reloadPage();
+                        
+                    }
+                }); 
+            };
+
+            document.body.appendChild(input);
+            input.click();
+            document.body.removeChild(input);
+        }
+        function deleteImage(imagedata, findex,idx, imgidx){
+            console.log("deleteImage ");
+            C_showConfirmPopup({
+                message: `"${imagedata.filename}" 를 삭제하시겠습니까?`,
+                onConfirm: () => deleteImageData(imagedata, "delete", findex,idx, imgidx)
+            });
+        }
+        function deleteImageData(imagedata , type, findex,idx, imgidx){
+            const _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+//                "listnameid": listid,
+                "imagedata": imagedata,
+                "type": type,
+                "imgfoldername" : "floor" //층별안내 이미지를 바꾼다 , 서버에서이게 있으면 경로를 바꾼다. 코드 재활용
+            };
+            AJAX_AdmGetGame("deletegalleryimage", _data, function (res) {
+                console.log("getgallerydata res is ", res);
+                const code = parseInt(res.code);
+                if (code === 100) {
+                     var img = document.getElementById("img_imagedata_"+findex+"_"+idx+"_"+imgidx);
+                    if(img) img. src = "";
+//                    reloadPage();
+                   
+                    
+                } else {
+                    alert("데이터를 불러오지 못했습니다.");
+                }
+            });
+        }
+        
+      
+
+</script>
+    </body>
+</html>

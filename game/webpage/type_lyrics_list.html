@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>교가(노래) 리스트 관리</title>
+    <!--    <script src="./libs/sirvey/lyrics_tailwincss.com"></script>-->
+<!--    <script src="https://cdn.tailwindcss.com"></script>-->
+    <script src="./libs/tailwindcss.js"></script>
+    <script src="./libs/jquery/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+    <script src="./js/scripts.js"></script>
+
+    <link href="./css/toggle.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f9fafb;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .highlight {
+            background-color: #e0f2fe;
+            border: 2px solid #0284c7;
+        }
+
+        .finished {
+            background-color: #fef2f2;
+            border: 2px solid #f87171;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            width: 600px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 900;
+        }
+
+        .bar {
+            transition: width 1.2s ease-out;
+        }
+
+        .bar-animated {
+            animation: barGrow 1.2s ease-out;
+        }
+
+        @keyframes barGrow {
+            0% {
+                width: 0%;
+            }
+
+            100% {
+                width: var(--bar-width);
+            }
+        }
+
+    </style>
+</head>
+
+<body >
+    <div style="padding:30px">
+        <h1 class="text-3xl font-bold mb-6">📋 교가(노래) 리스트 관리</h1>
+        <button id='add_mp3' style="float:right;background-color:#f2faf9;width:140px;height:auto;padding:10px;border-radius:10px;border:1px solid #eeeeee;margin-top:-60px;margin-right:480px;" onclick="showLyricsRanking()" title="등록한 순위을 봅니다.">랭킹</button>
+        <button id='add_lyrics' style="float:right;background-color:#f2faf9;width:140px;height:auto;padding:10px;border-radius:10px;border:1px solid #eeeeee;margin-top:-60px;margin-right:320px;" onclick="insertlyrics()" title="새로운 교가를 만들어요">+새 노래가사</button>
+        <button id='add_mp3' style="float:right;background-color:#f2faf9;width:140px;height:auto;padding:10px;border-radius:10px;border:1px solid #eeeeee;margin-top:-60px;margin-right:160px;" onclick="showInsertMP3Popup()" title="교가,동요 음악파일을 업로드">MP3 업로드</button>
+        
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 p-4 mb-6" role="alert">
+            <p class="font-bold">알림</p>
+            <p>키오스크에 표시할 교가는 리스트 맨 위의 1개입니다. 상단 고정 버튼으로 순서를 조정하세요.</p>
+        </div>
+
+
+        <div id="lyricsList" class="space-y-4"></div>
+
+        <!--
+        <div class="flex justify-center mt-8 space-x-4">
+            <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">이전</button>
+            <button class="px-4 py-2 bg-gray-800 text-white rounded">1</button>
+            <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">2</button>
+            <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">다음</button>
+        </div>
+-->
+    </div>
+
+   <!--결과보기 모달-->
+    <div id="resultOverlay" class="overlay hidden"></div>
+    <div id="resultModal" class="modal hidden">
+        <label class="text-xl font-bold mb-4" style="font-size;20px;font-weight:bold;width:auto">📊 교가 결과</label><label id="lbl_total_count" style="float:right">총투표 0표</label><br><br>
+        <div style='max-height: 600px;overflow-y: scroll'>
+        <ul id="resultContent" class="space-y-4"></ul>        
+        </div>
+        <button onclick="closeResult()" class="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">닫기</button>
+    </div>
+
+    <script>
+        //버튼색 설정
+        setBtnEventColor("add_lyrics", "#f2faf9", "#e2eae9", "#cecec0");
+
+
+        const list = document.getElementById('lyricsList');
+        const today = new Date();
+
+        console.log("교가리스트");
+
+        var projectid = getParam("projectid") ? getParam("projectid") : "sample";
+        var groupidx = getParam("groupidx") ? getParam("groupidx") : 0;
+        var contentid = getParam("listid") ? getParam("listid") : "";
+
+        //        var lyricsidx = getParam("lyricsidx") ? getParam("lyricsidx") : 0; //현재교가 아이디
+        //    var editmode = getParam("editmode") ? getParam("editmode") : 0;  //게시판 아이디
+        //    var gamemode = getParam("gamemode") ? getParam("gamemode") : 0;
+        //    var nowindex = 0; //
+        var tb_lyricsdatas = [];
+        var bgmlist = [];
+        
+        var now_lr_idx = 0;
+        var ranklist = [];
+        
+        $(document).ready(function() {
+
+
+            var _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "type":"school_lyrics"
+            }
+            AJAX_AdmGetGame("getlyricsdata", _data, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    tb_lyricsdatas = res.message;
+                    if(tb_lyricsdatas == null)tb_lyricsdatas = [];
+
+                    console.log("get tb_lyricsdatas ", tb_lyricsdatas);
+
+                    initNowLyrics(function() {
+                        renderlyricss();
+                        
+                         
+                    })
+                }
+
+            });
+            
+            _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "page":1,
+                "maxcount":500
+            }
+            AJAX_AdmGetGame("getbgmlist", _data, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    bgmlist = res.message;
+                    console.log("bgmlist is ",bgmlist);
+                }
+
+            });
+            
+            _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "type":"lyrics"
+            }
+            AJAX_AdmGetGame("getrankinglist", _data, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    ranklist = res.message;
+                    console.log("ranklist is ",ranklist);
+                }
+
+            });
+            
+
+
+        });
+        
+        
+        function toggleSurveyListDisabled(flg) {
+            const surveyList = document.getElementById('surveyList');
+            const children = surveyList.children;
+
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
+                if (flg) {
+                    console.log("목록끈다.");
+                    // 끈 상태: 회색, 클릭 불가
+                    child.classList.add('bg-gray-200', 'text-gray-500', 'opacity-50', 'pointer-events-none');
+                    
+                } else {
+                    console.log("목록켠다.");
+                    // 켠 상태: 원래대로
+                    child.classList.remove('bg-gray-200', 'text-gray-500', 'opacity-50', 'pointer-events-none');
+                    
+                }
+                
+            }
+            if(flg){                
+                now_sv_onoff = 0;
+            }else{
+                now_sv_onoff = 1;
+            }
+            console.log("now_sv_onoff is "+now_sv_onoff);
+            updateNowSurvay();
+        }
+
+        //현재 선택된 교가을 가져와 맨위로 올린다.
+        function initNowLyrics(callback) {
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "contentid": contentid,
+                "type":"lyrics"
+            }
+            //현재 교가 아이디를 가져온다.
+            AJAX_AdmGetGame("getnowlyricsidx", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    var rdata = res.message; //데이타 idx  lr_idx
+                    now_lr_idx = rdata["nowlyricsidx"];
+                    
+                    
+                    var sindex = 0; //리스트 인덱스 0~ max
+                    for (var i = 0; i < tb_lyricsdatas.length; i++) {
+                        if (tb_lyricsdatas[i].lr_idx == rdata["nowlyricsidx"]) {
+                            sindex = i;
+                            
+                            break;
+                        }
+                    }
+                    moveToTopFirst(sindex);
+                    
+                }
+                callback();
+
+            });
+        }
+        //현재 선택된 교가을 가져와 맨위로 올린다.
+        function updateNowLyrics(callback) {
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "contentid": contentid,
+                "nowlyricsidx": now_lr_idx
+               
+            }
+            console.log("now_lr_idx ",now_lr_idx);
+            //현재 교가 아이디를 가져온다.
+            AJAX_AdmGetGame("updatenowlyricsidx", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    var lyrics_idx = res.message;
+
+                }
+                if(callback)callback();
+
+            });
+        }
+
+        function togglechange(key, txton, txtoff) {
+            console.log("toggle change!!");
+            var toggle = document.getElementById("toggle_" + key);
+            var toggle_icon = document.getElementById("toggle_icon_" + key);
+            var toggle_txt = document.getElementById("toggle_txt_" + key);
+            if (toggle.checked) {
+                console.log("토글 켜짐");
+                toggle_icon.style.backgroundColor = "#33aaaa";
+                toggle_txt.innerHTML = txton;
+                togglelyricsListDisabled(false);
+            } else {
+                console.log("토글 꺼짐");
+                toggle_icon.style.backgroundColor = "#cccccc";
+                toggle_txt.innerHTML = txtoff;
+                togglelyricsListDisabled(true);
+            }
+
+        }
+
+        function togglelyricsListDisabled(flg) {
+            const lyricsList = document.getElementById('lyricsList');
+            const children = lyricsList.children;
+
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
+                if (flg) {
+                    console.log("목록끈다.");
+                    // 끈 상태: 회색, 클릭 불가
+                    child.classList.add('bg-gray-200', 'text-gray-500', 'opacity-50', 'pointer-events-none');
+                    
+                } else {
+                    console.log("목록켠다.");
+                    // 켠 상태: 원래대로
+                    child.classList.remove('bg-gray-200', 'text-gray-500', 'opacity-50', 'pointer-events-none');
+                    
+                }
+                
+            }
+            
+            
+            updateNowLyrics();
+        }
+      
+        
+         function getRankingTag(){
+             var ranking_tag  ="";
+              
+             console.log("ranklist is ",ranklist);
+            for(var i = 0 ;i < ranklist.length;i++){
+                var rank = ranklist[i];
+                var rank_date = rank.date ? rank.date : "";
+                ranking_tag += `
+                <div class="bg-white p-6 rounded-lg shadow flex justify-between items-center highlight" style="background-color:white">
+                    <div class="flex items-center space-x-3"  >
+                        <p class="text-xl font-semibold">${i+1}등 ${rank.nickname}</p><br>
+                        <p class="text-sm text-gray-500"  style="margin-left:40px">${rank_date}</p>
+                    </div>
+                    <div class="space-x-2" style="margin-left:40px">
+                        <p class="text-sm text-gray-500"  style="margin-left:40px">${rank.score}점</p>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-red-100" onclick="removeRank('${rank.nickname}','${rank.score}')">삭제</button>
+                    </div>
+                    
+                </div>
+                <br>
+                
+                `;
+            }
+             if(!ranking_tag)ranking_tag = "<div style='height:150px;padding-top:60px'>목록이 없습니다.</div>";
+            return ranking_tag;
+        }
+        
+        function showLyricsRanking(){
+                
+    
+            var message_tag = `<div id='div_ranklist' style='min-width:600px'>
+                                     <h1 class="text-3xl font-bold mb-6">📊 순위</h1>
+                                    <button id='add_mp3' style="float:right;background-color:#f2faf9;width:140px;height:auto;padding:10px;border-radius:10px;border:1px solid #eeeeee;margin-top:-60px;margin-right:2px;" onclick="removeRank()" title="모든순위를 삭제합니다.">순위 전부삭제</button>
+                                    ${getRankingTag()}
+                                </div>`;
+            //<button class="w-full bg-blue-600 text-white text-xl font-semibold p-4 rounded-lg">교가 저장</button>
+            showConfirmPopup(true,{
+                message: message_tag,
+                onConfirm: (overlay) => {
+                    console.log("showLyricsRanking click");
+                    overlay.remove();//팝업닫기
+                    
+                },
+                okTxt: "닫기"
+
+            });
+        }
+       
+        //파라메터가 없다면 전체 삭제
+         function removeRank(nickname, score) {
+            var rankdata = null;
+            for (var i = 0; i < ranklist.length; i++) {
+                if (ranklist[i].nickname == nickname) {
+                    rankdata = ranklist[i];
+                    break;
+                }
+            }
+           
+            showConfirmPopup(false,{
+                message: nickname &&  score ? "<span style='color:blue'>[" + rankdata.nickname + "]</span><br> 을 삭제하시겠습니까?" : "전체 순위를 삭제하시겠습니까?",
+                onConfirm: () => sendDeleteRank(rankdata),
+                okTxt: "삭제하기"
+
+            });
+            
+
+        } 
+        function sendDeleteRank(rankdata) {
+            
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "rankdata": rankdata
+                
+                
+            }
+            //현재 교가 아이디를 가져온다.
+            AJAX_AdmGetGame("deleterank", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+
+
+                    var new_ranklist = [];
+                    if(rankdata)
+                    for (var i = 0; i < ranklist.length; i++) {
+                        if (ranklist[i].nickname != rankdata.nickname || ranklist[i].score != rankdata.score) {
+                            new_ranklist.push(ranklist[i]);
+                        }
+                    }
+                    ranklist = new_ranklist;
+                    console.log("delete ranklist ",ranklist);
+                    document.getElementById("div_ranklist").innerHTML = getRankingTag();
+                    if(rankdata)
+                        alertMsg(rankdata.nickname+" 삭제 성공!");
+                    else 
+                        alertMsg("전체 순위 삭제 성공!");
+                }
+
+            });
+        }
+        
+        
+          function getMP3Tag(){
+             var mp3_list_tag  ="";
+              
+            for(var i = 0 ;i < bgmlist.length;i++){
+                var mp3data = bgmlist[i];
+                mp3_list_tag += `
+                <div class="bg-white p-6 rounded-lg shadow flex justify-between items-center highlight" style="background-color:white">
+                    <div class="flex items-center space-x-3"  >
+                        <p class="text-xl font-semibold">📊 ${mp3data.filename}</p> 
+                    </div>
+                    <div class="space-x-2" style="margin-left:40px">
+                        <p class="text-sm text-gray-500"  style="margin-left:40px">${mp3data.date}</p>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-red-100" onclick="showDeleteMP3('${mp3data.filename}','${mp3data.date}')">삭제</button>
+                    </div>
+                    
+                </div>
+                <br>
+                
+                `;
+            }
+            if(!mp3_list_tag)mp3_list_tag = "<div style='height:150px;padding-top:60px'>목록이 없습니다.</div>";
+            return mp3_list_tag;
+        }
+        function showInsertMP3Popup(){
+                
+    
+            var message_tag = `<div id='div_mp3list' style='min-width:600px'>
+                                     <h1 class="text-3xl font-bold mb-6">📊 MP3 목록</h1>
+                                    <button id='add_mp3' style="float:right;background-color:#f2faf9;width:140px;height:auto;padding:10px;border-radius:10px;border:1px solid #eeeeee;margin-top:-60px;margin-right:2px;" onclick="insertMP3()" title="교가,동요 음악파일을 업로드">MP3 업로드</button>
+                                    ${getMP3Tag()}
+                                </div>`;
+            //<button class="w-full bg-blue-600 text-white text-xl font-semibold p-4 rounded-lg">교가 저장</button>
+            showConfirmPopup(true,{
+                message: message_tag,
+                onConfirm: (overlay) => {
+                    console.log("showInsertMP3Popup click");
+                    overlay.remove();//팝업닫기
+                    
+                },
+                okTxt: "닫기"
+
+            });
+        }
+         function showDeleteMP3(filename, date) {
+            var mp3data = null;
+            for (var i = 0; i < bgmlist.length; i++) {
+                if (bgmlist[i].filename == filename) {
+                    mp3data = bgmlist[i];
+                    break;
+                }
+            }
+            if (mp3data) {
+                showConfirmPopup(false,{
+                    message: "<span style='color:blue'>[" + mp3data.filename + "]</span><br> 을 삭제하시겠습니까?",
+                    onConfirm: () => sendDeleteMP3File(mp3data),
+                    okTxt: "삭제하기"
+
+                });
+            }
+
+        }
+        function sendDeleteMP3File(mp3data) {
+            
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "mp3data": mp3data
+                
+                
+            }
+            //현재 교가 아이디를 가져온다.
+            AJAX_AdmGetGame("deletemp3file", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+
+
+                    var new_bgmlist = [];
+                    for (var i = 0; i < bgmlist.length; i++) {
+                        if (bgmlist[i].filename != mp3data.filename) {
+                            new_bgmlist.push(bgmlist[i]);
+                        }
+                    }
+                    bgmlist = new_bgmlist;
+                    console.log("delete bgmlist ",bgmlist);
+                    document.getElementById("div_mp3list").innerHTML = getMP3Tag();
+                    alertMsg(mp3data.filename+" 삭제 성공!");
+                }
+
+            });
+        }
+
+        function insertMP3(){
+           
+            if(bgmlist.length >= 5){
+                alertMsg("파일은 최대 5개까지 등록 가능합니다.\n 필요없는 파일을 삭제해 주세요");
+                return;
+            }
+            
+            let input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'mp3/*';
+            input.style.display = 'none';
+
+            input.onchange = function () {
+                let file = input.files[0];
+                if (!file) return;
+
+                const _data = {
+                    "projectid": projectid,
+                     "groupidx": groupidx,
+                    "listnameid": contentid                    
+                };
+                uploadFormProcess("../../ssapi/adm_game.php","insertmp3",_data,null,null,input,function(res){
+                    console.log("res",res);
+                    if (res == "success") {
+                        console.log("mp3파일 추가 성공!!");
+                        bgmlist.push({"date":C_getToday(new Date(),"yyyy-mm-dd"),"filename":file.name});
+                        alertMsg(file.name+" 추가 성공!!");
+                    }
+                }); 
+            };
+
+            document.body.appendChild(input);
+            input.click();
+            document.body.removeChild(input);
+        
+        }
+        //lr_idx 가 있다면 수정 , 없다면 삽입
+        function insertlyrics(lr_idx) {
+            var _lyricsdata = null;
+            now_trand_lyricsdata = {};
+            
+            
+            var title = "";
+            var subtitle = "";
+            var lyrics_lrdata = {};
+            var lyricsstr = "";
+            var startdate = "";
+            var enddate = "";
+            var issoundon_selected = "";
+            var isword_checked = "";  // "" :  글자 ,  "checked" : 단어;
+            var toggle_txt= "글자";
+            var level = 1;
+            var music_url = "";
+            if (lr_idx) {
+                for (var i = 0; i < tb_lyricsdatas.length; i++) {
+                    if (tb_lyricsdatas[i].lr_idx == lr_idx) {
+                        _lyricsdata = tb_lyricsdatas[i];
+
+                        break;
+                    }
+                }
+            }
+            if (_lyricsdata) {
+                title = _lyricsdata.lr_title;
+                now_trand_title = _lyricsdata.lr_title;
+                subtitle = _lyricsdata.lr_subtitle;
+                now_trand_subtitle = _lyricsdata.lr_subtitle;
+                lyrics_lrdata = JSON.parse(_lyricsdata.lr_data);
+                if(lyrics_lrdata){
+                    
+                    //가사 글자
+                    if(lyrics_lrdata.lyrics)lyricsstr = lyrics_lrdata.lyrics;
+                    
+                    //소리켜기/끄기
+                    if(lyrics_lrdata.issoundon && parseInt(lyrics_lrdata.issoundon) == 1)
+                        issoundon_selected = "selected";
+                    
+                    //단어/글자
+                    if(lyrics_lrdata.isword && parseInt(lyrics_lrdata.isword) == 1){
+                        isword_checked = "checked";
+                        toggle_txt= "단어";
+                    }
+                   //음악파일명
+                    if(lyrics_lrdata.musicurl){
+                        music_url = lyrics_lrdata.musicurl;                        
+                    }
+                    //음악파일명
+                    if(lyrics_lrdata.level){
+                        level = parseInt(lyrics_lrdata.level);
+                    }
+                    
+                }
+                
+                now_trand_lyricsdata = _lyricsdata.lr_data ? JSON.parse(_lyricsdata.lr_data) : {};          
+                
+                
+                
+                startdate = _lyricsdata.lr_startdate.substr(0, 10);
+                enddate = _lyricsdata.lr_enddate.substr(0, 10);
+                
+                
+            }
+
+            
+            //레벨설정
+            var level_txts = ["아주쉬움","약간쉬움","보통","조금 어려움","매우 어려움"];            
+            var level_option = "";
+            for(var i = 0 ; i < 5;i++){
+                var selected = i+1 == level ? "selected" : "";
+                level_option += "<option value ='"+(i+1)+"' "+selected+">"+level_txts[i]+"</option>";                                
+            }           
+            var level_tag = "<select id='select_level' style='border:1px solid #e9e9e9;border-radius:6px;width:200px;height:50px'>"+level_option+"</select>";
+            
+            
+            
+            //사운드 ON OFF
+            var soundonoff_tag = "<select id='select_soundonoff' style='border:1px solid #e9e9e9;border-radius:6px;width:200px;height:50px'><option value ='0' >끄기</option><option value ='1' "+issoundon_selected+">켜기</option></select>";
+            
+            
+            var bgm_option = "";
+            for(var i = 0 ;i < bgmlist.length;i++){
+                var selected = music_url == bgmlist[i].filename ? "selected" : "";
+                bgm_option +="<option value ='"+bgmlist[i].filename+"' "+selected+">"+bgmlist[i].filename+"</option>";
+            }
+                
+            
+            var bgm_tag = "<select id='select_bgm' style='border:1px solid #e9e9e9;border-radius:6px;width:200px;height:50px'>"+
+                 bgm_option+"</select>";
+            
+
+            if (tb_lyricsdatas.length >= 10) {
+                alert("최대 10개까지 추가할 수 있습니다. ");
+                return;
+            }
+            console.log("!!! insertlyrics");
+            var sv_max = 300;
+            
+          console.log("isword_checked "+isword_checked);
+            
+            var message_tag = `
+                    <div align="left" style="padding:20px;overflow-y:scroll; max-height:500px">
+                        <h2 class="text-3xl font-bold mb-5">🛠 노래 정보</h2>
+                        <div style='width:150px;float:right; height:auto;padding-left:10px;padding-right:5px;margin-top:-55px'>
+                            <label class='switch' style='float:left;'>
+                                <input id='toggle_lyric' type='checkbox' onchange="togglechange('lyric', '단어', '글자')" ${isword_checked}>
+                                <span id='toggle_icon_lyric' class='slider round'>
+                                </span>
+                            </label>
+                            <text id='toggle_txt_lyric' style='color:gray;float:left;font-size:16px;margin-left:5px;font-weight:500;margin-top:5px;'>${toggle_txt}</text>
+                        </div>
+                       
+                        <div class="flex gap-4 mb-5">
+                            <div>
+                                 <label style="font-size:20px;font-weight:bold">노래 제목</label>
+                                <input id="input_lr_title" type="text" value="${title}" class="w-full p-3 border rounded-lg mb-5 text-lg" placeholder="예: 시흥초등학교 노래" />
+                            </div>
+                            <div>
+                                <label style="font-size:20px;font-weight:bold">노래 부제목</label>
+                                <input id="input_lr_subtitle" type="text" value="${subtitle}" class="w-full p-3 border rounded-lg mb-5 text-lg" placeholder="예: 1절을 완성하라!.." />
+                            </div>
+                        </div>
+                     
+                        <label style="font-size:20px;font-weight:bold">가사 입력</label>&nbsp;&nbsp;<label style="font-size:14px;color:red;margin-left;20px">ex)북한산 정기뻗은|억만년 길이빛낼... <span style='color:blue'> | 줄바꿈</span></label>
+                        <input id="input_lr_lyricsstr" type="text" value="${lyricsstr}" class="w-full p-3 border rounded-lg mb-5 text-lg" placeholder="노래 가사를 입력하세요..." />
+
+                        <label class="block text-lg font-semibold mb-2">노래 재생기간</label>
+                        <div class="flex gap-4 mb-5">
+                           <input id="input_startdate" value="${startdate}" type="date" class="w-1/2 p-3 border rounded-lg" />
+                           <input id="input_enddate" value="${enddate}" type="date" class="w-1/2 p-3 border rounded-lg" />
+                        </div>
+
+                        
+                        <div class="flex gap-4 mb-5">
+                            <div>
+                                <label class="block text-lg font-semibold mb-2">난이도 선택</label>
+                                ${level_tag}
+                            </div>
+                            <div>
+                                <label class="block text-lg font-semibold mb-2">사운드 ON/OFF 선택</label>
+                                ${soundonoff_tag}
+                            </div>
+                             <div>
+                                <label class="block text-lg font-semibold mb-2">재생할 노래 선택</label>
+                                ${bgm_tag}
+                            </div>
+                       </div>
+
+                         <label>
+                            <input id="input_isnow_idx" type="checkbox"> 노래 화면에 바로 표시
+                        </label>                   
+
+                      </div>`;
+
+            //<button class="w-full bg-blue-600 text-white text-xl font-semibold p-4 rounded-lg">교가 저장</button>
+            showConfirmPopup(true,{
+                message: message_tag,
+                onConfirm: (overlay) => {
+                    if(!input_lr_title.value){
+                        alert("교가 제목을 입력해 주세요");
+                        return;
+                    }
+                    
+                    if(!input_startdate.value){
+                        alert("시작일을 입력해 주세요");
+                        return;
+                    }
+                    if(!input_enddate.value){
+                        alert("종료일을 입력해 주세요");
+                        return;
+                    }
+
+                    lr_idx ? sendUpdateLyrics(lr_idx) : sendInsertLyrics();
+                    overlay.remove();//팝업닫기
+                    
+                },
+                okTxt: lr_idx ? "교가수정하기" : "교가추가하기"
+
+            });
+            
+        }
+        
+      
+        
+        var now_trand_title = "";
+        var now_trand_subtitle = "";
+        var now_trand_lyricsdata = {};
+        
+        
+        const pastelColors = [
+                '#a7c5eb', '#b2d8b2', '#f6caca', '#f8e1a7', '#c7bfe6',
+                '#a8e6cf', '#dcedc1', '#ffd3b6', '#ffaaa5', '#ff8b94'
+            ];
+        function add_trand_item(){
+            
+            var input_trand = document.getElementById("input_trand");
+            var div_trand_area = document.getElementById("div_trand_area");
+            var select_trandsize = document.getElementById("select_trandsize");
+            
+            if(!input_trand.value){
+                alert("교가명을 입력해 주세요");
+                return;
+            }
+            
+            var div = document.createElement("div");
+            var trandsize = [100,150,200,250];
+            var fontsize = [16,20,25,30];
+            var idx = tb_lyricsdatas.length;
+            var tranddata = { name: input_trand.value, size: trandsize[parseInt(select_trandsize.value)], fontSize: fontsize[parseInt(select_trandsize.value)], clicks: 0, color: pastelColors[idx%pastelColors.length] };
+            
+            
+//            div_trand_area.innerHTML = getTrandItemsTag();
+            
+            input_trand.value = "";
+            
+//            div.align = "center";
+//            div.style = "width:auto;height:auto;border-radius:15px;box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);border:0px;background-color:#aF4254;float:left;cursor:pointer;margin:2px 4px 4px 12px;padding:7px 10px 3px 10px";
+//           
+//            div.id = "div_trand_item_"+idx;
+//            div.innerHTML = 
+//            
+//                    //PT달력 이름
+//                    "<label id='trand' style='color:white;font-weight: 500;font-size:16px;float:left'>"+input_trand.value+"</label>"+    
+//                    "<img src='./uiimg/btn_rectx_press.png' style='float:right;margin-top:5px;margin-left:8px;width:16px;height:16px;cursor:pointer'  onclick='deleteTrandBox("+idx+")'>";
+//            
+//            div_trand_area.appendChild(div);
+           
+            
+            
+        }
+
+        
+        function showDelete(lr_idx) {
+            var sdata = null;
+            for (var i = 0; i < tb_lyricsdatas.length; i++) {
+                if (tb_lyricsdatas[i].lr_idx == lr_idx) {
+                    sdata = tb_lyricsdatas[i];
+                    break;
+                }
+            }
+            if (sdata) {
+                showConfirmPopup(false,{
+                    message: "<span style='color:blue'>[" + sdata.lr_title + "]</span><br> 을 삭제하시겠습니까?",
+                    onConfirm: () => sendDeleteSurvay(lr_idx),
+                    okTxt: "삭제하기"
+
+                });
+            }
+
+        }
+        function showConfirmPopup(isCallbackOverlay , {
+            message,
+            onConfirm,
+            okTxt
+        }) {
+            const existing = document.getElementById('popupOverlay');
+//            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'popupOverlay';
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                
+                zIndex: 10000
+            });
+
+            const box = document.createElement('div');
+            Object.assign(box.style, {
+                width: 'auto',
+                backgroundColor: '#fff',
+                borderRadius: '8px',
+                padding: '20px',
+                boxShadow: '0 4px 4px rgba(0,0,0,0.3)',
+                textAlign: 'center',
+               maxWidth:"1080px"
+                
+            });
+
+            const text = document.createElement('div');
+            text.innerHTML = message;
+            Object.assign(text.style, {
+                marginBottom: '20px',
+                fontSize: '16px',
+                color: '#333'
+            });
+
+            const btnWrapper = document.createElement('div');
+            Object.assign(btnWrapper.style, {
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '5px'
+            });
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerText = '취소';
+            cancelBtn.onclick = () => overlay.remove();
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerText = okTxt;
+            deleteBtn.style.backgroundColor = '#dc3545';
+            deleteBtn.style.color = '#fff';
+            deleteBtn.onclick = () => {
+                if(isCallbackOverlay){
+                    onConfirm(overlay);
+                    
+                }else {
+                    onConfirm();
+                    overlay.remove();    
+                }
+                
+            };
+
+            [cancelBtn, deleteBtn].forEach(btn => {
+                Object.assign(btn.style, {
+                    padding: '8px 16px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                });
+            });
+
+            btnWrapper.appendChild(cancelBtn);
+            btnWrapper.appendChild(deleteBtn);
+            box.appendChild(text);
+            box.appendChild(btnWrapper);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+        }
+        function sendDeleteSurvay(lr_idx) {
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "lridx": lr_idx
+            }
+            //현재 교가 아이디를 가져온다.
+            AJAX_AdmGetGame("deletelyricsdata", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+
+
+                    var new_tb_lyricsdatas = [];
+                    for (var i = 0; i < tb_lyricsdatas.length; i++) {
+                        if (tb_lyricsdatas[i].lr_idx != lr_idx) {
+                            new_tb_lyricsdatas.push(tb_lyricsdatas[i]);
+                        }
+                    }
+                    tb_lyricsdatas = new_tb_lyricsdatas;
+                    renderlyricss();
+
+                }
+
+            });
+        }
+
+        function sendUpdateLyrics(lr_idx) {
+
+            var edit_lyricsdata = null;
+            var edit_index = 0;
+            for (var i = 0; i < tb_lyricsdatas.length; i++) {
+                if (tb_lyricsdatas[i].lr_idx == lr_idx) {
+                    edit_lyricsdata = tb_lyricsdatas[i];
+                    edit_index = i;
+                    break;
+                }
+            }
+            var input_lr_title = document.getElementById("input_lr_title"); //교가 제목
+            var input_lr_subtitle = document.getElementById("input_lr_subtitle"); //교가 부제목
+            var input_lr_lyricsstr = document.getElementById("input_lr_lyricsstr");// 노래가사
+            var input_startdate = document.getElementById("input_startdate"); // 시작일 
+            var input_enddate = document.getElementById("input_enddate"); //종료일
+            var input_isnow_idx = document.getElementById("input_isnow_idx"); // 화면에 바로표시
+            var select_level = document.getElementById("select_level"); 
+            var select_soundonoff = document.getElementById("select_soundonoff"); 
+            var select_bgm = document.getElementById("select_bgm");
+            var toggle_lyric = document.getElementById("toggle_lyric");
+            var isword = toggle_lyric.checked  ? 1 : 0;
+           
+            
+            now_trand_lyricsdata["lyrics"] = input_lr_lyricsstr.value;
+            now_trand_lyricsdata["level"] = select_level.value;
+            now_trand_lyricsdata["musicurl"] = select_bgm.value;
+            now_trand_lyricsdata["issoundon"] = select_soundonoff.value;
+            now_trand_lyricsdata["isword"] = isword;
+        
+           
+            
+            
+           
+            var lyricsdata = {
+                "title": input_lr_title.value,
+                "subtitle": input_lr_subtitle.value,
+                "lrdata": now_trand_lyricsdata,
+                
+                "startdate": input_startdate.value,
+                "enddate": input_enddate.value,
+                
+               
+            }
+            edit_lyricsdata.lr_title = input_lr_title.value;
+            edit_lyricsdata.lr_data = JSON.stringify(now_trand_lyricsdata);
+            edit_lyricsdata.lr_startdate = input_startdate.value;
+            edit_lyricsdata.lr_enddate = input_enddate.value;
+            
+            
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "lyricsdata": lyricsdata,
+                "lridx": lr_idx,
+
+            }
+            //현재 교가 아이디를 가져온다.
+            AJAX_AdmGetGame("updatelyricsdata", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    //                    var insertdata = res.message;
+                    tb_lyricsdatas[edit_index] = edit_lyricsdata;
+
+                    if (input_isnow_idx.checked) {
+
+                        var lyrics_idx = edit_lyricsdata.lr_idx; //데이타 idx  lr_idx
+                        var sindex = 0; //리스트 인덱스 0~ max
+                        for (var i = 0; i < tb_lyricsdatas.length; i++) {
+                            if (tb_lyricsdatas[i].lr_idx == lyrics_idx) {
+                                sindex = i;
+                                now_lr_idx = lyrics_idx;
+                                
+                                break;
+                            }
+                        }
+
+                        moveToTop(sindex);
+                    } else {
+                        renderlyricss();
+                    }
+                    alertMsg("성공적으로 수정하였습니다.");
+                }
+
+            });
+        }
+
+        function sendInsertLyrics() {
+            console.log("교가조사 삽입한다.!!");
+            var input_lr_title = document.getElementById("input_lr_title"); //교가 제목
+            var input_lr_subtitle = document.getElementById("input_lr_subtitle"); //교가 부제목
+            var input_lr_lyricsstr = document.getElementById("input_lr_lyricsstr");// 노래가사
+            var input_startdate = document.getElementById("input_startdate"); // 시작일 
+            var input_enddate = document.getElementById("input_enddate"); //종료일
+            var input_isnow_idx = document.getElementById("input_isnow_idx"); // 화면에 바로표시
+            var select_level = document.getElementById("select_level"); 
+            var select_soundonoff = document.getElementById("select_soundonoff"); 
+            var select_bgm = document.getElementById("select_bgm");
+            var isword = toggle_lyric.checked  ? 1 : 0;
+        
+           
+            
+            now_trand_lyricsdata["lyrics"] = input_lr_lyricsstr.value;
+            now_trand_lyricsdata["level"] = select_level.value;
+            now_trand_lyricsdata["musicurl"] = select_bgm.value;
+            now_trand_lyricsdata["issoundon"] = select_soundonoff.value;
+            now_trand_lyricsdata["isword"] = isword;
+        
+                
+            
+            var lyricsdata = {
+                "title": input_lr_title.value,
+                "subtitle": input_lr_subtitle.value,
+                "lrdata": now_trand_lyricsdata,               
+                "startdate": input_startdate.value,
+                "enddate": input_enddate.value
+                
+                
+            }
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "lyricsdata": lyricsdata,
+                "type":"school_lyrics"
+            }
+            //현재 교가 아이디를 가져온다.
+            AJAX_AdmGetGame("insertlyricsdata", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    var insertdata = res.message;
+                    tb_lyricsdatas.push(insertdata);
+                    if (input_isnow_idx.checked) {
+
+                        var lyrics_idx = insertdata.lr_idx; //데이타 idx  lr_idx
+                        var sindex = 0; //리스트 인덱스 0~ max
+                        for (var i = 0; i < tb_lyricsdatas.length; i++) {
+                            if (tb_lyricsdatas[i].lr_idx == lyrics_idx) {
+                                sindex = i;
+                                now_lr_idx = lyrics_idx;
+                                
+                                break;
+                            }
+                        }
+
+                        moveToTop(sindex);
+                    } else {
+                        renderlyricss();
+                    }
+                }
+
+            });
+        }
+
+        
+
+        function renderlyricss() {
+            list.innerHTML = '';
+            tb_lyricsdatas.forEach((s, index) => {
+                const lridx = s.lr_idx;
+                
+                var _enddate = s.lr_enddate.substr(0,10)+" 23:59:59";
+                const endDate = new Date(_enddate);
+                const isFinished = today > endDate;
+                console.log("index is " + index);
+                var bg_color = index == 0 ? "#e2faf9" : "#ffffff";
+                if(isFinished)bg_color = "#dddddd";
+                const wrapper = document.createElement('div');
+                wrapper.style.backgroundColor = bg_color;
+                wrapper.className = `bg-white p-6 rounded-lg shadow flex justify-between items-center ${index === 0 ? 'highlight' : ''} ${isFinished ? 'finished' : ''}`;
+                wrapper.innerHTML = `
+                    <div class="flex items-center space-x-3" >
+                        <div>
+                        <p class="text-xl font-semibold">📊 ${s.lr_title}</p><br>
+                        <p class="text-sm text-gray-500">기간: ${s.lr_startdate.substr(0,10)} ~ ${s.lr_enddate.substr(0,10)}</p>
+                        ${isFinished ? '<p class="text-sm text-red-600 font-semibold mt-1">✅ 교가이 종료되었습니다</p>' : '<p class="text-sm text-green-600 font-semibold mt-1">🟢 교가 진행 중</p>'}
+                        </div>
+                        </div>
+                        <div class="space-x-2">
+                        <button class="text-sm text-blue-600 border border-blue-600 rounded px-3 py-1 hover:bg-blue-100" onclick="moveToTop(${index})">상단 고정</button>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-red-100" onclick='insertlyrics(${s.lr_idx})'>수정</button>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-red-100" onclick='showDelete(${s.lr_idx})'>삭제</button>
+                    </div>
+                `;
+                list.appendChild(wrapper);
+            });
+        }
+         function moveToTopFirst(index) {
+            now_lr_idx = tb_lyricsdatas[index].lr_idx;
+            const item = tb_lyricsdatas.splice(index, 1)[0];
+            tb_lyricsdatas.unshift(item);
+            renderlyricss();
+            console.log("111 tb_lyricsdatas ", tb_lyricsdatas);
+
+        }
+        function moveToTop(index) {
+            now_lr_idx = tb_lyricsdatas[index].lr_idx;
+            
+
+
+            updateNowLyrics(function() {
+                const item = tb_lyricsdatas.splice(index, 1)[0];
+                tb_lyricsdatas.unshift(item);
+                renderlyricss();
+                console.log("111 tb_lyricsdatas ", tb_lyricsdatas);
+            });
+
+
+
+
+        }
+
+        function showResult(lr_idx) {
+            var trand_items = [];
+            var trand_setting = {};
+            
+            for (var i = 0; i < tb_lyricsdatas.length; i++) {
+                if (parseInt(tb_lyricsdatas[i].lr_idx) == lr_idx) {
+
+                    trand_items = tb_lyricsdatas[i].lr_data != "" ? JSON.parse(tb_lyricsdatas[i].lr_data) : [];
+                    trand_setting = tb_lyricsdatas[i].sv_setting != "" ? JSON.parse(tb_lyricsdatas[i].sv_setting) : {};
+                    break;
+                }
+            }
+
+            var resultArr = trand_items;
+            var item_names = [];
+            var total_clicks = 0;
+            
+            for (var i = 0; i < trand_items.length; i++) {
+                item_names.push(trand_items[i].name);   
+                total_clicks += parseInt(trand_items[i].clicks);
+            }
+            
+            document.getElementById('resultOverlay').classList.remove('hidden');
+            document.getElementById('resultModal').classList.remove('hidden');
+            document.getElementById("lbl_total_count").innerHTML = "총투표 "+total_clicks+"표";
+
+            const content = document.getElementById('resultContent');
+            content.innerHTML = '';
+
+
+            var max = 0;
+            for (var i = 0; i < trand_items.length; i++) {
+                const count = parseInt(trand_items[i].clicks);
+                 if(count > max)max = count;
+            }
+            console.log(" max is "+max);
+
+            const pastelColors = [
+                '#a7c5eb', '#b2d8b2', '#f6caca', '#f8e1a7', '#c7bfe6',
+                '#a8e6cf', '#dcedc1', '#ffd3b6', '#ffaaa5', '#ff8b94'
+            ];
+
+            trand_items = sortByKeyInt(trand_items, "clicks",true);
+            for (var i = 0; i < trand_items.length; i++) {
+                
+                const count = parseInt(trand_items[i].clicks);
+                console.log("max "+max+" count"+count );
+                const percent = parseInt((count / max) * 100);
+                console.log(i+" max "+max+" count"+count+" = precent is "+percent);
+                const li = document.createElement('li');
+                const barColor = ['bg-red-400','bg-green-400','bg-blue-400','bg-yellow-400','bg-purple-400','bg-pink-400','bg-indigo-400','bg-orange-400','bg-teal-400','bg-cyan-400'][i % 10];
+
+                li.innerHTML = `
+                  <div class="flex justify-between mb-1" >
+                    <span class="font-medium text-gray-700">${trand_items[i].name}</span>
+                    <span class="text-gray-500">${count}표</span>
+                  </div>
+                  <div class="w-full h-5 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-5 ${barColor} rounded-full bar bar-animated" style="--bar-width:${percent}%; width:${percent}%"></div>
+                  </div>
+                `;
+                content.appendChild(li);
+                
+            };
+        }
+
+        function closeResult() {
+            document.getElementById('resultOverlay').classList.add('hidden');
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+    </script>
+</body>
+
+</html>

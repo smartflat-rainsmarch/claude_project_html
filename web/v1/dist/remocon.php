@@ -1,0 +1,971 @@
+<?php session_cache_expire(14400);session_start();?>
+<?php
+//if(!isset($_SERVER["HTTPS"])) {header('Location: https://'.$_SERVER["HTTP_HOST"].$_SERVER['REQUEST_URI']);}
+
+date_default_timezone_set('Asia/Seoul');
+
+include('./cmn_var.php');
+include('./cmn_func.php');
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>리모컨 </title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <link rel="shortcut icon" type="image/x-icon" href="./img/border_CenterImage.ico" />
+<!--    <link rel="icon" type="image/png" href="http://example.com/myicon.png">-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js" crossorigin="anonymous"></script>
+     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<!--    <script src="js/scripts.js?ver3.00a"></script>-->
+    <link href='https://fonts.googleapis.com/css?family=Zen Dots' rel='stylesheet'>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"><!--Noto Sans 폰트설정-->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;300;400;500;700;900&display=swap" rel="stylesheet"> <!--Montserrat 폰트설정-->
+    <style>
+      .remocon-btn {
+        transition: transform 0.1s ease;
+      }
+      .remocon-btn:active {
+        transform: scale(1.5);
+      }
+
+        
+    #remoconUploadWrapper {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0,0,0,0.8);
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        display: none;
+      }
+
+      #remoconUploadWrapper button {
+        margin-top: 15px;
+        padding: 8px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+      }
+
+      #remoconUploadWrapper button:hover {
+        background-color: #45a049;
+      }
+        
+        /* 프로그레스바의 전체 컨테이너 */
+        .progress-container {
+            width: 20%;
+            height: 10px;
+            background-color: #f3f3f3;
+            border-radius: 10px;
+            overflow: hidden; /* 프로그레스바가 컨테이너 밖으로 넘어가지 않도록 */
+            position: relative;
+/*            margin: 50px auto;*/
+        }
+
+        /* 움직이는 프로그레스바 */
+        .progress-bar {
+            width: 50%; /* 프로그레스바의 초기 너비 */
+            height: 100%;
+            background-color: #4caf50;
+            border-radius:5px;
+            position: absolute;
+            top: 0;
+            animation: move-progress 1s linear infinite alternate; /* 애니메이션 적용 */
+        }
+
+        /* 프로그레스바 애니메이션 키프레임 */
+        @keyframes move-progress {
+            from {
+                left: -30%; /* 왼쪽 끝에서 시작 */
+            }
+            to {
+                left: 100%; /* 오른쪽 끝까지 이동 */
+            }
+        }
+
+    </style>
+    
+</head>
+
+<body style="background-color:#031535;width:100%;height:100%;">
+  
+  
+  
+    
+</body>
+
+</html>
+<script>
+  
+    const basePath = window.location.href.split("remocon.php")[0];
+    console.log("basePath "+basePath);
+
+    var getgamedata = null;
+    var param_fcmtoken = getParam("token") ? getParam("token") : "";
+//    param_fcmtoken = "c_sZvo2vSX6X8vcRuRk-PV:APA91bGgl_UORqhQLgQS_s1eQK5kMEO2zkQU_vAJBK1LDRbpbGO1lG8ujEs0GCEDf8Mbhmv5IxZAkN-d2YUUWYys29bIBWaY5aSNvrR3ZC6aU6SML44Cu-s";//test
+    var param_name = getParam("name") ? decodeURIComponent(getParam("name")) : "";
+    console.log("param_name len "+param_name.length);
+   
+    var param_appid = getParam("appid") ? getParam("appid") : "";    
+    var param_rid = getParam("rid") ? getParam("rid") : "";
+    var param_projectid = getParam("projectid") ? getParam("projectid") : "etc";
+    var param_groupidx = getParam("groupidx") ? getParam("groupidx") : "0";
+    
+    // url 에서 parameter 추출
+    function getParam(sname) {
+        var params = location.search.substr(location.search.indexOf("?") + 1);
+        var sval = "";
+        params = params.split("&");
+        for (var i = 0; i < params.length; i++) {
+            temp = params[i].split("=");
+            if ([temp[0]] == sname) { sval = temp[1]; }
+        }
+        return sval;
+    }
+//    function getRemoconName(){
+//        var str = "";
+//        if(param_projectid && param_projectid != "etc"){
+//            str = param_projectid
+//        }else {
+//            if(param_appid.indexOf("martelev-") >= 0){
+//                str = "똑똑테레비";
+//            }
+//            else if(param_appid.indexOf("smartflat-pjt") >= 0){
+//                str = "스마트플랫 뷰어+";
+//            }
+//            if(param_appid.indexOf("lite") >= 0){
+//                str = "스마트플랫 Lite";
+//            }
+//        }
+//        return str;
+//    }
+    var before_input_text = "";
+    function reset_inputtext(){
+        document.getElementById("input_txt").value = "";
+    }
+//    function onKeyupInputText(event){
+//        console.log("event ",event);
+//        var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_BACK'}}";
+//        sendPush("remote_control", seq);
+//    }
+    function onKeyupInputText(e) {
+        const key = e.key;
+         const keyCodeMap = {
+            // 영문 (대소문자 모두 동일하게 처리)
+            'a': 'KEYCODE_A', 'b': 'KEYCODE_B', 'c': 'KEYCODE_C',
+            'd': 'KEYCODE_D', 'e': 'KEYCODE_E', 'f': 'KEYCODE_F',
+            'g': 'KEYCODE_G', 'h': 'KEYCODE_H', 'i': 'KEYCODE_I',
+            'j': 'KEYCODE_J', 'k': 'KEYCODE_K', 'l': 'KEYCODE_L',
+            'm': 'KEYCODE_M', 'n': 'KEYCODE_N', 'o': 'KEYCODE_O',
+            'p': 'KEYCODE_P', 'q': 'KEYCODE_Q', 'r': 'KEYCODE_R',
+            's': 'KEYCODE_S', 't': 'KEYCODE_T', 'u': 'KEYCODE_U',
+            'v': 'KEYCODE_V', 'w': 'KEYCODE_W', 'x': 'KEYCODE_X',
+            'y': 'KEYCODE_Y', 'z': 'KEYCODE_Z',
+            'A': 'KEYCODE_A', 'B': 'KEYCODE_B', 'C': 'KEYCODE_C',
+            'D': 'KEYCODE_D', 'E': 'KEYCODE_E', 'F': 'KEYCODE_F',
+            'G': 'KEYCODE_G', 'H': 'KEYCODE_H', 'I': 'KEYCODE_I',
+            'J': 'KEYCODE_J', 'K': 'KEYCODE_K', 'L': 'KEYCODE_L',
+            'M': 'KEYCODE_M', 'N': 'KEYCODE_N', 'O': 'KEYCODE_O',
+            'P': 'KEYCODE_P', 'Q': 'KEYCODE_Q', 'R': 'KEYCODE_R',
+            'S': 'KEYCODE_S', 'T': 'KEYCODE_T', 'U': 'KEYCODE_U',
+            'V': 'KEYCODE_V', 'W': 'KEYCODE_W', 'X': 'KEYCODE_X',
+            'Y': 'KEYCODE_Y', 'Z': 'KEYCODE_Z',
+
+            // 숫자
+            '0': 'KEYCODE_0', '1': 'KEYCODE_1', '2': 'KEYCODE_2',
+            '3': 'KEYCODE_3', '4': 'KEYCODE_4', '5': 'KEYCODE_5',
+            '6': 'KEYCODE_6', '7': 'KEYCODE_7', '8': 'KEYCODE_8',
+            '9': 'KEYCODE_9',
+
+            // 특수문자
+            '+': 'KEYCODE_PLUS', '-': 'KEYCODE_MINUS', '=': 'KEYCODE_EQUALS',
+            '*': 'KEYCODE_STAR', '/': 'KEYCODE_SLASH', '.': 'KEYCODE_PERIOD',
+            ',': 'KEYCODE_COMMA', '@': 'KEYCODE_AT', '#': 'KEYCODE_POUND',
+            '!': 'KEYCODE_EXCLAMATION', '?': 'KEYCODE_QUESTION',
+            '\'': 'KEYCODE_APOSTROPHE', '"': 'KEYCODE_QUOTE',
+            '\\': 'KEYCODE_BACKSLASH', ';': 'KEYCODE_SEMICOLON',
+            ':': 'KEYCODE_COLON', '_': 'KEYCODE_MINUS',
+            '`': 'KEYCODE_GRAVE', '~': 'KEYCODE_TILDE',
+            '(': 'KEYCODE_LEFT_BRACKET', ')': 'KEYCODE_RIGHT_BRACKET',
+            '[': 'KEYCODE_LEFT_BRACKET', ']': 'KEYCODE_RIGHT_BRACKET',
+            '{': 'KEYCODE_LEFT_BRACKET', '}': 'KEYCODE_RIGHT_BRACKET',
+            '<': 'KEYCODE_COMMA', '>': 'KEYCODE_PERIOD',
+
+            // 제어 키
+            'Backspace': 'KEYCODE_DEL',     // ← (지우기)
+            'Delete': 'KEYCODE_FORWARD_DEL' // Del 키 (앞 삭제)
+        };
+
+        if (keyCodeMap[key]) {
+            const androidKeyCode = keyCodeMap[key];
+            const seq = {
+                event: 'keyevent',
+                option: { keycode: androidKeyCode }
+            };
+            sendPush("remote_control", JSON.stringify(seq));
+        }
+    }
+     //푸시 전송
+     function sendPush(command_key, seq){
+         var _data = {
+             "appid" : param_appid,
+             "rid" : param_rid,
+             "fcmtoken" : param_fcmtoken,
+//             "fcmtoken" : "eM87nx_xSNKm1Dvk0NIXt5:APA91bH2OiuHbzSkFqEtxZp21E8zYkM0q68-cdZurRI2Fdldya9V_E1I8P_Q2iKIkw8GYx37H0ZyhtxXRy_Rmqi5JJaXuhN9E4F5ma0HwVLaV7Zyhnzfq54",
+             "command" : command_key,
+             "seq" : seq             
+         }
+         url = basePath+'../../../ssapi/adm_get.php';
+          var senddata = {
+            type :"push",
+            value : _data    
+        };
+         if(param_appid && param_fcmtoken){
+             
+         
+             C_AsyncCall(url, senddata, function (res) {
+                console.log("res is ",res);
+                var code = parseInt(res.code);
+                if(code == 100){
+
+                }else{
+                    alert(res.message);
+                }
+
+            }, function (err) {
+                console.log("err is ",err);
+
+
+            }); 
+         }else{
+             showConfirmPopup({
+                message: `기기를 찾을 수 없습니다.`,
+                onConfirm: () => function(){}
+                
+            });
+         }
+     }
+    function C_AsyncCall(callurl, options, onComplete, onError) {
+    
+
+        if (!options) options = {};
+        return $.ajax({
+            url: callurl,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            data: options,
+            transformRequest: function (data) {
+                return $.param(data);
+            },
+            success: function (data, status, xhr) {
+
+                if (onComplete) onComplete(data);
+            },
+            error: function (xhr, status, err) {
+
+                if (onError) onError(err);
+            }
+        });
+
+    }
+
+    
+   
+    function sendRemoconTest(){
+        var screen_width = $(window).width();
+        var screen_height = $(window).height();
+        console.log("screen_width "+screen_width+" height "+screen_height);
+        var style = {
+            bodycolor: "#eeeeee",
+            size: {
+                width: "100%",
+                height: "100%"
+            }
+        };
+        var tname = param_name.length > 14 ? param_name.substr(0,12)+".." : param_name;
+        title = "<label style='font-size:36px;font-color:#3f42f4;font-weight:500;'>"+tname+" 리모컨</label>";
+
+        var scale = 1;
+         
+        var img_width = (screen_width/scale);
+        var img_height = (screen_height/scale-50/scale);
+        var img_scale = 2046/img_height;
+        console.log("img_scale "+img_scale+ " img_width "+img_width+" img_height "+img_height);
+        
+         var div = document.createElement("div");
+        div.align = "center";
+        div.style.width = "100%";
+        div.style.height = "100%";
+        
+        
+        div.innerHTML = `
+          <div style="height:60px; display: flex; align-items: center; justify-content: center;">
+            <img src="${basePath}img/icon_t.png" 
+                 style="width:40px; height:40px; margin-right:5px;" />
+            <input id="input_txt" type="text" 
+                   style="width:80%; max-width:250px; border-radius:6px; height:40px;padding-left:10px;padding-right:10px" 
+                   onkeyup="onKeyupInputText(event)" placeholder="영문,숫자,특수문자 전송...">
+            <img class="remocon-btn" src="${basePath}img/icon_reset_rect.png" 
+                 onclick="reset_inputtext()" 
+                 style="width:40px; height:40px; margin-left:5px;" />
+          </div>
+        `;
+        
+         
+         var sdiv = document.createElement("div");
+        sdiv.align = "center";
+        sdiv.style = "position:relative; display:inline-block;";
+        div.appendChild(sdiv);
+         
+         //배경이미지
+         var img_bg = document.createElement("img");
+         img_bg.style = "width:auto;height:"+img_height+"px";
+         img_bg.src = basePath+"img/remocon/remocon.png";         
+         sdiv.appendChild(img_bg);
+         
+         //리모컨 이름
+         var label_remoconname = document.createElement("label");
+         label_remoconname.style = "position:absolute;font-size:16px;font-weight:bold;left:50%;transform:translateX(-50%);margin-top:263%;white-space:nowrap; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"; // Added text-shadow
+         label_remoconname.innerHTML = param_name.length > 14 ? param_name.substr(0,12)+".." : param_name;
+         sdiv.appendChild(label_remoconname);
+        
+         
+         //전원버튼
+         var btn_power = document.createElement("img");
+         btn_power.style = "position:absolute;margin-left:-91%;margin-top:13%;width:"+(135/img_scale)+"px;height:"+(80/img_scale)+"px;";
+         btn_power.src = basePath+"img/remocon/power.png";  
+         btn_power.classList.add("remocon-btn");
+         btn_power.onclick = function(){
+                 sendPush("power_off", "");
+             }
+         sdiv.appendChild(btn_power);
+        
+        
+         
+         //동영상 업로드버튼
+         var btn_upload = document.createElement("img");
+         btn_upload.style = "position:absolute;margin-left:-70%;margin-top:33%;width:"+(134/img_scale)+"px;height:"+(87/img_scale)+"px;";
+         btn_upload.src = basePath+"img/remocon/upload.png";
+         btn_upload.classList.add("remocon-btn");
+         btn_upload.onclick = function(){
+                 
+             if(param_appid != "smartflat-lite"){
+                showConfirmPopup({
+                    message: `리모콘에서는 사용할 수 없습니다.`,
+                    onConfirm: () => function(){}
+                });
+                 return;
+             }
+             
+             //동영상 업로드 
+             console.log("동영상 업로드!!");
+             
+             var _data = {
+                 "projectid":param_projectid,
+                 "groupidx":param_groupidx,
+                 "token":param_fcmtoken,
+                 "videothumb":""
+             }
+             
+             uploadFileProcess(ADM_TYPE.UPLOAD_FILE, _data, "remoconFileInput", "remoconUploadProgress", "remoconUploadPercent", function(res){
+                    code = parseInt(res.code);
+                    if (code == 100) {
+                        //upload file full path = res.message
+                        var data = res.message;
+                        var fullpath = data.fullpath;
+                        var thumb_fullpath = data.thumbfullpath;
+                        var uploadidx = data.uploadidx;
+
+                        console.log("파일업로드 되었다 업로드경로 : "+data.fullpath);
+                        document.getElementById("remoconUploadPercent").innerHTML = "기기에서 파일 다운로드중...";
+                        document.getElementById("remoconUploadProgress").style.display = "none";
+                        document.getElementById("div_progress_ani").style.display = "block";
+
+                        sendPush("remote_control", "{'event': 'direct_download', 'option':{'url':'"+fullpath+"','callback': 'true','uploadidx': '"+uploadidx+"'}}");
+
+                        //DB 비디오 목록을 갱신시킨다.
+//                        setTimeout(function(){
+//                            sendPush("video_storage", "");    
+//                        },500); 
+                        
+                        //썸네일이 있다면 썸네일도 다운로드 시킨다. 호출만 하고 체크는 안함
+                        if(thumb_fullpath){
+                            setTimeout(function(){
+                                sendPush("remote_control", "{'event': 'direct_download', 'option':{'url':'"+thumb_fullpath+"','callback': 'false'}}");    
+                            },200);    
+                        }
+                       
+                        
+
+    //                        sendPush("direct_download" , "{'url':'"+res.message+"','callback': 'false'}");
+                        startDownloadSuccessCheckInterval(uploadidx);
+
+                    } else {
+                        //
+                          console.log("파일업로드 실패!!");
+                    }
+             });
+         }
+         sdiv.appendChild(btn_upload);
+        
+         
+         //재시작버튼
+         var btn_restart = document.createElement("img");
+         btn_restart.style = "position:absolute;margin-left:-51%;margin-top:33%;width:"+(134/img_scale)+"px;height:"+(87/img_scale)+"px;";
+         btn_restart.src = basePath+"img/remocon/restart.png";  
+         btn_restart.classList.add("remocon-btn");
+         btn_restart.onclick = function(){
+                 
+             
+              showConfirmPopup({
+                message: `앱을 재시작하시겠습니까?`,
+                onConfirm: () => sendPush("app_restart", "")
+                
+            });
+             }
+         sdiv.appendChild(btn_restart);
+        
+         
+         //재부팅버튼
+         var btn_reboot = document.createElement("img");
+         btn_reboot.style = "position:absolute;margin-left:-31%;margin-top:33%;width:"+(134/img_scale)+"px;height:"+(87/img_scale)+"px;";
+         btn_reboot.src = basePath+"img/remocon/reboot.png";  
+         btn_reboot.classList.add("remocon-btn");
+         btn_reboot.onclick = function(){
+                
+            showConfirmPopup({
+                message: `시스템을 재부팅하시겠습니까?  \n 전체 시스템이 완전히 껐다가 다시 켜집니다.`,
+                onConfirm: () =>  sendPush("device_reboot", "")
+                
+            });
+         }
+         sdiv.appendChild(btn_reboot);
+        
+         
+         
+        
+         //볼륨다운버튼
+         var btn_voldown = document.createElement("img");
+         btn_voldown.style = "position:absolute;margin-left:-51%;margin-top:52%;width:"+(135/img_scale)+"px;height:"+(80/img_scale)+"px;";
+         btn_voldown.src = basePath+"img/remocon/voldown.png";  
+         btn_voldown.classList.add("remocon-btn");
+         btn_voldown.onclick = function(){
+                var seq =  "{'event': 'keyevent', 'option':{'keycode': '268'}}";
+                 sendPush("volume_down", "");
+             }
+         sdiv.appendChild(btn_voldown);
+        
+        
+         //볼륨업버튼
+         var btn_volup = document.createElement("img");
+         btn_volup.style = "position:absolute;margin-left:-31%;margin-top:52%;width:"+(135/img_scale)+"px;height:"+(80/img_scale)+"px;";
+         btn_volup.src = basePath+"img/remocon/volup.png";  
+         btn_volup.classList.add("remocon-btn");
+         btn_volup.onclick = function(){
+                var seq =  "{'event': 'keyevent', 'option':{'keycode': '270'}}";
+                 sendPush("volume_up", "");
+             }
+         sdiv.appendChild(btn_volup);
+        
+         //홈버튼
+         var btn_home = document.createElement("img");
+         btn_home.style = "position:absolute;margin-left:-91%;margin-top:76%;width:"+(106/img_scale)+"px;height:"+(106/img_scale)+"px;";
+         btn_home.src = basePath+"img/remocon/home.png"; 
+         btn_home.classList.add("remocon-btn");
+         btn_home.onclick = function(){
+                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_HOME'}}";
+                 sendPush("remote_control", seq);
+             }
+         sdiv.appendChild(btn_home);
+        
+         //이전버튼
+         var btn_back = document.createElement("img");
+         btn_back.style = "position:absolute;margin-left:-25%;margin-top:76%;width:"+(106/img_scale)+"px;height:"+(106/img_scale)+"px;";
+         btn_back.src = basePath+"img/remocon/back.png";  
+         btn_back.classList.add("remocon-btn");
+         btn_back.onclick = function(){
+                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_BACK'}}";
+                 sendPush("remote_control", seq);
+             }
+         sdiv.appendChild(btn_back);
+        
+        //메뉴버튼  뷰어앱에서 뻑남 사용하지 않음
+//         var btn_menu = document.createElement("img");
+//         btn_menu.style = "position:absolute;margin-left:-90%;margin-top:151%;width:"+(106/img_scale)+"px;height:"+(106/img_scale)+"px;";
+//         btn_menu.src = basePath+"img/remocon/menu.png";   
+//         btn_menu.classList.add("remocon-btn");
+//         btn_menu.onclick = function(){
+//                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_MENU'}}";
+//                 sendPush("remote_control", seq);
+//             }
+//         sdiv.appendChild(btn_menu);
+        
+        //마우스버튼
+//         var btn_mouse = document.createElement("img");
+//         btn_mouse.style = "position:absolute;margin-left:-25%;margin-top:151%;width:"+(106/img_scale)+"px;height:"+(106/img_scale)+"px;";
+//         btn_mouse.src = basePath+"img/remocon/mouse.png";    
+//         btn_mouse.classList.add("remocon-btn");
+//         sdiv.appendChild(btn_mouse);
+        
+        //설정버튼
+         var btn_setting = document.createElement("img");
+         btn_setting.style = "position:absolute;margin-left:-91%;margin-top:238%;width:"+(185/img_scale)+"px;height:"+(78/img_scale)+"px;";
+         btn_setting.src = basePath+"img/remocon/setting.png";  
+         btn_setting.classList.add("remocon-btn");
+         btn_setting.onclick = function(){
+                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_SETTINGS'}}";
+                 sendPush("remote_control", seq);
+             }
+         sdiv.appendChild(btn_setting);
+        
+        //지우기버튼
+         var btn_delete = document.createElement("img");
+         btn_delete.style = "position:absolute;margin-left:-35%;margin-top:238%;width:"+(188/img_scale)+"px;height:"+(80/img_scale)+"px;";
+         btn_delete.src = basePath+"img/remocon/delete.png";  
+         btn_delete.classList.add("remocon-btn");
+         btn_delete.onclick = function(){
+                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_DEL'}}";
+                 sendPush("remote_control", seq);
+             }
+         sdiv.appendChild(btn_delete);
+        
+         
+         //OK버튼
+         var btn_ok = document.createElement("img");
+         btn_ok.style = "position:absolute;margin-left:-69%;margin-top:102%;width:"+(257/img_scale)+"px;height:"+(257/img_scale)+"px;";
+         btn_ok.src = basePath+"img/remocon/ok.png";      
+         btn_ok.classList.add("remocon-btn");
+         btn_ok.onclick = function(){
+//                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_DPAD_CENTER'}}";
+//                 sendPush("remote_control", seq);
+                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_BUTTON_START'}}";
+                 sendPush("remote_control", seq);
+             }
+         sdiv.appendChild(btn_ok);
+        
+         //좌 버튼
+         var btn_left = document.createElement("img");
+         btn_left.style = "position:absolute;margin-left:-84%;margin-top:97%;width:"+(142/img_scale)+"px;height:"+(327/img_scale)+"px;";
+         btn_left.src = basePath+"img/remocon/left.png";  
+         btn_left.classList.add("remocon-btn");
+         btn_left.onclick = function(){
+                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_DPAD_LEFT'}}";
+                 sendPush("remote_control", seq);
+             }
+         sdiv.appendChild(btn_left);
+        
+         //우 버튼
+         var btn_right = document.createElement("img");
+         btn_right.style = "position:absolute;margin-left:-37%;margin-top:97%;width:"+(142/img_scale)+"px;height:"+(327/img_scale)+"px;";
+         btn_right.src = basePath+"img/remocon/right.png"; 
+         btn_right.classList.add("remocon-btn");
+         btn_right.onclick = function(){
+                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_DPAD_RIGHT'}}";
+                 sendPush("remote_control", seq);
+             }
+         sdiv.appendChild(btn_right);
+        
+         //위 버튼
+         var btn_up = document.createElement("img");
+         btn_up.style = "position:absolute;margin-left:-74%;margin-top:87%;width:"+(327/img_scale)+"px;height:"+(142/img_scale)+"px;";
+         btn_up.src = basePath+"img/remocon/up.png";   
+         btn_up.classList.add("remocon-btn");
+         btn_up.onclick = function(){
+                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_DPAD_UP'}}";
+                 sendPush("remote_control", seq);
+             }
+         sdiv.appendChild(btn_up);
+        
+         //위 버튼
+         var btn_down = document.createElement("img");
+         btn_down.style = "position:absolute;margin-left:-74%;margin-top:134%;width:"+(327/img_scale)+"px;height:"+(142/img_scale)+"px;";
+         btn_down.src = basePath+"img/remocon/down.png";  
+         btn_down.classList.add("remocon-btn");
+         btn_down.onclick = function(){
+                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_DPAD_DOWN'}}";
+                 sendPush("remote_control", seq);
+             }
+         sdiv.appendChild(btn_down);
+         
+       
+         
+         
+         //숫자버튼
+         var widths = [188,187,186,181,182,182,183,183,186,185];
+         var heights = [82,84,80,80,80,80,80,78,];
+         var lefts = [-63,-91,-63,-35,-91,-63,-35,-91,-63,-35];
+         var tops = [238,179,179,179,199,199,199,219,219,219];
+         for(var i = 0 ; i < 10; i++){
+             const idx = i;
+             var btn_num = document.createElement("img");
+             btn_num.style = "width:"+(widths[i]/img_scale)+"px;height:"+(heights[i]/img_scale)+"px;position:absolute;margin-left:"+lefts[i]+"%;margin-top:"+tops[i]+"%";
+             btn_num.src = basePath+"img/remocon/"+i+".png";       
+             btn_num.classList.add("remocon-btn");
+             btn_num.onclick = function(){
+                 var seq =  "{'event': 'keyevent', 'option':{'keycode': 'KEYCODE_NUMPAD_"+idx+"'}}";
+                 sendPush("remote_control", seq);
+             }
+             sdiv.appendChild(btn_num);
+             
+         }
+         document.body.innerHTML += "<div id='div_uploadfile' align='center' style='position:absolute;width:100%;height:100%;padding-top:30%;z-index:9999;background-color:#33333388;display:none'>"+
+                                      "<div style='padding:30px;background-color:white;border-radius:20px'>"+
+                                          "<input type='file' id='remoconFileInput' style='display:none'/><br>"+
+                                          "<progress id='remoconUploadProgress' value='0' max='100' style='width:300px;'></progress>"+ //파일 업로드할때 퍼센트 프로그래스
+                                          "<div id='div_progress_ani' class='progress-container' style='display:none'><div class='progress-bar'></div></div>"+ //셋탑에서 다운로드할때 프로그래스
+                                          "<div><span id='remoconUploadPercent' ></span></div><br><br>"+
+                                          "<button onclick='hideRemoconUploader()' style='width:80px;height:40px;font-size:20px;border-radius:8px;border:1px solid #a2aaa9;background-color:#f2faf9'>닫기</button>"+
+                                         "<img id='thumbnailPreview' width='200' height='200' style='display:none'/>"+
+                                      "</div>"+
+                                    "</div>";
+        document.body.appendChild(div);
+        
+//        document.getElementById('remoconFileInput').addEventListener('change', function (e) {
+//            const file = e.target.files[0];
+//            if (!file || !file.type.startsWith('video/')) {
+////                alert('동영상 파일을 선택해주세요.');
+//                return;
+//            }
+//
+//           extractVideoThumbnail(file, function(base64) {
+//                if (base64) {
+//                    console.log("썸네일 "+base64);
+//                    document.getElementById('thumbnailPreview').src = base64;
+//                } else {
+//                    // 썸네일 추출 실패 시 기본 이미지 보여주기
+//                    document.getElementById('thumbnailPreview').src = "/images/default-thumb.jpg";
+//                    alert("썸네일 추출 실패 (브라우저 또는 영상 문제)");
+//                }
+//            }, 1.0);
+//        });
+     }
+     var uploadcheck_timer = null;
+     function startDownloadSuccessCheckInterval(uploadidx){
+         clearDownloadSuccessCheckInterval();
+         uploadcheck_timer = setInterval(function () {
+             
+             sendDownloadcheck(uploadidx);
+        }, 2000);
+     }
+    function clearDownloadSuccessCheckInterval(){
+        if(uploadcheck_timer){
+            clearInterval(uploadcheck_timer);
+            uploadcheck_timer = null;
+            downlod_text_count = 0;
+            document.getElementById("remoconFileInput").value = "";
+            document.getElementById("remoconUploadProgress").style.display = "block";
+            document.getElementById("div_progress_ani").style.display = "none";
+         }
+    }
+    var downlod_text_count = 0;
+     function sendDownloadcheck(uploadidx){
+
+         url = basePath+'../../../ssapi/adm_get.php';
+         var senddata = {
+            type :"downloadsuccesscheck",
+            value : uploadidx    
+         };
+         if(param_appid && param_fcmtoken){
+             
+         
+             C_AsyncCall(url, senddata, function (res) {
+                console.log("res is ",res);
+                var code = parseInt(res.code);
+                if(code == 100){
+                    console.log("다운로드체크 : 성공!!!");
+                    clearDownloadSuccessCheckInterval();
+
+                    hideRemoconUploader();
+                    showConfirmPopup({
+                        message: `파일을 성공적으로 전송하였습니다.`,
+                        onConfirm: () => function(){}
+
+                    });
+
+                }else if(code == -111){ //시간초과
+                    console.log("다운로드체크 : 시간초과!!!");
+                    clearDownloadSuccessCheckInterval();
+
+                    showConfirmPopup({
+                        message: `시간초과`,
+                        onConfirm: () => function(){}
+
+                    });
+                }
+                 else {
+                     console.log("다운로드체크 : 현재 다운로드중!!!");
+                     
+                    //현재 다운로드 중이다.
+                     if(downlod_text_count%3 == 0){
+                        document.getElementById("remoconUploadPercent").innerHTML = "기기에서 파일 다운로드중."; 
+                     }                    
+                     else if(downlod_text_count%3 == 1){
+                         document.getElementById("remoconUploadPercent").innerHTML = "기기에서 파일 다운로드중..";
+                     }                     
+                     else {
+                         document.getElementById("remoconUploadPercent").innerHTML = "기기에서 파일 다운로드중...";
+                     }
+
+                     downlod_text_count++;
+                     if(param_appid != "smartflat-lite" && downlod_text_count > 10){
+                         clearDownloadSuccessCheckInterval();
+
+                        hideRemoconUploader();
+                        showConfirmPopup({
+                            message: `파일을 성공적으로 전송하였습니다.`,
+                            onConfirm: () => function(){}
+
+                        });
+                     }
+                }
+
+            }, function (err) {
+                console.log("err is ",err);
+
+
+            }); 
+         }else{
+             showConfirmPopup({
+                message: `기기를 찾을 수 없습니다.`,
+                onConfirm: () => function(){}
+                
+            });
+         }
+     }
+     function showConfirmPopup({ message, onConfirm ,oktext}) {
+            const existing = document.getElementById('popupOverlay');
+            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'popupOverlay';
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10000
+            });
+
+            const box = document.createElement('div');
+            Object.assign(box.style, {
+                width: '400px',
+                backgroundColor: '#fff',
+                borderRadius: '8px',
+                padding: '20px',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                textAlign: 'center'
+            });
+
+            const text = document.createElement('div');
+            text.innerText = message;
+            Object.assign(text.style, {
+                marginBottom: '20px',
+                fontSize: '16px',
+                color: '#333'
+            });
+
+            const btnWrapper = document.createElement('div');
+            Object.assign(btnWrapper.style, {
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '10px'
+            });
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerText = '취소';
+            cancelBtn.onclick = () => overlay.remove();
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerText =  oktext ? oktext : '확인';
+            deleteBtn.style.backgroundColor = '#dc3545';
+            deleteBtn.style.color = '#fff';
+            deleteBtn.onclick = () => {
+                onConfirm();
+                overlay.remove();
+            };
+
+            [cancelBtn, deleteBtn].forEach(btn => {
+                Object.assign(btn.style, {
+                    padding: '8px 16px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                });
+            });
+
+            btnWrapper.appendChild(cancelBtn);
+            btnWrapper.appendChild(deleteBtn);
+            box.appendChild(text);
+            box.appendChild(btnWrapper);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+        }
+     
+    function hideRemoconUploader(){
+        console.log("hideRemoconUploader!!");
+        const div_uploadfile = document.getElementById("div_uploadfile");
+         div_uploadfile.style.display = "none";
+        clearDownloadSuccessCheckInterval();
+    }
+    function uploadFileProcess(type, _data, input_id,  upload_progress_id, upload_percent_id, callback) {
+        const div_uploadfile = document.getElementById("div_uploadfile");
+        const input = document.getElementById(input_id);
+        const progressBar = document.getElementById(upload_progress_id);
+        const percentText = document.getElementById(upload_percent_id);
+        
+        input.onchange = function () {
+            const file = input.files[0];
+            if (!file) return;
+
+            
+            //동영상이 아닐대
+            if (!file.type.startsWith('video/')) {
+                 document.getElementById('thumbnailPreview').src = "";   
+                clickInput(type, _data, file, progressBar, percentText, callback);
+            }
+            //동영상일때 
+            else {
+            
+               extractVideoThumbnail(file, function(base64) {
+                   //기본 : ./img/thumb_video_broken.png 파일 base64
+//                   _data.videothumb = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMQAAADECAMAAAD3eH5ZAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAFFQTFRFAAAAdXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1ghgdZQAAABt0Uk5TAEppAbKzamtsHX2sMK2rfBuoe1ovLnBoR0hJ/yKS1wAAAhtJREFUeJzt2tlu2zAURVHFNpNmqB2HbdPm/z+0GZxYIsVRgQ5p7P1GCbi4y9KLAA8DERERERERERERERERERERERERERERUSNdbbbqFRZ3tTPdK14NpnfFu6FzxcnQt2JjTP+K7fVFKG5QtBKKdkLRTtsfKFqpe8Xt3b0Zd1Y8/DTz7Q+Pyo39bo/uitdphTm2pbjzN8xRPDlj7MprT7uf2TBDsZ9OsWbtvSfNrpihmAyxpkFEhmI8w7qotQv80EnFaIT1nszaBRBJxXmC9V+vtQshUoqvAdZ7MusXRCQUn/es92QEhRFxxemOdc6aIoio4uO6dc6iYoiY4v2qdc6qooiI4u2adc6y4oiwYpgamkYEFY6hbURI4RgaRwQUjqF1RNb3RfMIc5OhUBqyEDkKpSEPkaFQGjIRI8Wv5PfF+mUikgqlIRuRUigN+YiEQmkoQMQVSkMJIqpQGooQMYXSUIaIKJSGQkRYoTSUIoIKpaEYEVIoDeWIgEJpqECMFL/PCqWhBjGrUBqqEHMKpaEOMaNQGioRvkJpqEV4CqWhGuEqlIZ6hKNQGhYgpgqlYQliolAahv03KZSG4bAEMVJIe/T+oNKl4qn4jTr+Of/jrhFFVc8omukyFBsUzXQRiu1Iod6lvi/F7q96lQWdFF0bTordP/UaC3tVdG94U7yoVyAiIiIiIiIiIiIiIiIiIiIiIiIiIiIionD/AWPqQ94LqpzGAAAAAElFTkSuQmCC";
+                    if (base64) {
+                        console.log("썸네일 "+base64);                      
+                        _data.videothumb = base64;
+                    } 
+                   
+                    clickInput(type, _data, file, progressBar, percentText, callback);
+                }, 1.0);
+            
+            }
+            
+           
+        };
+
+        // 파일 선택창 열기
+        input.click();
+    }
+    function clickInput(type, _data, file, progressBar, percentText, callback){
+        const formData = new FormData();
+        formData.append('file', file);
+         // 폼 데이터 추가
+        formData.append('value', JSON.stringify(_data) );
+        formData.append("type", type);
+         
+        const xhr = new XMLHttpRequest();
+
+        console.log("clickInput _data is ",_data);
+        // 서버 업로드 경로 생성: path + filename
+//            const uploadUrl = path + encodeURIComponent(file.name);
+
+        xhr.open('POST', "../"+FILE_UPLOAD_PLACE, true);
+
+        // 업로드 진행률 표시
+        xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = Math.round((e.loaded / e.total) * 100);
+                progressBar.value = percentComplete;
+                percentText.innerText = percentComplete + '%';
+            }
+        };
+
+        xhr.onloadstart = function () {
+            progressBar.style.display = 'inline-block';
+            progressBar.value = 0;
+            percentText.innerText = '0%';
+            div_uploadfile.style.display = "block";
+        };
+
+        xhr.onload = function () {
+
+            if (xhr.status === 200) {
+                percentText.innerText = '✅ 업로드 완료';
+                  var res = JSON.parse(xhr.response);
+                if(callback)callback(res);
+            } else {
+                percentText.innerText = '❌ 업로드 실패: ' + xhr.status;
+                if(callback)callback("error");
+            }
+        };
+
+        xhr.onerror = function () {
+            percentText.innerText = '❌ 네트워크 오류';
+        };
+
+        xhr.send(formData);
+    }
+    
+    function extractVideoThumbnail(file, callback, seekTo = 1.0) {
+        const video = document.createElement('video');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = 200;
+        canvas.height = 200;
+
+        video.preload = 'metadata';
+        video.muted = true;
+        video.playsInline = true; // 모바일 호환
+        video.src = URL.createObjectURL(file);
+
+        // 영상 메타데이터 로드되면 시간 설정
+        video.onloadedmetadata = function () {
+            if (video.duration < seekTo) seekTo = 0;
+            video.currentTime = seekTo;
+        };
+
+        // seek 후 drawImage로 썸네일 추출
+        video.onseeked = function () {
+            try {
+                const vw = video.videoWidth;
+                const vh = video.videoHeight;
+
+                // 중앙 자르기 (비율 유지)
+                let sx = 0, sy = 0, sw = vw, sh = vh;
+                if (vw > vh) {
+                    sw = vh;
+                    sx = (vw - sw) / 2;
+                } else {
+                    sh = vw;
+                    sy = (vh - sh) / 2;
+                }
+
+                ctx.drawImage(video, sx, sy, sw, sh, 0, 0, 200, 200);
+                const base64 = canvas.toDataURL('image/jpeg', 0.85);
+                callback(base64);
+            } catch (err) {
+                console.error("drawImage 오류", err);
+                callback(null);
+            }
+
+            URL.revokeObjectURL(video.src);
+        };
+
+        video.onerror = function (e) {
+            console.error("video.onerror", e);
+            callback(null);
+        };
+    }
+
+    sendRemoconTest();
+    
+</script>

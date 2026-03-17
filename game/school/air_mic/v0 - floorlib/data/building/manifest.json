@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "schemaVersion": "floor-guide-v1",
+  "exportedAt": "2026-02-24T00:19:09.306Z",
+  "generator": "Floor Guide Editor v1.0",
+  "building": {
+    "id": "b88abbbb-1164-413f-85a4-f68922a5260a",
+    "name": "스마트병원"
+  },
+  "files": {
+    "building": "building.json",
+    "floors": [
+      "floors/floor-지하1층.json",
+      "floors/floor-1층.json",
+      "floors/floor-2층.json"
+    ],
+    "images": [
+      "images/floor-지하1층.png",
+      "images/floor-1층.png",
+      "images/floor-2층.png"
+    ],
+    "categories": "categories.json",
+    "settings": "settings.json"
+  },
+  "options": {
+    "embedImages": true,
+    "includeGridCache": false
+  }
+}

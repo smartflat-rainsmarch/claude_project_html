@@ -1,0 +1,71 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+config.local.php
+
+# Composer
+/vendor/
+composer.lock
+
+# Node.js
+/node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+/logs/
+/log/
+
+# Cache
+/cache/
+/tmp/
+*.cache
+
+# Database
+*.sql
+*.sqlite
+*.db
+
+# Uploads (uncomment if needed)
+# /uploads/
+# /upload/
+
+# Build files
+/build/
+/dist/
+
+# Debug
+.phpintel
+.php_cs.cache
+.phpunit.result.cache
+
+# Sensitive files
+*.pem
+*.key
+*.crt
+/credentials/
+claude-forge/
+
+# 대용량 파일 제외
+*.mp4
+*.zip
+*.pdf
+ssapi/

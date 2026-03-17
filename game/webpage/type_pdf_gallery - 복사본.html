@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF Viewer</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden; /* 스크롤 없애고 딱 맞추고 싶으면 */
+    }
+
+    #toolbar {
+      height: 0; /* 필요하면 높이 지정해서 사용 */
+    }
+
+    #viewerWrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #viewerContainer {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;           /* ✅ 슬라이드 영역 밖은 안 보이도록 */
+      background: #2c2c2c;
+    }
+
+    /* ✅ 실제로 화면에 그려지는 캔버스 2개 (더블 버퍼) */
+    .pdfCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;                /* 화면 전체를 채우도록 */
+      height: 100%;
+      display: block;
+      /* 슬라이드 애니메이션 위해 transform 사용 */
+      transform: translateX(100%); /* 기본은 오른쪽 바깥에 대기 */
+      will-change: transform;
+    }
+
+    /* ✅ 제스처 입력 전용 레이어 */
+    #gestureLayer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    #loading, #error {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 14px;
+      background: #2c2c2c;
+      z-index: 20;
+    }
+
+      
+        
+      /*테이블 기본 설정 START*/
+    .default-container {
+        width: calc(100% - 300px);
+        margin-left: 270px;
+        margin-right: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 40px;                     /* ✅ 크게 증가 */
+        box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.05);
+        margin-top: 20px;
+    }
+
+    .default-header {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 40px;               /* ✅ 크게 증가 */
+    }
+
+    .default-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 20px;                   /* ✅ 기본 글자 매우 크게 */
+    }
+
+    /* ✅ 헤더 */
+    .default-table th {
+        background-color: #f9f9f9;
+        padding: 32px 22px;                /* ✅ 위아래 매우 넉넉 */
+        text-align: center;
+        border-top: 1px solid #eff2f5;
+        border-bottom: 1px solid #eff2f5;
+        color: #181c32;
+        font-weight: 800;                  /* ✅ 매우 또렷 */
+        font-size: 22px;                   /* ✅ 헤더 더 크게 */
+    }
+
+    /* ✅ 바디 */
+    .default-table td {
+        padding: 28px 22px;                /* ✅ 행 높이 최고치 */
+        text-align: center;
+        border-bottom: 1px solid #eff2f5;
+        color: #7e8299;
+        font-size: 20px;                   /* ✅ 본문 더 큼 */
+    }
+
+    /* 클릭/호버 효과 */
+    .default-table td[onclick] {
+        transition: background-color 0.2s;
+    }
+
+    .default-table td[onclick]:hover {
+        background-color: #eef6ff;
+    }
+
+    .default-table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .default-table tbody tr:hover {
+        background-color: #eef6ff;
+    }
+
+    .default-table tbody tr:hover td {
+        color: #181c32;
+    }
+
+    .default-table tbody tr td {
+        transition: all 0.2s ease;
+    }
+
+    .default-table tbody tr td:nth-child(5) {
+        cursor: pointer;
+    }
+
+    .default-table tbody tr td:first-child {
+        background-color: transparent;
+    }
+
+      
+      /* ✅ DataTables 검색 전체 영역 */
+    .dataTables_filter {
+        font-size: 22px !important;          /* ✅ 검색영역 글자 자체 크게 */
+        font-weight: 700;
+        color: #181c32;
+        margin-right: 30px;                 /* ✅ 테이블과 간격 크게 */
+        margin-bottom: 30px; 
+    }
+
+    /* ✅ "Search:" 라벨 텍스트 */
+    .dataTables_filter label {
+        font-size: 22px !important;          /* ✅ 라벨도 같이 크게 */
+        font-weight: 700;
+        color: #181c32;
+    }
+
+    /* ✅ 실제 입력창 */
+    .dataTables_filter input {
+        font-size: 22px !important;          /* ✅ 입력 글자 엄청 크게 */
+        height: 60px;                        /* ✅ 입력창 높이 */
+        padding: 10px 18px;
+        margin-left: 15px;
+        border-radius: 10px;
+        border: 2px solid #adb5bd;
+        outline: none;
+        box-sizing: border-box;
+        transition: all 0.2s ease;
+    }
+
+    /* ✅ 포커스 시 가시성 강화 */
+    .dataTables_filter input:focus {
+        border-color: #4dabf7;
+        box-shadow: 0 0 0 4px rgba(77, 171, 247, 0.25);
+}
+      
+
+    #error { display: none; }
+  </style>
+
+
+  <!-- pdf.js (CDN 예시) -->
+  <script src="libs/pdf/pdf.min.js"></script>
+  <script src="libs/pdf/pdf.worker.min.js"></script>
+  <script src="./libs/jquery/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+  <script src="./js/scripts.js"></script>
+
+<!--    테이블 관련-->
+    <link href="./libs/tables/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <script src="./libs/tables/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+    <script src="./libs/tables/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="toolbar">
+    <!-- 필요 시 툴바 버튼들 -->
+  </div>
+   <!-- PDF 파일 DIV-->
+    <div id= "div_pdf">
+      <div id="viewerWrapper">
+        <div id="viewerContainer" style="background-image: url('uiimg/mbg.png')">
+          <!-- ✅ 화면용 캔버스 2개 (더블 버퍼링) -->
+          <canvas id="pdfCanvasA" class="pdfCanvas" style="background-color: transparent"></canvas>
+          <canvas id="pdfCanvasB" class="pdfCanvas" style="background-color: transparent"></canvas>
+          <!-- ✅ 제스처 입력 레이어 -->
+          <div id="gestureLayer"></div>
+        </div>
+      </div>
+      <div id="loading" style='font-size:35px'>PDF 로딩 중...</div>
+      <div id="error" style='font-size:35px'>PDF 를 불러오지 못했습니다.</div>
+    </div>
+    <!-- PDF 목록 DIV-->
+    <div id= 'div_list' >
+        
+        <div class="card-body" style="padding:20px">
+                                
+            <div id='div_search_date' class="table-responsive" style="position:absolute;font-size:22px;display:none">
+              
+                <label id='label_permissiondate'>허가일: </label><input type='date' style='font-size:20px;padding:10px;width:170px;height:45px;border:2px solid #d2d2d2;border-radius:12px;'/> ~ 
+                <input type='date' style='font-size:20px;padding:10px;width:170px;height:45px;border:2px solid #d2d2d2;border-radius:12px;'/>
+            </div>
+         
+           
+            <table class="default-table" id="dataTable" width="100%" cellspacing="0" style='text-align:center;background-color:white;font-size:20px;font-weight:400;margin-top:30px'></table>
+            <br>
+            <button id='btn_send_message' onclick='btn_sendall_push()' class='btn btn-primary btn-raised' style='display:none;float:right;margin:10px;cursor:pointer;'>메세지 보내기</button> 
+
+
+            
+        </div>
+    </div>
+  
+
+  <script>
+    // ✅ pdf.js 설정 (workerSrc 지정 – 로컬 사용 시 경로 변경)
+    if (window["pdfjsLib"]) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "libs/pdf/pdf.worker.min.js";
+    }
+
+    var imagenum = 100;
+    var imagepercent = 100;
+    var now = new Date();
+    var now_page = 1;
+    var max_count = 200;
+//  var max_count = 7;//test
+
+    var projectid   = getParam("projectid")   ? getParam("projectid")   : "sample";
+    var groupidx    = getParam("groupidx")    ? getParam("groupidx")    : 0;
+    var languagecode= getParam("languagecode")? getParam("languagecode"): "KO";
+    var pdfcategory = getParam("pdfcategory") ? getParam("pdfcategory") : "";
+    var editmode    = getParam("editmode")    ? getParam("editmode")    : 0; // ✅ 오타 수정
+    var nowindex = 0;
+    var pdflist = [];
+
+      
+    var div_pdf = document.getElementById("div_pdf");
+    var div_list = document.getElementById("div_list");
+      var label_permissiondate = document.getElementById("label_permissiondate");
+      
+    var pagetype = 0; //0 :list , 1 : pdfview
+      
+     var dataTable;//중요  
+    $(document).ready(function() {
+      console.log("document ready");
+      loadPdfList();
+        label_permissiondate.innerHTML = txt_json[languagecode].permissiondate+": ";
+    });
+
+    var txt_json = {
+        "KO": {
+            "nolist": "목록이 없습니다.",
+            "companyname": "협력업체명",
+            "divide": "구분",
+            "registdate": "등록일",
+            "permissiondate": "허가기간",
+            "workplace": "작업장소",
+            "number": "번호",
+            "manageid": "관리번호",
+            "filename": "파일명",
+            "objname": "물질명",
+            "error_fail_page_render": "페이지 렌더링 중 오류가 발생했습니다.",
+            "error_pdf_load": "PDF 로딩 중 오류가 발생했습니다.",
+            "error_no_path_parameter": "path 파라미터가 없습니다."
+        },
+
+        "EN": {
+            "nolist": "No data available.",
+            "companyname": "Company Name",
+            "divide": "Category",
+            "registdate": "Registration Date",
+            "permissiondate": "Permission Period",
+            "workplace": "Workplace",
+            "number": "No.",
+            "manageid": "Management ID",
+            "filename": "File Name",
+            "objname": "Material Name",
+            "error_fail_page_render": "An error occurred while rendering the page.",
+            "error_pdf_load": "An error occurred while loading the PDF.",
+            "error_no_path_parameter": "No path parameter provided."
+        },
+
+        "ZH": {   // 중국어 (간체)
+            "nolist": "没有数据。",
+            "companyname": "合作公司",
+            "divide": "分类",
+            "registdate": "登记日期",
+            "permissiondate": "许可期限",
+            "workplace": "工作场所",
+            "number": "编号",
+            "manageid": "管理编号",
+            "filename": "文件名",
+            "objname": "物质名称",
+            "error_fail_page_render": "页面渲染时发生错误。",
+            "error_pdf_load": "PDF 加载时发生错误。",
+            "error_no_path_parameter": "未提供路径参数。"
+        },
+
+        "VI": {   // 베트남어
+            "nolist": "Không có dữ liệu.",
+            "companyname": "Tên công ty",
+            "divide": "Phân loại",
+            "registdate": "Ngày đăng ký",
+            "permissiondate": "Thời hạn cho phép",
+            "workplace": "Nơi làm việc",
+            "number": "Số",
+            "manageid": "Mã quản lý",
+            "filename": "Tên tệp",
+            "objname": "Tên vật chất",
+            "error_fail_page_render": "Đã xảy ra lỗi khi hiển thị trang.",
+            "error_pdf_load": "Đã xảy ra lỗi khi tải PDF.",
+            "error_no_path_parameter": "Không có tham số đường dẫn."
+        },
+
+        "MS": {   // 말레이시아어
+            "nolist": "Tiada data.",
+            "companyname": "Nama Syarikat",
+            "divide": "Kategori",
+            "registdate": "Tarikh Pendaftaran",
+            "permissiondate": "Tempoh Kebenaran",
+            "workplace": "Tempat Kerja",
+            "number": "No.",
+            "manageid": "ID Pengurusan",
+            "filename": "Nama Fail",
+            "objname": "Nama Bahan",
+            "error_fail_page_render": "Ralat berlaku semasa memaparkan halaman.",
+            "error_pdf_load": "Ralat berlaku semasa memuatkan PDF.",
+            "error_no_path_parameter": "Parameter laluan tidak disediakan."
+        }
+    };
+
+
+      
+      
+    function loadPdfList(){
+      var _data = {
+        "projectid":    projectid,
+        "groupidx":     groupidx,
+        "languagecode": languagecode,
+        "pdfcategory":  pdfcategory,
+        "page":         now_page,
+        "max":          max_count
+      };
+      AJAX_AdmGetGame("getpdflist", _data, function(res){
+        console.log("이미지로드했다. res:", res);
+        var code = parseInt(res.code);
+        if (code == 100) {
+          pdflist = res.message;
+          console.log("pdf list is ", pdflist);
+          if (pdflist.length == 0) {
+            // TODO: PDF 없음 처리
+              document.getElementById("loading").innerHTML = txt_json[languagecode].nolist;
+          } else if (pdflist.length == 1) {
+                setDiv(false);
+                var path = "../school/" + projectid + "/v" + groupidx + "/contentdata/pdf/" + languagecode + "/" + pdfcategory + "/" + pdflist[0].pdf_filename;
+                console.log("path is " + path);
+                console.log("pdflist is ",pdflist);
+                showPdf(path);                              
+          } else {
+            // TODO: 여러 개일 때 처리
+                setDiv(true);
+                showPdfListView();
+          }
+        }
+      });
+    }
+      //목록일때, PDF 일때 div 변경
+    function setDiv(islist) {
+        var iframeHeight = window.innerHeight + "px"; // ✅ iframe 실제 높이
+
+        if (islist) {
+            div_pdf.style.display = "none";
+            div_list.style.display = "block";
+
+            div_list.style.height = iframeHeight;
+
+            pagetype = 0;
+        } else {
+            div_pdf.style.display = "block";
+            div_list.style.display = "none";
+
+            div_pdf.style.height = iframeHeight;
+
+            pagetype = pdflist.length > 1 ? 1 : 0;
+        }
+    }
+    function showPdfListView(){
+         makeTable('dataTable',pdflist,true,0);
+    }
+    function makeTable(tableid,rows,isdataTable,offset){
+        var table = document.getElementById(tableid);
+        var istabledisplay = isdataTable ? "block" : "none";
+        
+        //월간 위험성평가
+        if(pdfcategory == "home_btn6"){
+            
+            table.innerHTML = "<thead><tr style='background-color:#f8f9fa'><th>"+txt_json[languagecode].number+"</th><th>"+txt_json[languagecode].companyname+"</th><th>"+txt_json[languagecode].divide+"</th><th>"+txt_json[languagecode].registdate+"</th></tr></thead><tfoot></tfoot><tbody></tbody>";
+            var head = table.getElementsByTagName("thead")[0];
+            var body = table.getElementsByTagName("tbody")[0];
+            var foot = table.getElementsByTagName("tfoot")[0];
+            var len = rows.length;
+
+        
+            if (len > 0) {
+                for (var i = 0; i < len; i++) {
+
+                    var brow = body.insertRow();
+                    const row = rows[i];
+                    const companyname = rows[i]["pdf_company"];
+                    const companyid = rows[i]["pdf_companyid"];
+                    const filename = rows[i]["pdf_filename"];
+                    const other = rows[i]["pdf_other"];
+                    const registdate = rows[i]["pdf_registdate"];
+                    
+             
+
+                    ///////////////////////////////////////////////
+                    // 번호
+                    ///////////////////////////////////////////////
+                    var bcell_idx = brow.insertCell();
+                    bcell_idx.innerHTML = (i+1);
+
+                    ///////////////////////////////////////////////
+                    // 협력업체명
+                    ///////////////////////////////////////////////
+                    var bcell_companyname = brow.insertCell();
+                    bcell_companyname.innerHTML = companyname;
+
+
+                    
+                    ///////////////////////////////////////////////
+                    // 구분
+                    ///////////////////////////////////////////////
+                    var bcell_other = brow.insertCell();
+                    bcell_other.innerHTML = other;
+
+
+                    ///////////////////////////////////////////////
+                    //등록일
+                    ///////////////////////////////////////////////
+                     var bcell_registdate = brow.insertCell();
+                    bcell_registdate.innerHTML = registdate.substr(0,10);
+
+                    brow.onclick = function(){
+                        setDiv(false);
+                        console.log("클릭했3");
+                        var path = "../school/" + projectid + "/v" + groupidx + "/contentdata/pdf/" + languagecode + "/" + pdfcategory + "/" + filename;
+                        console.log("path is " + path);
+                        console.log("pdflist is ",pdflist);
+                        showPdf(path);    
+                    }                    
+                }
+            }
+
+           
+        }
+        //PTW
+        else if(pdfcategory == "home_btn7"){
+          
+            document.getElementById("div_search_date").style.display = "block";
+            table.innerHTML = "<thead><tr style='background-color:#f8f9fa'><th>"+txt_json[languagecode].number+"</th><th>"+txt_json[languagecode].manageid+"</th><th>"+txt_json[languagecode].companyname+"</th><th>"+txt_json[languagecode].workplace+"</th><th>"+txt_json[languagecode].permissiondate+"</th><th>"+txt_json[languagecode].registdate+"</th></tr></thead><tfoot></tfoot><tbody></tbody>";
+            var head = table.getElementsByTagName("thead")[0];
+            var body = table.getElementsByTagName("tbody")[0];
+            var foot = table.getElementsByTagName("tfoot")[0];
+            var len = rows.length;
+
+        
+            if (len > 0) {
+                for (var i = 0; i < len; i++) {
+
+                    var brow = body.insertRow();
+                    const row = rows[i];
+                    const manageid = rows[i]["pdf_manageid"];
+                    const registdate = rows[i]["pdf_registdate"];
+                    const startdate = rows[i]["pdf_startdate"];
+                    const enddate = rows[i]["pdf_enddate"];
+                    const companyname = rows[i]["pdf_company"];
+                    const companyid = rows[i]["pdf_companyid"];
+                    const workplace = rows[i]["pdf_workplace"];
+                    const filename = rows[i]["pdf_filename"];
+                    
+             
+
+                    
+                    ///////////////////////////////////////////////
+                    // 번호
+                    ///////////////////////////////////////////////
+                    var bcell_idx = brow.insertCell();
+                    bcell_idx.innerHTML = (i+1);
+
+                    
+                    ///////////////////////////////////////////////
+                    // 관리번호
+                    ///////////////////////////////////////////////
+                    var bcell_manageid = brow.insertCell();
+                    bcell_manageid.innerHTML = manageid;
+
+                     ///////////////////////////////////////////////
+                    // 협력업체명
+                    ///////////////////////////////////////////////
+                    var bcell_companyname = brow.insertCell();
+                    bcell_companyname.innerHTML = companyname;
+
+
+
+                    ///////////////////////////////////////////////
+                    // 작업장소
+                    ///////////////////////////////////////////////                   
+                    var bcell_workplace = brow.insertCell();
+                    bcell_workplace.innerHTML = workplace;
+
+
+                    ///////////////////////////////////////////////
+                    //허가기간
+                    ///////////////////////////////////////////////
+                    var bcell_startenddate = brow.insertCell();
+                    bcell_startenddate.innerHTML = startdate.substr(0,10)+" ~ "+enddate.substr(0,10);
+
+                    ///////////////////////////////////////////////
+                    //등록일
+                    ///////////////////////////////////////////////
+                     var bcell_registdate = brow.insertCell();
+                    bcell_registdate.innerHTML = registdate.substr(0,10);
+
+                    brow.onclick = function(){
+                        setDiv(false);
+                        console.log("클릭했3");
+                        var path = "../school/" + projectid + "/v" + groupidx + "/contentdata/pdf/" + languagecode + "/" + pdfcategory + "/" + filename;
+                        console.log("path is " + path);
+                        console.log("pdflist is ",pdflist);
+                        showPdf(path);    
+                    }                    
+                }
+            }
+              // 기존 DataTables 인스턴스가 있는지 확인하고, 있다면 파괴합니다.
+//            if ($.fn.DataTable.isDataTable('#dataTable')) {
+//                $('#dataTable').DataTable().destroy();
+//            }
+
+            
+        
+        }
+        //물질안전 보건자료
+        else if(pdfcategory == "home_btn11"){
+            table.innerHTML = "<thead><tr style='background-color:#f8f9fa'><th>"+txt_json[languagecode].number+"</th><th>"+txt_json[languagecode].companyname+"</th><th>"+txt_json[languagecode].objname+"</th></tr></thead><tfoot></tfoot><tbody></tbody>";
+            var head = table.getElementsByTagName("thead")[0];
+            var body = table.getElementsByTagName("tbody")[0];
+            var foot = table.getElementsByTagName("tfoot")[0];
+            var len = rows.length;
+
+        
+            if (len > 0) {
+                for (var i = 0; i < len; i++) {
+
+                    var brow = body.insertRow();
+                    const row = rows[i];
+                    const companyname = rows[i]["pdf_company"];
+                    const companyid = rows[i]["pdf_companyid"];
+                    const filename = rows[i]["pdf_filename"];
+                    const other = rows[i]["pdf_other"];
+                    const registdate = rows[i]["pdf_registdate"];
+                    
+             
+
+                    ///////////////////////////////////////////////
+                    // 번호
+                    ///////////////////////////////////////////////
+                    var bcell_idx = brow.insertCell();
+                    bcell_idx.innerHTML = (i+1);
+
+                    ///////////////////////////////////////////////
+                    // 협력업체명
+                    ///////////////////////////////////////////////
+                    var bcell_companyname = brow.insertCell();
+                    bcell_companyname.innerHTML = companyname;
+
+
+                    
+                    ///////////////////////////////////////////////
+                    // 물질명
+                    ///////////////////////////////////////////////
+                    var bcell_other = brow.insertCell();
+                    bcell_other.innerHTML = other;
+
+
+                    
+
+                    brow.onclick = function(){
+                        setDiv(false);
+                        console.log("클릭했3");
+                        var path = "../school/" + projectid + "/v" + groupidx + "/contentdata/pdf/" + languagecode + "/" + pdfcategory + "/" + filename;
+                        console.log("path is " + path);
+                        console.log("pdflist is ",pdflist);
+                        showPdf(path);    
+                    }                    
+                }
+            }
+        }
+        //일반 PDF
+        else{
+            table.innerHTML = "<thead><tr style='background-color:#f8f9fa'><th>"+txt_json[languagecode].number+"</th><th>"+txt_json[languagecode].filename+"</th></tr></thead><tfoot></tfoot><tbody></tbody>";
+            var head = table.getElementsByTagName("thead")[0];
+            var body = table.getElementsByTagName("tbody")[0];
+            var foot = table.getElementsByTagName("tfoot")[0];
+            var len = rows.length;
+
+        
+            if (len > 0) {
+                for (var i = 0; i < len; i++) {
+
+                    var brow = body.insertRow();
+                    const row = rows[i];
+                    const companyname = rows[i]["pdf_company"];
+                    const companyid = rows[i]["pdf_companyid"];
+                    const filename = rows[i]["pdf_filename"];
+                    const other = rows[i]["pdf_other"];
+                    const registdate = rows[i]["pdf_registdate"];
+                    
+             
+
+                    ///////////////////////////////////////////////
+                    // 번호
+                    ///////////////////////////////////////////////
+                    var bcell_idx = brow.insertCell();
+                    bcell_idx.innerHTML = (i+1);
+
+                    ///////////////////////////////////////////////
+                    // 파일명명
+                    ///////////////////////////////////////////////
+                    var bcell_filename = brow.insertCell();
+                    bcell_filename.innerHTML = companyname;
+
+
+                    
+
+                    brow.onclick = function(){
+                        setDiv(false);
+                        console.log("클릭했3");
+                        var path = "../school/" + projectid + "/v" + groupidx + "/contentdata/pdf/" + languagecode + "/" + pdfcategory + "/" + filename;
+                        console.log("path is " + path);
+                        console.log("pdflist is ",pdflist);
+                        showPdf(path);    
+                    }                    
+                }
+            }
+        }
+        
+        // 새 DataTables 인스턴스를 생성합니다.
+            dataTable = $('#dataTable').DataTable({
+                // 표시 건수기능 숨기기
+                lengthChange: false,
+                // 검색 기능 숨기기
+                //searching: false,
+                // 정렬 기능 숨기기
+                //ordering: false,
+                // 정보 표시 숨기기
+                info: false,
+                // 페이징 기능 숨기기
+                paging: false,
+                //bDestroy: true,
+                //stateSave: true,
+
+                // order:[ [ 1, "asc"] ]  //1번째 인덱스를 기준 바르게 정렬 1,2,3,..
+                order: [[0, "desc"]], //0번째 인덱스를 기준 거꾸로 정렬 12,11,10..
+                // 표시 건수를 10건 단위로 설정
+                //lengthMenu: [ 10, 20, 30, 40, 50 ],
+
+                // 기본 표시 건수를 50건으로 설정
+                displayLength: 1000
+            });
+    }
+    
+      
+      
+      
+      
+      
+      
+    // ======================================
+    // ✅ 전역 상태
+    // ======================================
+    var pdfDoc = null;
+    var currentPage = 1;
+    var totalPages = 0;
+    var autoPlayInterval = 5000; // 5초
+    var autoPlayTimer = null;
+
+    var canvasA = document.getElementById("pdfCanvasA");
+    var canvasB = document.getElementById("pdfCanvasB");
+    var gestureLayer = document.getElementById("gestureLayer");
+    var loadingEl = document.getElementById("loading");
+    var errorEl = document.getElementById("error");
+    var viewerContainer = document.getElementById("viewerContainer");
+
+    // 현재 화면에 보이는 캔버스가 A인지 B인지
+    var isShowingA = true;
+    var isAnimating = false;
+
+    // 🖐 제스처용 상태
+    var isPointerDown = false;
+    var startX = 0;
+    var currentX = 0;
+    var dragThreshold = 50; // px 이상 움직이면 페이지 넘김
+
+    // ======================================
+    // 공통: 특정 캔버스에 한 페이지를 렌더 (애니메이션 없음)
+    // ======================================
+    function renderPageToCanvas(pageNum, targetCanvas) {
+      return new Promise(function(resolve, reject) {
+        if (!pdfDoc) {
+          reject("pdfDoc 없음");
+          return;
+        }
+
+        loadingEl.style.display = "flex";
+        errorEl.style.display = "none";
+
+        pdfDoc.getPage(pageNum).then(function(page) {
+          var containerWidth  = viewerContainer.clientWidth  || window.innerWidth;
+          var containerHeight = viewerContainer.clientHeight || window.innerHeight;
+
+          // 화면 기준 스케일 계산
+          var viewport = page.getViewport({ scale: 1 });
+          var scale = Math.min(
+            containerWidth  / viewport.width,
+            containerHeight / viewport.height
+          );
+          var scaledViewport = page.getViewport({ scale: scale });
+
+          // 타깃 캔버스를 화면 크기로 맞춤
+          targetCanvas.width  = containerWidth;
+          targetCanvas.height = containerHeight;
+          var tctx = targetCanvas.getContext("2d");
+
+          // PDF 페이지는 내부 임시 캔버스에 그림
+          var tempCanvas = document.createElement("canvas");
+          tempCanvas.width  = scaledViewport.width;
+          tempCanvas.height = scaledViewport.height;
+          var tempCtx = tempCanvas.getContext("2d");
+
+          var renderContext = {
+            canvasContext: tempCtx,
+            viewport: scaledViewport
+          };
+
+          return page.render(renderContext).promise.then(function() {
+            // 가운데 정렬해서 화면 캔버스에 복사
+            tctx.clearRect(0, 0, containerWidth, containerHeight);
+            var offsetX = (containerWidth  - scaledViewport.width)  / 2;
+            var offsetY = (containerHeight - scaledViewport.height) / 2;
+            tctx.drawImage(tempCanvas, offsetX, offsetY);
+            loadingEl.style.display = "none";
+            resolve();
+          });
+        }).catch(function(err) {
+          console.error("페이지 렌더 실패:", err);
+          loadingEl.style.display = "none";
+          errorEl.style.display = "flex";
+          errorEl.textContent = txt_json[languagecode].error_fail_page_render;
+          reject(err);
+        });
+      });
+    }
+
+    // ======================================
+    // 🎞 슬라이드 애니메이션
+    // direction: "next" | "prev"
+    // ======================================
+    function slideToPage(newPageNum, direction) {
+      if (!pdfDoc) return;
+      if (newPageNum < 1 || newPageNum > totalPages) return;
+      if (isAnimating) return;
+
+      isAnimating = true;
+
+      var currentCanvas = isShowingA ? canvasA : canvasB;
+      var nextCanvas    = isShowingA ? canvasB : canvasA;
+
+      // 슬라이드 방향 설정
+      var fromOffset = 0;
+      var toOffsetCurrent, fromOffsetNext, toOffsetNext;
+
+      if (direction === "next") {
+        // 현재: 0% -> -100%, 다음: +100% -> 0%
+        toOffsetCurrent = -100;
+        fromOffsetNext  = 100;
+        toOffsetNext    = 0;
+      } else {
+        // prev: 현재: 0% -> +100%, 다음: -100% -> 0%
+        toOffsetCurrent = 100;
+        fromOffsetNext  = -100;
+        toOffsetNext    = 0;
+      }
+
+      // 먼저 다음 페이지 캔버스를 렌더
+      renderPageToCanvas(newPageNum, nextCanvas).then(function() {
+        // 초기 위치 설정 (transition 없이 배치)
+        currentCanvas.style.transition = "none";
+        nextCanvas.style.transition    = "none";
+
+        currentCanvas.style.transform  = "translateX(" + fromOffset + "%)";
+        nextCanvas.style.transform     = "translateX(" + fromOffsetNext + "%)";
+
+        // reflow 강제
+        void nextCanvas.offsetWidth;
+
+        // 이제 애니메이션 시작
+        currentCanvas.style.transition = "transform 0.4s ease-out";
+        nextCanvas.style.transition    = "transform 0.4s ease-out";
+
+        currentCanvas.style.transform  = "translateX(" + toOffsetCurrent + "%)";
+        nextCanvas.style.transform     = "translateX(" + toOffsetNext    + "%)";
+
+        // 애니메이션 끝나면 상태 정리
+        var onTransitionEnd = function(e) {
+          if (e.target !== nextCanvas) return;
+
+          nextCanvas.removeEventListener("transitionend", onTransitionEnd);
+          isShowingA = !isShowingA;
+          currentPage = newPageNum;
+          isAnimating = false;
+        };
+
+        nextCanvas.addEventListener("transitionend", onTransitionEnd);
+      }).catch(function() {
+        isAnimating = false;
+      });
+    }
+
+    // ======================================
+    // 페이지 이동 관련 함수
+    // ======================================
+    function goToPage(pageNum) {
+      if (!pdfDoc) return;
+      if (pageNum < 1 || pageNum > totalPages) return;
+
+      var targetCanvas = isShowingA ? canvasA : canvasB;
+      renderPageToCanvas(pageNum, targetCanvas).then(function() {
+        // 정적 렌더: 현재 캔버스는 0%, 다른 캔버스는 화면 밖으로
+        var otherCanvas = isShowingA ? canvasB : canvasA;
+
+        targetCanvas.style.transition = "none";
+        otherCanvas.style.transition  = "none";
+
+        targetCanvas.style.transform  = "translateX(0%)";
+        otherCanvas.style.transform   = "translateX(100%)";
+
+        currentPage = pageNum;
+      });
+    }
+
+    function nextPage() {
+      if (!pdfDoc) return;
+      var next = currentPage + 1;
+      if (next > totalPages) next = 1;
+      slideToPage(next, "next");
+    }
+
+    function prevPage() {
+      if (!pdfDoc) return;
+      var prev = currentPage - 1;
+      if (prev < 1) prev = totalPages;
+      slideToPage(prev, "prev");
+    }
+
+    // ======================================
+    // 자동 페이지 넘김 (5초 간격)
+    // ======================================
+    function startAutoPlay() {
+      stopAutoPlay();
+      autoPlayTimer = setInterval(function () {
+        nextPage();
+      }, autoPlayInterval);
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayTimer) {
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+      }
+    }
+
+    // ======================================
+    // 메인: PDF 로드 + 첫 페이지 렌더 + 자동재생
+    // ======================================
+    function showPdf(pdfPath) {
+      if (!pdfPath) {
+        loadingEl.style.display = "none";
+        errorEl.style.display = "flex";
+        errorEl.textContent = txt_json[languagecode].error_no_path_parameter
+        return;
+      }
+
+      loadingEl.style.display = "flex";
+      errorEl.style.display = "none";
+
+      var loadingTask = pdfjsLib.getDocument({ url: pdfPath });
+      loadingTask.promise.then(function (pdf) {
+        pdfDoc = pdf;
+        totalPages = pdf.numPages;
+        currentPage = 1;
+
+        // 첫 페이지는 A 캔버스에 정적으로 렌더
+        isShowingA = true;
+        canvasA.style.transform = "translateX(0%)";
+        canvasB.style.transform = "translateX(100%)";
+
+        return renderPageToCanvas(currentPage, canvasA);
+      }).then(function() {
+        startAutoPlay();
+      }).catch(function (reason) {
+        console.error("PDF 로딩 실패:", reason);
+        loadingEl.style.display = "none";
+        errorEl.style.display = "flex";
+        errorEl.textContent = txt_json[languagecode].error_pdf_load;
+      });
+    }
+
+    // ======================================
+    // 🖐 터치 + 마우스 제스처 처리 (스와이프)
+    // ======================================
+    function onPointerDown(clientX) {
+      isPointerDown = true;
+      startX = clientX;
+      currentX = clientX;
+      stopAutoPlay(); // 사용자가 손대면 자동재생 잠시 멈춤
+    }
+
+    function onPointerMove(clientX) {
+      if (!isPointerDown) return;
+      currentX = clientX;
+    }
+
+    function onPointerUp() {
+      if (!isPointerDown) return;
+      var deltaX = currentX - startX;
+
+      if (Math.abs(deltaX) > dragThreshold) {
+        if (deltaX < 0) {
+          // 왼쪽으로 드래그 → 다음 페이지
+          nextPage();
+        } else {
+          // 오른쪽으로 드래그 → 이전 페이지
+          prevPage();
+        }
+      }
+
+      isPointerDown = false;
+      startAutoPlay();
+    }
+
+    // ✅ 제스처는 gestureLayer 에서만 처리
+    gestureLayer.addEventListener("touchstart", function (e) {
+      if (e.touches.length > 0) {
+        onPointerDown(e.touches[0].clientX);
+      }
+    }, { passive: true });
+
+    gestureLayer.addEventListener("touchmove", function (e) {
+      if (e.touches.length > 0) {
+        onPointerMove(e.touches[0].clientX);
+      }
+    }, { passive: true });
+
+    gestureLayer.addEventListener("touchend", function () {
+      onPointerUp();
+    });
+
+    gestureLayer.addEventListener("mousedown", function (e) {
+      onPointerDown(e.clientX);
+    });
+
+    gestureLayer.addEventListener("mousemove", function (e) {
+      onPointerMove(e.clientX);
+    });
+
+    gestureLayer.addEventListener("mouseup", function () {
+      onPointerUp();
+    });
+
+    gestureLayer.addEventListener("mouseleave", function () {
+      if (isPointerDown) onPointerUp();
+    });
+
+    // 화면 크기 변경 시 현재 페이지 다시 렌더 (애니메이션 없이)
+    window.addEventListener("resize", function () {
+      if (pdfDoc && !isAnimating) {
+        var targetCanvas = isShowingA ? canvasA : canvasB;
+        renderPageToCanvas(currentPage, targetCanvas);
+      }
+    });
+      
+      document.addEventListener("click", () => {
+          window.parent.postMessage({
+              type: "iframe_clicked",
+              value: ""+pagetype
+            }, "*");
+        });
+        // ✅ 스크롤 이벤트
+        window.addEventListener("scroll", () => {
+          window.parent.postMessage("iframe_scrolled", "*");
+        });
+    
+     
+  </script>
+</body>
+</html>

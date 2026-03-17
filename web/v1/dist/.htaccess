@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# 파일이나 디렉터리가 아닌 경우에만 재작성
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+
+# URL에서 .php 확장자 숨기기
+RewriteRule ^([a-zA-Z0-9_-]+)$ $1.php [L]
+
+# 기본 페이지 설정 (예: example.com에서 index.php로 연결)
+DirectoryIndex login.php

@@ -1,0 +1,187 @@
+/* 상단팝업 */
+.upPop .popup_wrap{ height:6.5rem; margin-top:-6.5rem;}
+#topPop { position:relative; width:100%; -webkit-transition:0.3s; transition:0.3s; background:#586c81; color:#fff; z-index:100; overflow:hidden;}
+#topPop .popup_wrap { position:relative; max-width:60rem; margin-left:auto; margin-right:auto; overflow:hidden; -webkit-transition:0.3s; transition:0.3s;}
+#topPop .slick-list{ position:relative; margin:.75rem 1.75rem 0; }
+#topPop .slick-list:before { content:""; position:absolute; left:-1px; top:0; height:100%; border-left:2px solid #586c81; z-index: 1;}
+#topPop .item a { position:relative; display:flex; align-items: center; justify-content: center; height:3.75rem; padding:0 0.75rem; overflow:hidden; }
+#topPop .item a:before { content:""; position:absolute; left:0; top:0; height:100%; border-left:1px dotted rgba(255,255,255,0.5); }
+#topPop .item a .img { height:100%; overflow:hidden; border:1px solid transparent; transition: border .2s; -webkit-transition: border .2s;}
+#topPop .item a .img img { max-width:100%; height:100%; }
+#topPop .item a dl{ width:100%; display:flex; align-items: center; justify-content: center;}
+#topPop .item a dt { width:calc(100% - 4rem); padding-right:.5rem; font-size:.75rem; max-height:3.3rem; font-weight:400; word-break:keep-all; line-height:1.1rem; overflow:hidden; }
+#topPop .item a dd { width:4rem; text-align:center; line-height:1.3rem; padding:0 .5rem; border:1px solid #fff; font-size:0.65rem; border-radius:1.5rem; -webkit-transition:opacity 0.2s; transition:opacity 0.2s; opacity: .7; }
+#topPop .slick-arrow { position:absolute; top:1.8rem; font-size:0;}
+#topPop .slick-arrow:before {font-family:"xeicon"; font-size:1.2rem; }
+#topPop .slick-prev { left:0; }
+#topPop .slick-prev:before {content:"\e93d";}
+#topPop .slick-next { right:0; }            
+#topPop .slick-next:before {content:"\e940"; }        
+#topPop .control { position:relative; line-height:1.8rem; text-align:right; font-size:13px; font-weight:400; margin-top:.15rem; }
+#topPop .control .close input[type="checkbox"]{ margin-right:4px;}
+#topPop .control .close a{ display:inline-block; vertical-align: top; }
+#topPop .control .close a i{ width:1.8rem; height:1.8rem; line-height:1.8rem; text-align:center; font-size:.8rem; color:#fff; margin-left:8px; background:#4c5d6f;}
+#topPop .control > a{ position:absolute; left:0; bottom:.5rem; width:1.4rem; height:1.4rem; line-height:1.4rem; border-radius:50%; text-align:center; font-size:11px; color:#fff; background:#4b5f74;}
+#topPop .control > .play{display:none;}
+#topPop .control a,
+#topPop .control a i{ transition: all .2s; -webkit-transition: all .2s;}
+#topPop .item a:hover dt,
+#topPop .item a:focus dt{ text-decoration:underline; }
+#topPop .item a:hover dd,
+#topPop .item a:focus dd { opacity: 1;}
+#topPop .item a:hover .img,
+#topPop .item a:focus .img { border-color:#fff;}
+#topPop .control > a:hover,
+#topPop .control > a:focus,
+#topPop .close > a:hover i,
+#topPop .close > a:focus i{ background:#35a5b4;}
+
+/* open */
+.open.upPop .popup_wrap { margin-top:0;}
+
+/* 국가공휴일 */
+#topPop .hldy_kr{ position:relative; line-height:2rem; height:2rem; background:#f9f9f9; border-bottom:1px solid #f1f1f1; color:#111; font-size:.7rem;}
+#topPop .hldy_kr:before{ content:""; position:absolute; left:0; top:0; width:100vw; height:60%; background: rgb(0,0,0);
+    background: -moz-linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.3) 100%);
+    background: -webkit-linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.3) 100%);
+    background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.3) 100%); opacity: 0.4;}
+#topPop .hldy_kr p{ position:relative; max-width:60rem; margin:0 auto; text-align:right;}
+#topPop .hldy_kr p:before{content:""; display:inline-block; width:31px; height:20px; margin-right:10px; border:1px solid #ccc; vertical-align:middle; background:url('/resource/images/dgedu/layout/img_nlg.png') no-repeat center/cover; image-rendering:-webkit-optimize-contrast;}
+#topPop .hldy_kr p em{ font-weight:600;}
+
+/* 캘린더 : 일정리스트 팝업 */
+#schePop{display:none; position:fixed; left:50%; top:50%; width:100%; max-width:30rem; max-height:25rem; padding:0.5rem; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); background:#fff; border-radius:.75rem; box-shadow: 0 0 1rem rgba(0,0,0,.2); z-index:101;}
+#schePop.active{display:block;}
+#schePop h4{color:#fff; font-size:.9rem; line-height:2.5rem; background:#5b6270; border-radius:.5rem; padding:0 1rem; text-align:left;}
+#schePop .list{ max-height:11rem; margin-top:0.5rem; overflow-y: auto;}
+#schePop table{ border-top:2px solid #666;}
+#schePop tr th{ padding:0.5rem 3px; font-size:.8rem; border-bottom:1px solid #ddd; word-break: keep-all; background:#f1f1f1;}
+#schePop tr td{ text-align:center; color:#111; font-size:.75rem; padding:0.5rem 3px; border-bottom:1px solid #ccc;}
+#schePop .close{position:absolute; right:.5rem; top:.5rem; width:2.5rem; height:2.5rem; line-height:2.1rem; font-size:1rem; border-radius:.5rem; background:#fff; color:#5b6270; border:.2rem solid #5b6270; text-align:center;}
+#schePop .close:hover,
+#schePop .close:focus{border-color:#19233a; background:#19233a; color:#fff;}
+
+/***** 레이어팝업 *****/
+.lyrPop {position: fixed; top: 0; left: 0; display: none; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;}
+.lyrWrap {position: absolute; top: 50%; left: 50%; width: 95%; max-height:90vh; max-width: 30rem; background: #fff; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); overflow:auto;}
+.lyrPop .tit {padding: 0 1rem; height: 3rem; line-height: 3rem; background: #0d69cd; margin-top:-1px;}
+.lyrPop .tit h2 {font-size: 1rem; font-weight: 700; color: #fff;}
+.lyrPop .btnClose {position: absolute; top: 0.5rem; right: 0.5rem; width: 2rem; height: 2rem; line-height: 2rem !important; text-align: center; font-size: 1rem; color: #fff; background: #003268; border-radius: 50%;}
+.lyrPop .btnClose i {line-height:2rem;}
+.lyrPop .popCont {padding: 1rem;}
+.lyrPop .popCont .inBox {display: flex; margin-bottom: 1rem; padding-bottom: 1rem; align-items: center; border-bottom: 2px dotted #c5c9d6;}
+
+/* 배너리스트 */
+.lyrPop .bnList{ padding:1rem 0; display:flex; flex-wrap: wrap;}
+.lyrPop .bnList li{ width:33.33%; padding:2px .5rem;}
+.lyrPop .bnList li a{ display:block; text-align:center;}
+.lyrPop .bnList li a img{ max-width:100%; height:auto;} 
+
+/* 방문통계 보기 : 학교템플릿 전체 적용 */
+.visitant {width:8.5rem !important;  background:#c0c0c0 !important;}
+.visitant a {display:block; line-height:2rem; padding-right:2rem; text-align:center; color:#444; font-size:.8rem; border-radius:2rem; background:#d7d7d7; -webkit-transition:all 0.3s ease; transition:all 0.3s ease;}
+.visitant a i {position: absolute; top:.5rem; right:1rem; }
+.visitant a:hover,
+.visitant a:focus {color:#000; background:#c0c0c0; }
+.visitant h2, .visitant ul {display:none;}
+
+/* 방문통계리스트 */
+.lyrPop .visList { padding:1rem; }
+.lyrPop .visList li {position:relative; padding:.5rem 2rem .5rem .75rem; font-size:.8rem; border-bottom:1px dotted #c5c9d6;}
+.lyrPop .visList li:before {content:""; display:block; clear:both; position:absolute; top:1rem; left:0; width:6px; height:6px; border-radius:50%; background:#999;}
+.lyrPop .visList li strong {position:absolute; top:.5rem; right:0; color:#0d69cd;}
+
+/* .lPopListArea{ max-height: 600px !important;} 230925 */ 
+
+@media screen and (max-width: 1240px){
+    
+    /* topPop */    
+    #topPop .control > a{ left:.5rem; bottom:.25rem;}
+}
+
+@media screen and (max-width: 1024px){
+
+    /* layout */ 
+    #container { -webkit-transition:padding 0.3s; transition:padding 0.3s; padding-top:65px;}
+    #header, 
+    #header .mBtn, #header h1{  -webkit-transition:top 0.3s; transition:top 0.3s;}
+
+    /* topPop */
+    #topPop { position:fixed; top:0; left:0; }
+    #topPop .item a:before{ display:none;}
+
+    .open.upPop #container{ padding-top:calc(6.5rem + 65px); }
+    .open.upPop #header { top:6.5rem; }
+    .open.upPop #topPop{ height:6.5rem;}
+
+    #header,
+    .hldy.upPop #header { top:2rem; }
+    .hldy #container,
+    .hldy.upPop #container{ padding-top:calc(2rem + 65px); }
+    .open.hldy #topPop{ height:2rem;}
+
+    .open.hldy.upPop #container{ padding-top:calc(8.5rem + 65px); }
+    .open.hldy.upPop #header { top:8.5rem; }
+    .open.hldy.upPop #topPop{ height:8.5rem;}
+}
+
+@media screen and (max-width:768px){
+    
+    /* topPop */
+    #topPop .pop_close{font-size:14px; right:1rem;}
+
+	/* 캘린더 : 일정리스트 팝업 */
+	#schePop{left:0.5rem; top:50%; width:calc(100% - 1rem); max-width:100%; transform: translate(0, -50%); -webkit-transform: translate(0%, -50%);}
+	#schePop tr td,
+	#schePop tr th{font-size:13px;}
+    
+    /* 배너리스트 */
+    .lyrPop .bnList li{ width:50%; }
+}
+
+@media screen and (max-width:580px){   
+
+    .upPop .popup_wrap{ height:6rem; margin-top:-6rem;}
+    .open.upPop #container{ padding-top:calc(6rem + 65px); }
+    .open.upPop #header { top:6rem; }
+    .open.upPop #topPop{ height:6rem;}
+
+    .hldy #header,
+    .hldy.upPop #header { top:1.5rem; }
+    .hldy #container,
+    .hldy.upPop #container{ padding-top:calc(1.5rem + 65px); }
+    .open.hldy #topPop{ height:1.5rem;}
+
+    .open.hldy.upPop #container{ padding-top:calc(7.5rem + 65px); }
+    .open.hldy.upPop #header { top:7.5rem; }
+    .open.hldy.upPop #topPop{ height:7.5rem;}
+
+    #topPop .slick-list{ margin-top:.25rem;}    
+
+    #topPop .hldy_kr{ line-height:1.5rem; height:1.5rem; font-size:12px;}
+    #topPop .hldy_kr p:before{ width:25px; height:16px; margin-right:6px;}
+}
+
+@media screen and (max-width:340px){
+
+    /* 배너리스트 */
+    .lyrPop .bnList li{ width:100%; }
+}
+
+@media screen and (max-width:340px){
+
+    .upPop .popup_wrap{ height:6.75rem; margin-top:-6.75rem;}
+    .open.upPop #container{ padding-top:calc(6.75rem + 65px); }
+    .open.upPop #header { top:6.75rem; }
+    .open.upPop #topPop{ height:6.75rem;}
+
+    .open.hldy.upPop #container{ padding-top:calc(8.25rem + 65px); }
+    .open.hldy.upPop #header { top:8.25rem; }
+    .open.hldy.upPop #topPop{ height:8.25rem;}
+
+    #topPop .item a dl{ display:block; padding:0 2px;}
+    #topPop .item a dt{ max-height:2.2rem; width:100%; font-size:13px; padding-right:0; margin-bottom:.15rem;}
+    #topPop .control .close{ margin-top:.5rem; line-height:1.6;}
+    #topPop .control .close label{ display:block; margin-right:2.25rem; font-size:12px;}
+    #topPop .control .close a{ position:absolute; right:0; bottom:0;}
+}

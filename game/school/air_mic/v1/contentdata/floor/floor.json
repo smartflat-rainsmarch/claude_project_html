@@ -1,0 +1,2008 @@
+{
+    "id": "page1_0",
+    "name": "시설안내",
+    "type": "floor",
+    "floortitle": "층별 안내",
+    "floortitlebg": "res/global/floor_title_bg.png",
+    "desc": "사이즈는 2160x3142 기준이다 2배가 크다",
+    "width": 1080,
+    "height": 883,
+    "floordata": [
+        {
+            "fname": "1F",
+            "height": "192",
+            "floorbg": "contentdata/img/map1.png",
+            "data": [
+                {
+                    "title": "",
+                    "desc":"", "x": 78,
+                    "y": 246,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 118,
+                    "y": 246,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 78,
+                    "y": 281,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 78,
+                    "y": 316,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 78,
+                    "y": 350,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 116,
+                    "y": 390,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진단검사의학과",
+                    "desc":"", "x": 230,
+                    "y": 282,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/진단검사의학과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "물리치료실",
+                    "desc":"", "x": 426,
+                    "y": 282,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/물리치료실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "기계실",
+                    "desc":"", "x": 604,
+                    "y": 282,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "물품\n보관실",
+                    "desc":"", "x": 648,
+                    "y": 282,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "중앙공급실",
+                    "desc":"", "x": 765,
+                    "y": 282,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "탈의실",
+                    "desc":"", "x": 878,
+                    "y": 248,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 955,
+                    "y": 282,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "X-ray실",
+                    "desc":"", "x": 955,
+                    "y": 374,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/X-ray실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 296,
+                    "y": 380,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계단",
+                    "desc":"", "x": 299,
+                    "y": 403,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -70,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 363,
+                    "y": 393,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 433,
+                    "y": 393,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "여자\n화장실",
+                    "desc":"", "x": 483,
+                    "y": 393,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "남자\n화장실",
+                    "desc":"", "x": 514,
+                    "y": 393,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "출입구",
+                    "desc":"", "x": 116,
+                    "y": 443,
+                    "icon": {
+                        "name": "ic_exit1.png",
+                        "ix": -100,
+                        "iy": 0
+                    },
+                    "fontsize": 23,
+                    "fontcolor": "#dd0000",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실1",
+                    "desc":"", "x": 116,
+                    "y": 485,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "외래처치실",
+                    "desc":"", "x": 116,
+                    "y": 524,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "외래\n간호",
+                    "desc":"", "x": 78,
+                    "y": 575,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "외\n래\n접\n수",
+                    "desc":"", "x": 123,
+                    "y": 575,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "환자 대기공간",
+                    "desc":"", "x": 116,
+                    "y": 665,
+                    "icon": {
+                        "name": "ic_ready.png",
+                        "ix": 0,
+                        "iy": -60
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/ready.png"
+                    }
+                },
+                {
+                    "title": "통신실",
+                    "desc":"", "x": 116,
+                    "y": 734,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "남자화장실",
+                    "desc":"", "x": 116,
+                    "y": 760,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "여자화장실",
+                    "desc":"", "x": 116,
+                    "y": 787,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계단(→옥상)",
+                    "desc":"", "x": 116,
+                    "y": 814,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -120,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "출입구",
+                    "desc":"", "x": 110,
+                    "y": 880,
+                    "icon": {
+                        "name": "ic_exit1.png",
+                        "ix": -100,
+                        "iy": 0
+                    },
+                    "fontsize": 23,
+                    "fontcolor": "#dd0000",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 218,
+                    "y": 890,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "이비인후과",
+                    "desc":"", "x": 320,
+                    "y": 890,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/이비인후과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "약제과",
+                    "desc":"", "x": 440,
+                    "y": 890,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/약제과 길안내(2층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "계단",
+                    "desc":"", "x": 500,
+                    "y": 890,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": 50,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "출입구",
+                    "desc":"", "x": 587,
+                    "y": 890,
+                    "icon": {
+                        "name": "ic_exit1.png",
+                        "ix": 0,
+                        "iy": -60
+                    },
+                    "fontsize": 23,
+                    "fontcolor": "#dd0000",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 587,
+                    "y": 750,
+                    "icon": {
+                        "name": "ic_ready.png",
+                        "ix": 0,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "중앙로비",
+                    "desc":"", "x": 587,
+                    "y": 850,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 297,
+                    "y": 485,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실2",
+                    "desc":"", "x": 317,
+                    "y": 520,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실3",
+                    "desc":"", "x": 317,
+                    "y": 555,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실4",
+                    "desc":"", "x": 317,
+                    "y": 588,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실5",
+                    "desc":"", "x": 298,
+                    "y": 624,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실6",
+                    "desc":"", "x": 298,
+                    "y": 660,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실7",
+                    "desc":"", "x": 298,
+                    "y": 696,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실8",
+                    "desc":"", "x": 298,
+                    "y": 732,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "외래간호과",
+                    "desc":"", "x": 298,
+                    "y": 787,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "중앙정원",
+                    "desc":"", "x": 445,
+                    "y": 622,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "안과",
+                    "desc":"", "x": 408,
+                    "y": 809,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/안과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 447,
+                    "y": 809,
+                    "fontsize": 10,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "원무과",
+                    "desc":"정산 결제 입원 주차 서류 ", "x": 494,
+                    "y": 809,
+                    "icon": {
+                        "name": "ic_desk.png",
+                        "ix": 0,
+                        "iy": 60
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/원무과 길안내(2층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "건강\n증진\n실",
+                    "desc":"", "x": 587,
+                    "y": 444,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/건강증진실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "계단\n(→지하)",
+                    "desc":"", "x": 603,
+                    "y": 394,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -70,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 642,
+                    "y": 380,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 672,
+                    "y": 380,
+                    "fontsize": 9,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 698,
+                    "y": 380,
+                    "fontsize": 9,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 733,
+                    "y": 380,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/중앙공급간호과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "중앙공급간호과",
+                    "desc":"", "x": 690,
+                    "y": 402,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "환자 대기공간",
+                    "desc":"", "x": 807,
+                    "y": 392,
+                    "icon": {
+                        "name": "ic_ready.png",
+                        "ix": 0,
+                        "iy": 60
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계단(→지하)",
+                    "desc":"", "x": 796,
+                    "y": 424,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -110,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "EV",
+                    "desc":"", "x": 784,
+                    "y": 446,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "중앙정원",
+                    "desc":"", "x": 650,
+                    "y": 620,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "CT",
+                    "desc":"", "x": 806,
+                    "y": 506,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "초음파실",
+                    "desc":"", "x": 806,
+                    "y": 564,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/초음파실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 800,
+                    "y": 604,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "MRI",
+                    "desc":"", "x": 806,
+                    "y": 668,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/MRI실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 806,
+                    "y": 740,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 806,
+                    "y": 776,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "항공검진과",
+                    "desc":"", "x": 680,
+                    "y": 803,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 742,
+                    "y": 803,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "건 강 관 리 검 진 센 터 구 역",
+                    "desc":"", "x": 822,
+                    "y": 847,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "출입구",
+                    "desc":"", "x": 955,
+                    "y": 442,
+                    "icon": {
+                        "name": "ic_exit1.png",
+                        "ix": 100,
+                        "iy": 0
+                    },
+                    "fontsize": 23,
+                    "fontcolor": "#dd0000",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "검사 대기실",
+                    "desc":"", "x": 955,
+                    "y": 484,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 955,
+                    "y": 514,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 955,
+                    "y": 544,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "응급실",
+                    "desc":"", "x": 955,
+                    "y": 634,
+                    "icon": {
+                        "name": "ic_h.png",
+                        "ix": 0,
+                        "iy": -65
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/응급실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "여자화장실",
+                    "desc":"", "x": 955,
+                    "y": 725,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "남자화장실",
+                    "desc":"", "x": 955,
+                    "y": 754,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계단(→옥상)",
+                    "desc":"", "x": 945,
+                    "y": 777,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -110,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 1000,
+                    "y": 777,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "현위치",
+                    "desc":"", "x": 587,
+                    "y": 820,
+                    "icon": {
+                        "name": "ic_here.png",
+                        "ix": 0,
+                        "iy": 40
+                    },
+                    "fontsize": 20,
+                    "fontcolor": "#ffff00",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "새 위치",
+                    "desc":"", "x": 560,
+                    "y": 800,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "새 위치",
+                    "desc":"", "x": 366,
+                    "y": 392,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "2F",
+            "height": "192",
+            "floorbg": "contentdata/img/map2.png",
+            "data": [
+                {
+                    "title": "특수검진과\n강당",
+                    "desc":"", "x": 112,
+                    "y": 409,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/특검과 강당 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 102,
+                    "y": 537,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "군수과",
+                    "desc":"", "x": 102,
+                    "y": 612,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/군수과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 102,
+                    "y": 677,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 102,
+                    "y": 717,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "운영과",
+                    "desc":"", "x": 102,
+                    "y": 752,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/운영과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "남자화장실",
+                    "desc":"", "x": 102,
+                    "y": 784,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계단\n(→옥상)",
+                    "desc":"", "x": 102,
+                    "y": 814,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -70,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 110,
+                    "y": 847,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "주임원사실",
+                    "desc":"", "x": 123,
+                    "y": 877,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계획운영\n부장실",
+                    "desc":"", "x": 208,
+                    "y": 884,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "간호\n부장실",
+                    "desc":"", "x": 290,
+                    "y": 884,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "원장실",
+                    "desc":"", "x": 385,
+                    "y": 884,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계단",
+                    "desc":"", "x": 462,
+                    "y": 884,
+                    "fontsize": 13,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -70,
+                        "iy": 0
+                    },
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 374,
+                    "y": 225,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 304,
+                    "y": 266,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 440,
+                    "y": 290,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 440,
+                    "y": 320,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 440,
+                    "y": 349,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료부 연구실",
+                    "desc":"", "x": 440,
+                    "y": 382,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "회의실",
+                    "desc":"", "x": 455,
+                    "y": 417,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "desc":"", "x": 455,
+                    "y": 447,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "특수검진과",
+                    "desc":"", "x": 292,
+                    "y": 432,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/특검과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "감찰조사실\n인사상담실",
+                    "desc":"", "x": 265,
+                    "y": 515,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/감찰, 인사상담실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "통제관실",
+                    "desc":"", "x": 340,
+                    "y": 515,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "여자\n화장실",
+                    "desc":"", "x": 408,
+                    "y": 515,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "남자\n화장실",
+                    "desc":"", "x": 458,
+                    "y": 515,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계단",
+                    "desc":"", "x": 255,
+                    "y": 552,
+                    "fontsize": 13,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -70,
+                        "iy": 0
+                    },
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "소회의실",
+                    "desc":"", "x": 240,
+                    "y": 605,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/소회의실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "남자탈의실",
+                    "desc":"", "x": 240,
+                    "y": 644,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "여자탈의실",
+                    "desc":"", "x": 240,
+                    "y": 665,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계획과",
+                    "desc":"", "x": 240,
+                    "y": 702,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/계획과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "계획과장실",
+                    "desc":"", "x": 240,
+                    "y": 740,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "위기조치\n상황실",
+                    "desc":"", "x": 240,
+                    "y": 789,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/지휘부 길안내(2층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "검진\n센터장실",
+                    "desc":"", "x": 313,
+                    "y": 804,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료\n부장실",
+                    "desc":"", "x": 373,
+                    "y": 804,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "탕\n비\n실",
+                    "desc":"", "x": 420,
+                    "y": 804,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "접견실",
+                    "desc":"", "x": 460,
+                    "y": 804,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "중앙정원",
+                    "desc":"", "x": 382,
+                    "y": 657,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "항의원 식당",
+                    "desc":"", "x": 630,
+                    "y": 225,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/항의원 식당 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "주차장",
+                    "desc":"", "x": 910,
+                    "y": 227,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "다리",
+                    "desc":"", "x": 970,
+                    "y": 267,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "격리병실",
+                    "desc":"", "x": 970,
+                    "y": 322,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "병동구역",
+                    "desc":"", "x": 815,
+                    "y": 432,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/병동 길안내(2층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "2층 출입구",
+                    "desc":"", "x": 700,
+                    "y": 265,
+                    "icon": {
+                        "name": "ic_exit1.png",
+                        "ix": 140,
+                        "iy": 0
+                    },
+                    "fontsize": 23,
+                    "fontcolor": "#dd0000",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "여자\n화장실",
+                    "desc":"", "x": 680,
+                    "y": 293,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "남자\n화장실",
+                    "desc":"", "x": 745,
+                    "y": 293,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계단\n(→지하)",
+                    "desc":"", "x": 568,
+                    "y": 517,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -70,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "도서실",
+                    "desc":"", "x": 568,
+                    "y": 582,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/도서실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "대회의실",
+                    "desc":"", "x": 568,
+                    "y": 697,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/대회의실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "역사실",
+                    "desc":"", "x": 568,
+                    "y": 805,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "환자 대기공간",
+                    "desc":"", "x": 648,
+                    "y": 805,
+                    "icon": {
+                        "name": "ic_ready.png",
+                        "ix": 0,
+                        "iy": 60
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/피부과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "치과",
+                    "desc":"충치 이가 잇몸이 턱이", "x": 790,
+                    "y": 805,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/치과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "계단\n(→지하)",
+                    "desc":"", "x": 850,
+                    "y": 517,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -70,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "EV",
+                    "desc":"", "x": 850,
+                    "y": 557,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "소화기검진과\n/내시경실",
+                    "desc":"", "x": 850,
+                    "y": 642,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/소화기검진과(내시경실) 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "휴게실",
+                    "desc":"", "x": 850,
+                    "y": 727,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "여자탈의실",
+                    "desc":"", "x": 978,
+                    "y": 572,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "소화기검진과\n/내시경실",
+                    "desc":"", "x": 978,
+                    "y": 642,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/소화기검진과(내시경실) 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "여자화장실",
+                    "desc":"", "x": 978,
+                    "y": 764,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "남자화장실",
+                    "desc":"", "x": 978,
+                    "y": 785,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "계단\n(→옥상)",
+                    "desc":"", "x": 973,
+                    "y": 813,
+                    "icon": {
+                        "name": "ic_floor1.png",
+                        "ix": -70,
+                        "iy": 0
+                    },
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "QPS/\n감염관리실",
+                    "desc":"", "x": 973,
+                    "y": 860,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/QPS, 감염관리실 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "중앙정원",
+                    "desc":"", "x": 708,
+                    "y": 655,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "내\n과\n접\n수",
+                    "desc":"", "x": 625,
+                    "y": 885,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata/floor/내과 길안내(1층 키오스크).png"
+                    }
+                },
+                {
+                    "title": "심초음파\n검사실",
+                    "desc":"", "x": 666,
+                    "y": 897,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실\n1",
+                    "desc":"", "x": 708,
+                    "y": 893,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실\n2",
+                    "desc":"", "x": 742,
+                    "y": 893,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실\n3",
+                    "desc":"", "x": 774,
+                    "y": 893,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "진료실\n4",
+                    "desc":"", "x": 811,
+                    "y": 893,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "운동부하\n검사실",
+                    "desc":"", "x": 850,
+                    "y": 887,
+                    "fontsize": 11,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "응급\n의료과",
+                    "desc":"", "x": 903,
+                    "y": 887,
+                    "fontsize": 13,
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                }
+            ]
+        }
+    ],
+    "tab": "1",
+    "sub": "0"
+}

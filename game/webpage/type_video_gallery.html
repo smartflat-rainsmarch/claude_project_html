@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Video List</title>
+    <script src="./libs/jquery/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+    <script src="./js/scripts.js"></script>
+    <style>
+        body {
+            background-color: #fff;
+            color: #fff;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        #video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .video-item {
+            background-color: #111;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .video-item:hover {
+            transform: scale(1.03);
+        }
+
+        .video-thumb {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            background-color: #222;
+        }
+
+        .video-name {
+            padding: 8px;
+            font-size: 14px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <div id="video-grid"></div>
+    <div id="div_emptylist" align="center" style="margin-top:40%;display:none"><h1 align="center" style="color:black">목록이 없습니다.</h1></div>
+    <script>
+        var img_remove = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAuVQTFRFAAAA////ZmZmY2NjY2NjY2NjY2NjY2NjZWVl+Pj4Y2NjY2Nj+fn5ZGRkY2Nj+/v7Y2Nj8PDwiYmJY2Nj6OjoY2NjY2Nj7u7uY2NjY2NjY2Nj9fX15ubmY2NjY2NjY2NjY2NjaGho09PTe3t7hYWFY2NjY2NjY2NjiIiIv7+/Y2NjxMTE6+vrcHBw9vb2zc3NY2NjY2NjY2NjgYGBY2NjbGxsY2NjY2NjY2NjY2Nj0NDQY2NjhoaGaWlpY2Nj+vr69/f3ampq1dXVi4uLY2Nja2tr4uLiY2NjY2Nj6urqY2NjnZ2d39/frKysyMjIY2NjcnJy5+fnY2NjgICAhISEwsLCY2Njrq6uxsbGb29v7e3tY2Njp6enY2Nj5eXlY2Nj8fHxY2Nj7+/vZWVlY2NjY2Njzs7OY2NjY2NjY2NjY2NjY2Njf39/1NTUbW1tZ2dnY2NjY2Njqamptra2kZGR0dHRz8/PY2NjeXl59PT0Y2NjY2NjY2NjsbGx2trauLi4Y2Njj4+PY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2Njnp6eY2NjdXV1dnZ2q6ur3d3dZGRkmpqaY2NjY2NjY2Njr6+vd3d3Y2NjlpaWurq6Y2NjjY2NpKSkY2NjY2NjY2NjY2Nj3Nzc0tLSysrKY2Nj8/PzY2NjY2NjY2NjcXFxmZmZY2NjeHh4lZWVvb29Y2NjY2NjpqamwMDAsrKyY2Nj2NjYY2NjY2NjY2NjY2Nj/Pz8oaGhgoKC4ODgY2Njbm5uY2NjY2Njubm5qqqqY2NjfX19c3Nz1tbWl5eXwcHBqqqqY2Njampqg4ODioqKY2Njenp6dnZ2fHx8Y2NjY2NjY2NjY2NjZ2dnzMzMbGxsfn5+ampqmJiYY2Nj6enpY2Njh4eHY2NjY2NjY2NjZ2dnk5OTgYGBY2NjY2NjeXl5Y2Nj4+PjY2NjlZWVY2Nj29vbjo6Os7OzeXl5n5+fZmZmhISEdHR0HuXhHAAAAPd0Uk5TAP////799Pz///v3//8C//r///n/Dvj/5eFV//8G4wT1/////+iAN///7f//////CMPu/yb/8dSELP/c//9F//////8d///gDP9Q/////+v//xT////G/////5P/H/9u/xD//hd0/4vwwJ1f/////1zX//////+s///Ornn///+q/xbI0LGhj0Br/5v//////v/eWrD//zX//0P//y63mCX///8S/8zZSfz/uv///306////Uv+Vywq8/////zD/TSP//6T6///+//09/P//M//8/yFL73f+//3+/v+f/9H/G1dn+v/9h6n9tP9h/Yr////3//D8/LmRoHkAAAi5SURBVHic7VlnXFNXGyfrAgkjhBCSACFsCARkhb333htkyd57KWLdKLhQcNW9xVVH3Xtba21t1bq6W9u3fffn95yb1/4091yTC7yfXp7P9/7/5zzPc56ppTUt0zItmoiJl7jgtI8kRcFhs5hMFpujSJH4nC4Qb42dNLTBjFkXNoiX2j933yN8hHG4LCaDwWRxOdgjuz3uz+2/E2/Y/IGFwSQIZnywxL7rVIwME7C1weEBPC7gGtpsASaLOdV1+G66xcRPPyquqJ0vwbQZJKKNSbKXFX/ht9NyYqcPrqoRKQTaTDJ8cBVtgSJg5MtPZ1BXU+zl4OJFCzyUh9dv8k7tfuqZaRvoCCQw0/Ppuryv3vCyhe6Lmz+dNYMiweW6RQGYMUtfH+LT8zLaN/3NKXdHZYe1tf+O3GNzk/4x7+lFHX2lojiy3b5LZlFBN0gfLe5bzYV/60SlPvDkjR+98rjfPL/ETDckJLTEJS2xIbft6FhEpo38K1xT0t0nmzeXao5v6VA134ON6yDKpr3wkFv/eb7pLle9EEMaEEO9ULMSF/PobR3Oa8cyvHEGY7sDszdraAgDi6K9vy9QsIBqrOQPN55tq4zedYaGktC4m4c2bez21gEUrBR3++BIjd6ERbp4RMQB+AyrVF7Ojn5zUzNDJD6Nplvyoj+30FPJgAUMxO/U5E0UiZ8Lubj2u9vXhpvqkYC/4eC7FfKGwvShmkS14kgNCIIX4vhA+/udzxupwQcM+ducxg+G4YYQjgSrhU8/UiVig6+b5OcSnMzJdPOO6EWv35+RB9XEFv3ukK6G4MiWFg4DXFgeMez/wlUTfBrNLM2tlZcHb815udjhvfClfrNfSldC8zrm+JdpBg8l32341UVoB6y3wsvkPQR+s2sUTHDZ1I05N8vUqv8tLZmGJ0VchHao/rDYixTeMvb4hynAP+nemUkdRprDQynr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";
+        
+        var projectid = getParam("projectid") ? getParam("projectid") : "sample"; 
+        var groupidx = getParam("groupidx") ? getParam("groupidx") : 0; 
+        var fcmtoken = getParam("fcmtoken") ? getParam("fcmtoken") : ""; // 단순히 영상 삭제를 위하여 토큰을 사용
+        var editmode = getParam("editmode") ? getParam("editmode") : 0;  //수정모드
+        var isAppMode = false;
+        console.log("type_video_gallery fcmtoken "+fcmtoken);
+        var div_emptylist = document.getElementById("div_emptylist");
+        document.addEventListener("DOMContentLoaded", () => {
+            try {
+
+                getVideoList(function(videoList){
+                     const grid = document.getElementById("video-grid");
+                    console.log("videolist : ",videoList);
+    //                console.log("videoList String : "+str_videoList);
+                    //목록이 없다.
+                    
+                    //if(true){ //test
+                    if(!videoList || videoList && videoList.length == 0){
+                        div_emptylist.style.display = "block";
+                        return;
+                    }
+                    videoList.forEach(video => {
+                        const item = document.createElement("div");
+                        item.className = "video-item";
+                        item.onclick = () => {
+                            if(window.android){
+                                console.log("동영상이미지 클릭!!");
+                                style = {"x":0,"y":0,"w":1080,"h":1920, "isshowplaystop":1};
+                                android.playVideo(video.path, JSON.stringify(style));    
+                            }else {
+                                alertMsg("동영상은 앱에서만 재생 가능합니다.");
+                            }
+                            
+                        };
+                        
+                        const img = document.createElement("img");
+                        img.className = "video-thumb";
+                        img.src = video.thumb || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMQAAADECAMAAAD3eH5ZAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAFFQTFRFAAAAdXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1ghgdZQAAABt0Uk5TAEppAbKzamtsHX2sMK2rfBuoe1ovLnBoR0hJ/yKS1wAAAhtJREFUeJzt2tlu2zAURVHFNpNmqB2HbdPm/z+0GZxYIsVRgQ5p7P1GCbi4y9KLAA8DERERERERERERERERERERERERERERUSNdbbbqFRZ3tTPdK14NpnfFu6FzxcnQt2JjTP+K7fVFKG5QtBKKdkLRTtsfKFqpe8Xt3b0Zd1Y8/DTz7Q+Pyo39bo/uitdphTm2pbjzN8xRPDlj7MprT7uf2TBDsZ9OsWbtvSfNrpihmAyxpkFEhmI8w7qotQv80EnFaIT1nszaBRBJxXmC9V+vtQshUoqvAdZ7MusXRCQUn/es92QEhRFxxemOdc6aIoio4uO6dc6iYoiY4v2qdc6qooiI4u2adc6y4oiwYpgamkYEFY6hbURI4RgaRwQUjqF1RNb3RfMIc5OhUBqyEDkKpSEPkaFQGjIRI8Wv5PfF+mUikgqlIRuRUigN+YiEQmkoQMQVSkMJIqpQGooQMYXSUIaIKJSGQkRYoTSUIoIKpaEYEVIoDeWIgEJpqECMFL/PCqWhBjGrUBqqEHMKpaEOMaNQGioRvkJpqEV4CqWhGuEqlIZ6hKNQGhYgpgqlYQliolAahv03KZSG4bAEMVJIe/T+oNKl4qn4jTr+Of/jrhFFVc8omukyFBsUzXQRiu1Iod6lvi/F7q96lQWdFF0bTordP/UaC3tVdG94U7yoVyAiIiIiIiIiIiIiIiIiIiIiIiIiIiIionD/AWPqQ94LqpzGAAAAAElFTkSuQmCC"; // 대체 썸네일
+
+                        const name = document.createElement("div");
+                        name.className = "video-name";
+                        name.innerText = video.path.split("/").pop();
+
+                        item.appendChild(img);
+                        if(editmode == 1){
+                            const btn_remove = document.createElement("img");
+                            btn_remove.style = "position:absolute;width:40px;height:40px;margin-left:-40px";
+                            btn_remove.src = img_remove;
+                            btn_remove.onclick = () => {
+                                event.stopPropagation(); // ← 이벤트 버블링 방지
+                                //이미지 삭제
+                                //sendPush    
+                                 C_showConfirmPopup({
+                                    message: name.innerText+"\n 을 삭제하시겠습니까?",
+                                    onConfirm: () => sendPush(fcmtoken, "remote_control", "{'event': 'delete_file', 'option':{'delete':'"+video.path+"'}}", video.path)
+
+                                });
+                                 
+                            
+                            };
+                             item.appendChild(btn_remove);
+                        }
+                        item.appendChild(name);
+                        
+                        
+                        grid.appendChild(item);
+                    });
+                });
+                
+               
+            } catch (e) {
+                console.error("Error loading video list:", e);
+            }
+        });
+        
+        
+     function sendPush(fcmtoken, command_key, seq, arg){
+         var _data = {
+             "fcmtoken" : fcmtoken,
+             "command" : command_key,
+             "seq" : seq             
+         }
+          AJAX_AdmGetGame("push", _data, function(res){
+           code = parseInt(res.code);
+           if (code == 100) {
+                if(seq.indexOf("delete_file") >= 0){
+                   deleteVideoFile(arg); //arg = video_path
+                }
+           }               
+        });  
+     }    
+    var delete_video_path = "";    
+    function deleteVideoFile(path){
+     
+        const _data = {
+            "projectid": projectid,
+            "groupidx": groupidx,
+            "path":path
+
+        };
+        AJAX_AdmGetGame("deletevideofile", _data, function (res) {
+             if (code === 100) {
+//                 location.href = 
+             }
+        });
+    }
+      
+    function getVideoList(callback){
+        if(window.android){
+            isAppMode = true;
+            const str_videoList = android.getVideoListWithThumbs();
+            const videoList = JSON.parse(str_videoList);
+            callback(videoList);
+        }else{
+            isAppMode = false;
+             const _data = {
+                "projectid": projectid,
+                "groupidx": groupidx
+              
+            };
+            AJAX_AdmGetGame("getvideolist", _data, function (res) {
+                console.log("getgallerydata res is ", res);
+                const code = parseInt(res.code);
+                if (code === 100) {
+                    const videoList = res.message ? JSON.parse(res.message) : [];
+                     callback(videoList);
+                } else {
+                    alert("데이터를 불러오지 못했습니다.");
+                }
+            });
+        }
+    }
+       // 예: 클릭 감지
+    document.addEventListener("click", () => {
+      window.parent.postMessage("iframe_clicked", "*");
+    });
+      // ✅ 스크롤 이벤트
+    window.addEventListener("scroll", () => {
+      window.parent.postMessage("iframe_scrolled", "*");
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+{
+    "id": "page1_0",
+    "name": "민원안내",
+    "type": "floor",
+    "floortitle": "민원 안내",
+    "floortitlebg": "res\/global\/floor_title_bg.png",
+    "floordata": [
+        {
+            "fname": "교권보호 및 학교폭력",
+            "floorbg": "res\/n_home\/mbtn0.png",
+            "height": "192",
+            "data": [
+                {
+                    "title": "교육활동 보호",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/4f_content.jpg"
+                    }
+                },
+                {
+                    "title": "지역교권보호 위원회",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/4f_content.jpg"
+                    }
+                },
+                {
+                    "title": "학교폭력신고 및 상담",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/4f_open.jpg"
+                    }
+                },
+                {
+                    "title": "학교폭력심의회",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/4f_sky.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "교육기관 및 시설인가 등록",
+            "floorbg": "res\/n_home\/mbtn1.png",
+            "height": "192",
+            "data": [
+                {
+                    "title": "교육환경보호구역",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/4f_content.jpg"
+                    }
+                },
+                {
+                    "title": "유치원 인가",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/4f_content.jpg"
+                    }
+                },
+                {
+                    "title": "평생교육시설 등록",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/4f_open.jpg"
+                    }
+                },
+                {
+                    "title": "학원.교습소.개인과외교습자 등록",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/4f_sky.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "제증명",
+            "height": "192",
+            "floorbg": "res\/n_home\/mbtn2.png",
+            "data": [
+                {
+                    "title": "유치원·초등교원경력증명서, 퇴직증명서 발급",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/3f_open.jpg"
+                    }
+                },
+                {
+                    "title": "중등학교 학생 제증명 및 관내 중학교 교원 인사관련 증명서",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/3f_notebook.jpg"
+                    }
+                },
+                {
+                    "title": "재학·졸업증명서 등 기타 제증명 민원",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/3f_sky.jpg"
+                    }
+                },
+                {
+                    "title": "",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "학생 배치,전학,취학",
+            "height": "192",
+            "floorbg": "res\/n_home\/mbtn3.png",
+            "data": [
+                {
+                    "title": "초등학교 전학",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/2f_booknuri.jpg"
+                    }
+                },
+                {
+                    "title": "초등학교 의무취학 상담",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/2f_ycgallery.jpg"
+                    }
+                },
+                {
+                    "title": "중학교 취학 및 전·입학 상담",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/2f_notebook.jpg"
+                    }
+                },
+                {
+                    "title": "",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                }
+            ]
+        }
+    ],
+    "tab": "0",
+    "sub": "0"
+}

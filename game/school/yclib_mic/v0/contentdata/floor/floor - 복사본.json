@@ -1,0 +1,248 @@
+{
+    "id": "page1_0",
+    "name": "시설안내",
+    "type": "floor",
+    "floortitle": "층별안내",
+    "floortitlebg": "res\/global\/floor_title_bg.png",
+    "floorbg": "res\/global\/floor_bg.png",
+    "floordata": [
+        {
+            "fname": "5F",
+            "height": "100",
+            "data": [
+                {
+                    "title": "제2~5배움방(평생학습교실)",
+                    "event": {
+                        "type": "popup",
+                        "message": "평생학습실은 어쩌구저쩌구시설이 어떻구 저쩌구ㅇㄴㅁ",
+                        "img": "contentdata\/floor\/5f_every.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "4F",
+            "height": "188",
+            "data": [
+                {
+                    "title": "제2열린학습실",
+                    "event": {
+                        "type": "popup",
+                        "message": "제2열린학습실은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/4f_open.jpg"
+                    }
+                },
+                {
+                    "title": "정보마당실(디지털자료실)",
+                    "event": {
+                        "type": "popup",
+                        "message": "정보마당실(디지털자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/4f_content.jpg"
+                    }
+                },
+                {
+                    "title": "하늘정원",
+                    "event": {
+                        "type": "popup",
+                        "message": "하늘정원은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/4f_sky.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "3F",
+            "height": "188",
+            "data": [
+                {
+                    "title": "제1열린학습실",
+                    "event": {
+                        "type": "popup",
+                        "message": "제1열린학습실은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/3f_open.jpg"
+                    }
+                },
+                {
+                    "title": "노트북실(남,여)",
+                    "event": {
+                        "type": "popup",
+                        "message": "노트북실(남,여)은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/3f_notebook.jpg"
+                    }
+                },
+                {
+                    "title": "하늘쉼터",
+                    "event": {
+                        "type": "popup",
+                        "message": "하늘쉼터은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/3f_sky.jpg"
+                    }
+                },
+                {
+                    "title": "정보자료과 사무실",
+                    "event": {
+                        "type": "popup",
+                        "message": "정보자료과 사무실은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/3f_contentdoc.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "2F",
+            "height": "250",
+            "data": [
+                {
+                    "title": "책누리실(일반자료실)",
+                    "event": {
+                        "type": "popup",
+                        "message": "책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구\n책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구\n책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구\n책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구\n책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구\n책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구\n책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구\n책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구\n책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구\n책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구\n책누리실(일반자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/2f_booknuri.jpg"
+                    }
+                },
+                {
+                    "title": "양천갤러리",
+                    "event": {
+                        "type": "popup",
+                        "message": "양천갤러리은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/2f_ycgallery.jpg"
+                    }
+                },
+                {
+                    "title": "노트북실",
+                    "event": {
+                        "type": "popup",
+                        "message": "노트북실은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/2f_notebook.jpg"
+                    }
+                },
+                {
+                    "title": "다모아방",
+                    "event": {
+                        "type": "popup",
+                        "message": "다모아방은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/2f_damoa.jpg"
+                    }
+                },
+                {
+                    "title": "독서상담실",
+                    "event": {
+                        "type": "popup",
+                        "message": "독서상담실은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/2f_reading.jpg"
+                    }
+                },
+                {
+                    "title": "관장실",
+                    "event": {
+                        "type": "popup",
+                        "message": "관장실은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/2f_director.jpg"
+                    }
+                },
+                {
+                    "title": "행정지원과 사무실",
+                    "event": {
+                        "type": "popup",
+                        "message": "행정지원과 사무실은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/2f_administration.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "1F",
+            "height": "300",
+            "data": [
+                {
+                    "title": "꿈동산실(어린이자료실)",
+                    "event": {
+                        "type": "popup",
+                        "message": "꿈동산실(어린이자료실)은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "장애인누리실",
+                    "event": {
+                        "type": "popup",
+                        "message": "장애인누리실은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/1f_disabled_nuri.jpg"
+                    }
+                },
+                {
+                    "title": "안내실",
+                    "event": {
+                        "type": "popup",
+                        "message": "안내실은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/1f_information.jpg"
+                    }
+                },
+                {
+                    "title": "휴게쉼터",
+                    "event": {
+                        "type": "popup",
+                        "message": "휴게쉼터은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/1f_restarea.jpg"
+                    }
+                },
+                {
+                    "title": "독서문화진흥과 사무실",
+                    "event": {
+                        "type": "popup",
+                        "message": "독서문화진흥과 사무실은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/1f_reading_culture.jpg"
+                    }
+                },
+                {
+                    "title": "야간예약대출기",
+                    "event": {
+                        "type": "popup",
+                        "message": "야간예약대출기는 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/1f_loan_machine.jpg"
+                    }
+                },
+                {
+                    "title": "무인반납기",
+                    "event": {
+                        "type": "popup",
+                        "message": "무인반납기는 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/1f_return_machine.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "B1",
+            "height": "100",
+            "data": [
+                {
+                    "title": "창의배움방",
+                    "event": {
+                        "type": "popup",
+                        "message": "창의배움방 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/b1_creative_learning_room.jpg"
+                    }
+                },
+                {
+                    "title": "스튜디오",
+                    "event": {
+                        "type": "popup",
+                        "message": "스튜디오은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/b1_studio.jpg"
+                    }
+                },
+                {
+                    "title": "커뮤니티룸",
+                    "event": {
+                        "type": "popup",
+                        "message": "커뮤니티룸은 어쩌구저쩌구시설이 어떻구 저쩌구",
+                        "img": "contentdata\/floor\/b1_community_room.jpg"
+                    }
+                }
+            ]
+        }
+    ],
+    "tab": "1",
+    "sub": "0"
+}

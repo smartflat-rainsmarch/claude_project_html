@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>달력 페이지</title>
+    <link href="./libs/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <script src="./libs/swiper/swiper-bundle.min.js"></script>
+    <script src="./libs/jquery/jquery-3.5.1.min.js"></script>
+    <script src="./js/scripts.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      width: 1000px;
+      height: 1300px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #topBar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background-color: #f5f5f5;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #topBar .arrow {
+      font-size: 24px;
+      cursor: pointer;
+      padding: 10px;
+    }
+
+    #monthLabel {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    #weekdayHeader {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      background-color: #fafafa;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+    }
+
+    #weekdayHeader div {
+      padding: 10px 0;
+        font-size: 25px;
+        font-weight:bold;
+        text-shadow: 2px 2px 5px rgba(255,255,255,0.5);
+    }
+
+    #weekdayHeader div:nth-child(1) {
+      color: red;
+        font-size: 25px;
+        font-weight:bold;
+        text-shadow: 2px 2px 5px rgba(255,255,255,0.5);
+    }
+
+    #weekdayHeader div:nth-child(7) {
+      color: blue;
+           font-size: 25px;
+        font-weight:bold;
+        text-shadow: 2px 2px 5px rgba(255,255,255,0.5);
+    }
+
+    #calendar {
+      flex-grow: 1;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-auto-rows: 1fr;
+      gap: 1px;
+      background-color: #ddd;
+    }
+
+    .day {
+      background-color: #fff;
+      text-align: center;
+      padding: 10px;
+      border-radius: 14px;
+      box-sizing: border-box;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .day:hover {
+        background-color: #d9f7be;
+        font-size:15px;
+        font-weight: bold;
+    }
+
+    .sunday {
+      color: red;
+        font-size:15px;
+      font-weight: bold;
+    }
+
+    .saturday {
+        font-size:15px;
+      color: blue;
+      font-weight: bold;
+    }
+
+    #popupOverlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #popup {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 500px;
+      position: relative;
+    }
+
+    #popup .closeBtn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="topBar">
+    <div class="arrow" onclick="changeMonth(-1)">&#9664;</div>
+    <div id="monthLabel"></div>
+    <div class="arrow" onclick="changeMonth(1)">&#9654;</div>
+  </div>
+
+  <div id="weekdayHeader">
+    <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+  </div>
+
+  <div id="calendar"></div>
+
+  <div id="popupOverlay">
+    <div id="popup">
+      <div class="closeBtn" onclick="closePopup()">✖</div>
+      <div id="popupContent"></div>
+    </div>
+  </div>
+
+    <script>
+        var alllist = [];
+        var projectid = getParam("projectid") ? getParam("projectid") : "sample";  //프로젝트 아이디
+        var groupidx = getParam("groupidx") ? getParam("groupidx") : 0;  //그룹아이디
+        var listid = getParam("listid") ? getParam("listid") : 0;  //게시판 아이디
+        var editmode = getParam("editmode") ? getParam("editmode") : 0;  //게시판 아이디
+        var apitype = getParam("apitype") ? getParam("apitype") : "calendar";  // //mealServiceDietInfo(식단표) , elsTimetable(초등시간표) misTimetable(중등시간표) , hisTimetable(고등시간표) , SchoolSchedule(학사일정)
+      
+        
+        console.log("new projectid "+projectid+" groupidx "+groupidx);
+        
+        
+        var now_pagenum = 0;
+      
+        let currentListMax    = 300;
+        let currentListId     = '';
+        let currentProjectId  = '';
+
+        function getPage(pagenum, list_length, list_name_id, projectid) {
+            currentListMax   = list_length;
+            if(tgrade != "")currentListMax = 1000;
+            currentListId    = list_name_id;
+            currentProjectId = projectid;
+            now_pagenum = pagenum;
+            const _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "listnameid": list_name_id,
+                "pagenum": pagenum,
+                "listmax": list_length,//
+                "apitype":apitype,
+               
+            };
+            console.log(" 000 ",_data );
+            AJAX_AdmGetGame("type_getcalendardata", _data, function (res) {
+                console.log(" type_getcalendardata ",res );
+                const code = parseInt(res.code);
+                if (code === 100) {
+                    
+                    alllist = res.message[apitype][1].row;
+                    console.log("alllist ",alllist);
+//                    updateList(res);
+                     renderCalendar();
+                } else {
+//                    alert("데이터를 불러오지 못했습니다.");
+                }
+            });
+        }
+        
+        
+        
+        
+        
+        
+        
+        const calendarEl = document.getElementById('calendar');
+          const monthLabel = document.getElementById('monthLabel');
+          const popupOverlay = document.getElementById('popupOverlay');
+          const popupContent = document.getElementById('popupContent');
+
+          let today = new Date();
+          let currentMonth = today.getMonth();
+          let currentYear = today.getFullYear();
+
+//          let alllist = [
+//            { date: '2025-05-10', tag_string: '회의 있음' },
+//            { date: '2025-05-14', tag_string: '기한 마감' },
+//            { date: '2025-05-20', tag_string: '출장' }
+//          ];
+
+          function getData() {
+            console.log("getData()!!");
+              getPage(1, 100, listid, projectid);
+          }
+
+          function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth > 11) {
+              currentMonth = 0;
+              currentYear++;
+            } else if (currentMonth < 0) {
+              currentMonth = 11;
+              currentYear--;
+            }
+            renderCalendar();
+            getPage(1, 100, listid, projectid);
+          }
+
+        
+        
+
+        
+        
+          function renderCalendar() {
+              
+            calendarEl.innerHTML = '';
+            monthLabel.innerText = `${currentYear}년 ${currentMonth + 1}월`;
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const lastDate = new Date(currentYear, currentMonth + 1, 0).getDate();
+              
+
+            // 빈칸 추가
+            for (let i = 0; i < firstDay; i++) {
+              const empty = document.createElement('div');
+              calendarEl.appendChild(empty);
+            }
+
+            // 날짜 추가
+            for (let d = 1; d <= lastDate; d++) {
+                 const date = new Date(currentYear, currentMonth, d);
+                const weekday = date.getDay(); // 0 (일) ~ 6 (토)
+              const dayEl = document.createElement('div');
+              dayEl.className = 'day';
+            
+              if (weekday === 0) {
+                dayEl.classList.add('sunday');
+              } else if (weekday === 6) {dayEl.classList.add('saturday');
+              }
+
+                
+              dayEl.innerText = d;
+
+              const fullDate = `${currentYear}${String(currentMonth + 1).padStart(2, '0')}${String(d).padStart(2, '0')}`;
+                
+              const match = alllist.find(item => getSchoolDataDate(item) === fullDate);
+              if (match) {
+                  //////////////////////////////////
+                  //달력 날짜에 보이는 메세지
+                  //////////////////////////////////
+                dayEl.style.backgroundColor = '#e6f7ff';
+                   var tag_string  = getDateTag(match);
+                  dayEl.innerHTML += "<br><br>"+tag_string;
+              }
+
+              dayEl.onclick = () => {
+                  //////////////////////////////////
+                  //팝업에 보이는 메세지
+                  //////////////////////////////////
+                if (match) {
+                    var tag_string  = getDatePopupTag(match,fullDate);
+                    openPopup(tag_string);
+                } else {
+                  openPopup('데이터 없음');
+                }
+              };
+
+              calendarEl.appendChild(dayEl);
+            }
+          }
+
+          function openPopup(content) {
+            popupContent.innerHTML = content;
+            popupOverlay.style.display = 'flex';
+          }
+
+          function closePopup() {
+            popupOverlay.style.display = 'none';
+          }
+         
+        function getSchoolDataDate(match){
+            var ymd = "";
+            switch(apitype){
+                case "mealServiceDietInfo"://식단표
+                    ymd = match.MLSV_YMD;
+                    break;
+                case "elsTimetable"://초등시간표
+                case "misTimetable"://중등시간표
+                case "hisTimetable"://고등시간표
+                     
+                    break;
+                case "SchoolSchedule"://학사일정
+                    ymd = match.AA_YMD;
+                    break;
+            }
+            return ymd;
+        }
+        //달력에 보이는 태그
+        function getDateTag(match){
+            
+            var tag = "";
+            switch(apitype){
+                case "mealServiceDietInfo"://식단표
+                    tag = "<div style='max-width:142px;max-height:192px;'>"+
+                            "<div style='margin-top:3px;border:1px solid #22499d;background-color:#f7faff;margin-left:10px;width:auto;padding:5px;border-radius:6px'>"+match.CAL_INFO+"</div>"+
+                              "<div style='margin-top:30px;width:auto;padding5px;margin-top:10px'>"+match.DDISH_NM+"</div>"+
+                            "</div>";
+                    break;
+               case "elsTimetable"://초등시간표
+               case "misTimetable"://중등시간표
+               case "hisTimetable"://고등시간표
+                      
+                    break;
+                case "SchoolSchedule"://학사일정
+                    
+                    tag = "<div style='margin-top:30px;border:1px solid #22499d;background-color:#f7faff;height:auto;width:auto;padding:5px'>"+match.EVENT_NM+"["+match.DGHT_CRSE_SC_NM+"]"+"</div>";
+                    break;
+                    
+            }
+            
+            return tag;
+        }
+        
+        //팝업에 보이는 태그
+        function getDatePopupTag(match, fullDate){
+            var tag = "";
+            switch(apitype){
+                case "mealServiceDietInfo"://식단표
+                    
+                    tag = "<div style='margin-top:40px;width:auto;font-size:20px;font-weight:bold;padding:15px;color:#181818'>"+typeYMD(fullDate)+" 상세정보</div>"+
+                        "<div style='border-radius:30px;background-color:#00a0a8;width:auto;padding:15px;color:white'>"+match.CAL_INFO+"</div>"+
+                          "<div align='center' style='text-align:center;width:auto;padding5px;margin-top:20px;background-color:#f2faf9;color:#181818;border:1px solid #00a0a8;'>"+match.DDISH_NM+"</div>"+
+                           "<div style='margin-top:20px;border-radius:30px;background-color:#00a0a8;width:auto;padding:15px;color:white'>원산지</div>"+
+                          "<div align='center' style='text-align:center;width:auto;padding5px;margin-top:20px;background-color:#f2faf9;color:#181818;border:1px solid #00a0a8;'>"+match.ORPLC_INFO+"</div>";
+                    break;
+                case "misTimetable"://시간표
+                    break;
+                case "SchoolSchedule"://학사일정
+                    tag = "<div style='margin-top:30px;width:auto;font-size:20px;font-weight:bold;padding:15px;color:#181818'>"+typeYMD(fullDate)+"</div>"+
+                        "<div style='margin-top:10px;border:1px solid #22499d;background-color:#f7faff;width:auto;padding:15px;color:#181818'>"+match.EVENT_NM+"["+match.DGHT_CRSE_SC_NM+"]"+"</div>";
+                    break;                    
+            }
+            
+            
+            return tag;
+        }
+        function typeYMD(str){
+             return str.slice(0, 4) + '-' + str.slice(4, 6) + '-' + str.slice(6, 8);  
+        }
+         
+        // 초기 로딩
+        window.onload = function() {
+             renderCalendar();
+          getData();
+            getPage(1, 100, listid, projectid);
+        };
+        
+        document.addEventListener("click", () => {
+            console.log("클릭했다!");
+          window.parent.postMessage("iframe_clicked", "*");
+        });
+        // ✅ 스크롤 이벤트
+        window.addEventListener("scroll", () => {
+            console.log("스크롤했다!");
+          window.parent.postMessage("iframe_scrolled", "*");
+        });
+    </script>
+
+</body>
+</html>

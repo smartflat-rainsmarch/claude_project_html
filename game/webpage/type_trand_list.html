@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>트랜드 리스트 관리</title>
+    <!--    <script src="./libs/sirvey/survey_tailwincss.com"></script>-->
+<!--    <script src="https://cdn.tailwindcss.com"></script>-->
+    <script src="./libs/tailwindcss.js"></script>
+    <script src="./libs/jquery/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+    <script src="./js/scripts.js"></script>
+
+    <link href="./css/toggle.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f9fafb;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .highlight {
+            background-color: #e0f2fe;
+            border: 2px solid #0284c7;
+        }
+
+        .finished {
+            background-color: #fef2f2;
+            border: 2px solid #f87171;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            width: 600px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 900;
+        }
+
+        .bar {
+            transition: width 1.2s ease-out;
+        }
+
+        .bar-animated {
+            animation: barGrow 1.2s ease-out;
+        }
+
+        @keyframes barGrow {
+            0% {
+                width: 0%;
+            }
+
+            100% {
+                width: var(--bar-width);
+            }
+        }
+
+    </style>
+</head>
+
+<body >
+    <div style="padding:30px">
+        <h1 class="text-3xl font-bold mb-6">📋 트랜드 리스트 관리</h1>
+        <button id='add_survey' style="float:right;background-color:#f2faf9;width:140px;height:auto;padding:10px;border-radius:10px;border:1px solid #eeeeee;margin-top:-60px;margin-right:160px;" onclick="insertSurvey()" title="새로운 트랜드를 만들어요">+새 트랜드</button>
+        <div style='width:150px;float:right; height:auto;padding-left:10px;padding-right:5px;margin-top:-55px'>
+            <label class='switch' style='float:left;'>
+                <input id='toggle_survey' type='checkbox' onchange="togglechange('survey', '트랜드ON', '트랜드OFF')" checked>
+                <span id='toggle_icon_survey' class='slider round'>
+                </span>
+            </label>
+            <text id='toggle_txt_survey' style='color:gray;float:left;font-size:16px;margin-left:5px;font-weight:500;margin-top:5px;'>트랜드ON</text>
+        </div>
+
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 p-4 mb-6" role="alert">
+            <p class="font-bold">알림</p>
+            <p>키오스크에 표시할 트랜드는 리스트 맨 위의 1개입니다. 상단 고정 버튼으로 순서를 조정하세요.</p>
+        </div>
+
+
+        <div id="surveyList" class="space-y-4"></div>
+
+        <!--
+        <div class="flex justify-center mt-8 space-x-4">
+            <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">이전</button>
+            <button class="px-4 py-2 bg-gray-800 text-white rounded">1</button>
+            <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">2</button>
+            <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">다음</button>
+        </div>
+-->
+    </div>
+
+   <!--결과보기 모달-->
+    <div id="resultOverlay" class="overlay hidden"></div>
+    <div id="resultModal" class="modal hidden">
+        <label class="text-xl font-bold mb-4" style="font-size;20px;font-weight:bold;width:auto">📊 트랜드 결과</label><label id="lbl_total_count" style="float:right">총투표 0표</label><br><br>
+        <div style='max-height: 600px;overflow-y: scroll'>
+        <ul id="resultContent" class="space-y-4"></ul>        
+        </div>
+        <button onclick="closeResult()" class="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">닫기</button>
+    </div>
+
+    <script>
+        //버튼색 설정
+        setBtnEventColor("add_survey", "#f2faf9", "#e2eae9", "#cecec0");
+
+
+        const list = document.getElementById('surveyList');
+        const today = new Date();
+
+        console.log("트랜드리스트");
+
+        var projectid = getParam("projectid") ? getParam("projectid") : "sample";
+        var groupidx = getParam("groupidx") ? getParam("groupidx") : 0;
+        var contentid = getParam("listid") ? getParam("listid") : "";
+
+        //        var surveyidx = getParam("surveyidx") ? getParam("surveyidx") : 0; //현재트랜드 아이디
+        //    var editmode = getParam("editmode") ? getParam("editmode") : 0;  //게시판 아이디
+        //    var gamemode = getParam("gamemode") ? getParam("gamemode") : 0;
+        //    var nowindex = 0; //
+        var tb_tranddatas = [];
+        
+        var now_sv_idx = 0;
+        var now_sv_onoff = 0;
+        
+        $(document).ready(function() {
+
+
+            var _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "type":"trand"
+            }
+            AJAX_AdmGetGame("getsurveydata", _data, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    tb_tranddatas = res.message;
+                    
+
+                    console.log("get tb_tranddatas ", tb_tranddatas);
+
+                    initNowSurvay(function() {
+                        renderSurveys();
+                        
+                        var toggle_survey = document.getElementById("toggle_survey");
+                        toggle_survey.checked = now_sv_onoff == 0 ? false : true;
+                        togglechange('survey', '트랜드ON', '트랜드OFF');
+                        
+                    })
+                }
+
+            });
+
+
+
+        });
+
+        //현재 선택된 트랜드을 가져와 맨위로 올린다.
+        function initNowSurvay(callback) {
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "contentid": contentid,
+                "type":"trand"
+            }
+            //현재 트랜드 아이디를 가져온다.
+            AJAX_AdmGetGame("getnowsurveyidx", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    var rdata = res.message; //데이타 idx  sv_idx
+                    now_sv_idx = rdata["nowsurveyidx"];
+                    now_sv_onoff = rdata["nowsurveyonoff"];
+                    
+                    var sindex = 0; //리스트 인덱스 0~ max
+                    for (var i = 0; i < tb_tranddatas.length; i++) {
+                        if (tb_tranddatas[i].sv_idx == rdata["nowsurveyidx"]) {
+                            sindex = i;
+                            
+                            break;
+                        }
+                    }
+                    moveToTopFirst(sindex);
+                    
+                }
+                callback();
+
+            });
+        }
+        //현재 선택된 트랜드을 가져와 맨위로 올린다.
+        function updateNowSurvay(callback) {
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "contentid": contentid,
+                "nowsurveyidx": now_sv_idx,
+                "nowsurveyonoff" : now_sv_onoff
+
+            }
+            console.log("now_sv_idx ",now_sv_idx);
+            //현재 트랜드 아이디를 가져온다.
+            AJAX_AdmGetGame("updatenowsurveyidx", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    var survey_idx = res.message;
+
+                }
+                if(callback)callback();
+
+            });
+        }
+
+        function togglechange(key, txton, txtoff) {
+            console.log("toggle change!!");
+            var toggle = document.getElementById("toggle_" + key);
+            var toggle_icon = document.getElementById("toggle_icon_" + key);
+            var toggle_txt = document.getElementById("toggle_txt_" + key);
+            if (toggle.checked) {
+                console.log("토글 켜짐");
+                toggle_icon.style.backgroundColor = "#33aaaa";
+                toggle_txt.innerHTML = txton;
+                toggleSurveyListDisabled(false);
+            } else {
+                console.log("토글 꺼짐");
+                toggle_icon.style.backgroundColor = "#cccccc";
+                toggle_txt.innerHTML = txtoff;
+                toggleSurveyListDisabled(true);
+            }
+
+        }
+
+        function toggleSurveyListDisabled(flg) {
+            const surveyList = document.getElementById('surveyList');
+            const children = surveyList.children;
+
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
+                if (flg) {
+                    console.log("목록끈다.");
+                    // 끈 상태: 회색, 클릭 불가
+                    child.classList.add('bg-gray-200', 'text-gray-500', 'opacity-50', 'pointer-events-none');
+                    
+                } else {
+                    console.log("목록켠다.");
+                    // 켠 상태: 원래대로
+                    child.classList.remove('bg-gray-200', 'text-gray-500', 'opacity-50', 'pointer-events-none');
+                    
+                }
+                
+            }
+            if(flg){                
+                now_sv_onoff = 0;
+            }else{
+                now_sv_onoff = 1;
+            }
+            console.log("now_sv_onoff is "+now_sv_onoff);
+            updateNowSurvay();
+        }
+        //sv_idx 가 있다면 수정 , 없다면 삽입
+        function insertSurvey(sv_idx) {
+            var _surveydata = null;
+            now_trand_items = [];
+            now_trand_setting =  {"maxclicks":30,"maxsize":300,"clickInterval":5000, "settitle":{"size":"medium","color":"#ffffff"},"setitem":{"color":"#ffffff"}}; 
+            
+            var title = "";
+            
+            var startdate = "";
+            var enddate = "";
+            
+            var result_open = 0;
+            if (sv_idx) {
+                for (var i = 0; i < tb_tranddatas.length; i++) {
+                    if (tb_tranddatas[i].sv_idx == sv_idx) {
+                        _surveydata = tb_tranddatas[i];
+
+                        break;
+                    }
+                }
+            }
+            if (_surveydata) {
+                title = _surveydata.sv_title;
+                now_trand_title = _surveydata.sv_title;
+                now_trand_items = _surveydata.sv_data ? JSON.parse(_surveydata.sv_data) : [];          
+                now_trand_setting = _surveydata.sv_setting ? JSON.parse(_surveydata.sv_setting) : [];
+                
+                
+                startdate = _surveydata.sv_startdate.substr(0, 10);
+                enddate = _surveydata.sv_enddate.substr(0, 10);
+                result_open = _surveydata.sv_resultopen;
+                
+            }
+
+            var size_tag = "<select id='select_trandsize' style='border:1px solid #e9e9e9;border-radius:6px;width:200px;height:50px'><option value ='0' selected>기본사이즈</option><option value ='1' >중간사이즈</option><option value ='2' >큰사이즈</option><option value ='3' >아주큰사이즈</option></select>";
+             var resultopen_tag = result_open == 1 ? "<select id='select_isopen' class='w-full p-3 border rounded-lg mb-5 text-lg'><option value ='1' selected>공개</option><option value ='0'>비공개</option></select>" : "<select id='select_isopen' class='w-full p-3 border rounded-lg mb-5 text-lg'><option value ='1' >공개</option><option value ='0' selected>비공개</option></select>";
+
+
+            if (tb_tranddatas.length >= 10) {
+                alert("최대 10개까지 추가할 수 있습니다. ");
+                return;
+            }
+            console.log("!!! insertSurvey");
+            var sv_max = 300;
+            var click_max = now_trand_setting.maxclicks;
+            var click_interval = now_trand_setting.clickInterval;
+            var message_tag = `
+                    <div align="left" style="padding:20px;overflow-y:scroll; max-height:600px">
+                        <h2 class="text-3xl font-bold mb-5">🛠 트랜드 정보</h2>
+
+                        <label style="font-size:20px;font-weight:bold">트랜드 제목</label><img src="./uiimg/ic_setting.png" style="float:right;width:25px;height:25px;cursor:pointer" onclick="settingTitle()" title='트랜드 제목 크기, 색깔을 변경합니다.'>
+                        <input id="input_sv_title" type="text" value="${title}" class="w-full p-3 border rounded-lg mb-5 text-lg" placeholder="예: 가장 좋아하는 급식 메뉴는?" />
+
+                        <label class="block text-lg font-semibold mb-2">항목 입력 (최대 30개)</label>
+                       
+                        <div style='width:100%;position:flex;background-color:#f2faf9;padding:15px;border:1px solid #e9e9e9;border-radius:10px 10px 0 0;'> 
+                            <label style="margin-right:20px">트랜드명</label><input id="input_trand" type="text" style="margin-left:20px;margin-right:30px;width:200px;height:50px;border:1px solid #e9e9e9;border-radius:8px;padding"10px;" title="트랜드이름 입력...">
+                            <label style="margin-left:30px;margin-right:20px">최초크기</label> ${size_tag}<img src='uiimg/icon_add.png' style='float:right;margin-left:50px' onclick='add_trand_item()' title="삽입하기">
+                        </div>
+                        
+                        <div id='div_trand_area' style="width:100%;border:1px solid #e9e9e9; border-radius:0 0 10px 10px;padding:15px;min-height:50px;display: flow-root;">
+                            ${getTrandItemsTag()}
+                        </div>
+                        <br>
+                        <br>
+                        <label class="block text-lg font-semibold mb-2">트랜드 조사기간</label>
+                        <div class="flex gap-4 mb-5">
+                           <input id="input_startdate" value="${startdate}" type="date" class="w-1/2 p-3 border rounded-lg" />
+                           <input id="input_enddate" value="${enddate}" type="date" class="w-1/2 p-3 border rounded-lg" />
+                        </div>
+
+
+                        <div class="flex gap-4 mb-5">
+                            <div>
+                                <label class="block text-lg font-semibold mb-2">트랜드 결과 공개 여부</label>
+                                ${resultopen_tag}
+                            </div>
+                            <div>
+                                <label class="block text-lg font-semibold mb-2">트랜드 최대참여자</label>
+                                <input id="input_sv_max" value ="${sv_max}" type="text" class="w-full p-3 border rounded-lg mb-5 text-lg" placeholder="최대 참여인원" />
+
+                            </div>
+                            <div>
+                                <label class="block text-lg font-semibold mb-2">트랜드별 최대클릭횟수</label>
+                                <input id="input_click_max" value ="${click_max}" type="text" class="w-full p-3 border rounded-lg mb-5 text-lg" placeholder="최대 클릭횟수" />
+
+                            </div>
+
+                            <div>
+                                <label class="block text-lg font-semibold mb-2">다음 클릭까지 시간</label>
+                                <input id="input_click_interval" value ="${click_interval}" type="text" class="w-full p-3 border rounded-lg mb-5 text-lg" placeholder="다음 클릭까지 시간" />
+                            </div>
+
+
+
+                        </div>
+
+                         <label>
+                            <input id="input_isnow_idx" type="checkbox"> 트랜드 화면에 바로 표시
+                        </label>                   
+
+                      </div>`;
+
+            //<button class="w-full bg-blue-600 text-white text-xl font-semibold p-4 rounded-lg">트랜드 저장</button>
+            showConfirmPopup(true,{
+                message: message_tag,
+                onConfirm: (overlay) => {
+                    if(!input_sv_title.value){
+                        alert("트랜드 제목을 입력해 주세요");
+                        return;
+                    }
+                    if(!input_startdate.value){
+                        alert("시작일을 입력해 주세요");
+                        return;
+                    }
+                    if(!input_enddate.value){
+                        alert("종료일을 입력해 주세요");
+                        return;
+                    }
+
+                    sv_idx ? sendUpdateTrand(sv_idx) : sendInsertTrand();
+                    overlay.remove();//팝업닫기
+                    
+                },
+                okTxt: sv_idx ? "트랜드수정하기" : "트랜드추가하기"
+
+            });
+            
+        }
+        function settingTitle(){
+            console.log("settingTitle!");
+            
+            var size_tag = "<option value='small'>작게</option><option value='medium' selected>중간</option><option value='large'>크게</option>";
+            var color = now_trand_setting.settitle && now_trand_setting.settitle.color ? now_trand_setting.settitle.color : "#ffffff";
+            var font_size = 22;
+            if(now_trand_setting.settitle)
+            switch(now_trand_setting.settitle.size){
+                case "small":
+                    size_tag = "<option value='small' selected>작게</option><option value='medium' >중간</option><option value='large'>크게</option>";
+                    font_size = 15;
+                    break;
+                case "medium":
+                    size_tag = "<option value='small'>작게</option><option value='medium' selected>중간</option><option value='large'>크게</option>";
+                    font_size = 22;
+                    break;
+                case "large":
+                    size_tag = "<option value='small'>작게</option><option value='medium' >중간</option><option value='large' selected>크게</option>";
+                    font_size = 30;
+                    break;
+                    
+            }
+            console.log("")
+            const message_tag = `
+                <label style="font-size:20px;margin-top:15px;font-weight:bold;float:left">※글자 크기 , 색상을 선택해 주세요.</label><br><br>                
+                <div style="display: flex; align-items: center; gap: 10px;margin-top:30px;border:1px solid #e9e9e9;border-radius:10px 10px 0px 0px; padding:10px;background-color:#f2faf9">
+                    <label for="id_textsize" style="margin-left:10px;font-size:14px;">• 글자 크기:</label>
+                    <select id="id_textsize" style="width:70px;height:35px;padding: 5px; font-size:14px;border:1px solid :#e9e9e9;border-radius:6px;cursor:pointer" onchange="updateTitleSize()">
+                        ${size_tag}
+                    </select>
+
+                    <label for="id_colorpicker" style="font-size:14px;margin-left:50px">• 색상:</label>
+                    <input type="color" id="id_colorpicker" value="${color}" style="width: 40px; height: 30px; border: none; padding: 0;cursor:pointer" onchange="updateTitleColor()">
+                </div>
+                <div align="center" style="width:100%;height:auto;border:1px solid #e9e9e9;border-radius:0px 0px 10px 10px;padding:20px;background-color:#e9e9e9">
+                    <label id="lbl_title_view" style="color:${color};font-size:${font_size}px;text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">${now_trand_title}</label>
+                </div>
+            `;
+             showConfirmPopup(true,{
+                message: message_tag,
+                onConfirm: (overlay) => {
+                      console.log("id_textsize "+id_textsize.value);
+                    console.log("id_colorpicker "+id_colorpicker.value);
+                    now_trand_setting["settitle"] = {"size":id_textsize.value, "color":id_colorpicker.value};
+                    console.log("now_trand_setting ",now_trand_setting);
+                    overlay.remove();//팝업닫기
+                    
+                },
+                okTxt: "수정하기"
+
+            });
+            
+            
+        }
+        function settingItem(){
+            console.log("settingItem!");
+            
+            var color = now_trand_setting.setitem && now_trand_setting.setitem.color ? now_trand_setting.setitem.color : "#ffffff";
+           
+            console.log("")
+            const message_tag = `
+                <label style="font-size:20px;margin-top:15px;font-weight:bold;float:left">※글자 색상을 선택해 주세요.</label><br><br>
+                
+                <div style="display: flex; align-items: center; gap: 10px;margin-top:30px;border:1px solid #e9e9e9;border-radius:10px 10px 0px 0px; padding:10px;background-color:#f2faf9">
+                    <label for="id_colorpicker" style="font-size:14px;margin-left:50px">• 색상:</label>
+                    <input type="color" id="id_colorpicker" value="${color}" style="width: 40px; height: 30px; border: none; padding: 0;cursor:pointer" onchange="updateTitleColor()">
+                </div>
+                <div align="center" style="width:100%;height:auto;border:1px solid #e9e9e9;border-radius:0px 0px 10px 10px;padding:20px;background-color:#e9e9e9">
+                    <label id="lbl_title_view" style="color:${color};font-size:22px;text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);">글자색깔</label>
+                </div>
+            `;
+             showConfirmPopup(true,{
+                message: message_tag,
+                onConfirm: (overlay) => {
+                      
+                    console.log("id_colorpicker "+id_colorpicker.value);
+                    now_trand_setting["setitem"] = {"color":id_colorpicker.value};
+                    console.log("now_trand_setting ",now_trand_setting);
+                    document.getElementById("div_trand_area").innerHTML = getTrandItemsTag();
+                    overlay.remove();//팝업닫기
+                    
+                },
+                okTxt: "수정하기"
+
+            });
+            
+            
+        }
+        function updateTitleSize(){
+            var lbl_title_view = document.getElementById("lbl_title_view");
+            var id_textsize = document.getElementById("id_textsize");
+            lbl_title_view.style.fontSize = id_textsize.value == "small" ? "15px" : id_textsize.value == "medium" ? "22px" : "30px";
+
+        }
+        function updateTitleColor(){
+            var lbl_title_view = document.getElementById("lbl_title_view");
+            var id_colorpicker = document.getElementById("id_colorpicker");
+
+            lbl_title_view.style.color = id_colorpicker.value;
+
+        }
+        
+        var now_trand_title = "";
+        var now_trand_items = [];
+        var now_trand_setting = {};
+        const pastelColors = [
+                '#a7c5eb', '#b2d8b2', '#f6caca', '#f8e1a7', '#c7bfe6',
+                '#a8e6cf', '#dcedc1', '#ffd3b6', '#ffaaa5', '#ff8b94'
+            ];
+        function add_trand_item(){
+            
+            var input_trand = document.getElementById("input_trand");
+            var div_trand_area = document.getElementById("div_trand_area");
+            var select_trandsize = document.getElementById("select_trandsize");
+            
+            if(!input_trand.value){
+                alert("트랜드명을 입력해 주세요");
+                return;
+            }
+            
+            var div = document.createElement("div");
+            var trandsize = [100,150,200,250];
+            var fontsize = [16,20,25,30];
+            var idx = tb_tranddatas.length;
+            var tranddata = { name: input_trand.value, size: trandsize[parseInt(select_trandsize.value)], fontSize: fontsize[parseInt(select_trandsize.value)], clicks: 0, color: pastelColors[idx%pastelColors.length] };
+            
+            now_trand_items.push(tranddata);
+            div_trand_area.innerHTML = getTrandItemsTag();
+            
+            input_trand.value = "";
+            
+//            div.align = "center";
+//            div.style = "width:auto;height:auto;border-radius:15px;box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);border:0px;background-color:#aF4254;float:left;cursor:pointer;margin:2px 4px 4px 12px;padding:7px 10px 3px 10px";
+//           
+//            div.id = "div_trand_item_"+idx;
+//            div.innerHTML = 
+//            
+//                    //PT달력 이름
+//                    "<label id='trand' style='color:white;font-weight: 500;font-size:16px;float:left'>"+input_trand.value+"</label>"+    
+//                    "<img src='./uiimg/btn_rectx_press.png' style='float:right;margin-top:5px;margin-left:8px;width:16px;height:16px;cursor:pointer'  onclick='deleteTrandBox("+idx+")'>";
+//            
+//            div_trand_area.appendChild(div);
+           
+            
+            
+        }
+        function deleteTrandItem(idx){
+             var div_trand_area = document.getElementById("div_trand_area");
+            
+            var new_tranditems = [];
+            for(var i = 0 ; i < now_trand_items.length; i++){
+                if(i != idx){
+                    new_tranditems.push(tb_tranddatas[i]);
+                }
+            }
+            now_trand_items = new_tranditems;
+            div_trand_area.innerHTML = getTrandItemsTag();
+        }
+        function getTrandItemsTag(){
+            return "<img src='./uiimg/ic_setting.png' style='float:right;width:25px;height:25px;cursor:pointer' onclick='settingItem()' title='트랜드 아이템 색깔을 변경합니다.'>"+initTrandItems();
+        }
+        function initTrandItems(){
+            var tag_trand_area = "";
+            
+            var color = now_trand_setting.setitem && now_trand_setting.setitem.color ? now_trand_setting.setitem.color : "#ffffff";
+            
+            for(var i = 0 ; i < now_trand_items.length; i++){
+                tag_trand_area += "<div align='center' id='div_trand_item_"+i+"' style='width:auto;height:auto;border-radius:15px;box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);border:0px;background-color:"+getSizeColor(now_trand_items[i].size)+";float:left;cursor:pointer;margin:2px 4px 4px 12px;padding:7px 10px 3px 10px'>"+
+                    "<label id='trand' style='color:"+color+";font-weight: 500;font-size:16px;float:left'>"+now_trand_items[i].name+"</label>"+    
+                    "<img src='./uiimg/btn_rectx_press.png' style='float:right;margin-top:5px;margin-left:8px;width:16px;height:16px;cursor:pointer'  onclick='deleteTrandItem("+i+")'></div>";
+            }
+            
+            return tag_trand_area;
+        }
+        function getSizeColor(size){
+            var size_color = ["#A7C5EB", "#B2D8B2", "#F8E1A7", "#F6CACA"];
+            var trandsize = [100,150,200,250];
+            
+            if(size <= trandsize[0]){
+                return size_color[0];
+            }
+            else if(size <= trandsize[1]){
+                return size_color[1];
+            }
+            else if(size <= trandsize[2]){
+                return size_color[2];
+            }
+            else return size_color[3];
+        }
+        function showDelete(sv_idx) {
+            var sdata = null;
+            for (var i = 0; i < tb_tranddatas.length; i++) {
+                if (tb_tranddatas[i].sv_idx == sv_idx) {
+                    sdata = tb_tranddatas[i];
+                    break;
+                }
+            }
+            if (sdata) {
+                showConfirmPopup(false,{
+                    message: "<span style='color:blue'>[" + sdata.sv_title + "]</span><br> 을 삭제하시겠습니까?",
+                    onConfirm: () => sendDeleteSurvay(sv_idx),
+                    okTxt: "삭제하기"
+
+                });
+            }
+
+        }
+        function showConfirmPopup(isCallbackOverlay , {
+            message,
+            onConfirm,
+            okTxt
+        }) {
+            const existing = document.getElementById('popupOverlay');
+//            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'popupOverlay';
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                
+                zIndex: 10000
+            });
+
+            const box = document.createElement('div');
+            Object.assign(box.style, {
+                width: 'auto',
+                backgroundColor: '#fff',
+                borderRadius: '8px',
+                padding: '20px',
+                boxShadow: '0 4px 4px rgba(0,0,0,0.3)',
+                textAlign: 'center',
+               maxWidth:"1080px"
+                
+            });
+
+            const text = document.createElement('div');
+            text.innerHTML = message;
+            Object.assign(text.style, {
+                marginBottom: '20px',
+                fontSize: '16px',
+                color: '#333'
+            });
+
+            const btnWrapper = document.createElement('div');
+            Object.assign(btnWrapper.style, {
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '5px'
+            });
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerText = '취소';
+            cancelBtn.onclick = () => overlay.remove();
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerText = okTxt;
+            deleteBtn.style.backgroundColor = '#dc3545';
+            deleteBtn.style.color = '#fff';
+            deleteBtn.onclick = () => {
+                if(isCallbackOverlay){
+                    onConfirm(overlay);
+                    
+                }else {
+                    onConfirm();
+                    overlay.remove();    
+                }
+                
+            };
+
+            [cancelBtn, deleteBtn].forEach(btn => {
+                Object.assign(btn.style, {
+                    padding: '8px 16px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                });
+            });
+
+            btnWrapper.appendChild(cancelBtn);
+            btnWrapper.appendChild(deleteBtn);
+            box.appendChild(text);
+            box.appendChild(btnWrapper);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+        }
+        function sendDeleteSurvay(sv_idx) {
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "svidx": sv_idx
+            }
+            //현재 트랜드 아이디를 가져온다.
+            AJAX_AdmGetGame("deletesurveydata", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+
+
+                    var new_tb_tranddatas = [];
+                    for (var i = 0; i < tb_tranddatas.length; i++) {
+                        if (tb_tranddatas[i].sv_idx != sv_idx) {
+                            new_tb_tranddatas.push(tb_tranddatas[i]);
+                        }
+                    }
+                    tb_tranddatas = new_tb_tranddatas;
+                    renderSurveys();
+
+                }
+
+            });
+        }
+
+        function sendUpdateTrand(sv_idx) {
+
+            var edit_surveydata = null;
+            var edit_index = 0;
+            for (var i = 0; i < tb_tranddatas.length; i++) {
+                if (tb_tranddatas[i].sv_idx == sv_idx) {
+                    edit_surveydata = tb_tranddatas[i];
+                    edit_index = i;
+                    break;
+                }
+            }
+            var input_sv_title = document.getElementById("input_sv_title"); //트랜드 제목
+         
+            var input_sv_max = document.getElementById("input_sv_max"); // 최대 참여인원 
+            var input_startdate = document.getElementById("input_startdate"); // 시작일 
+            var input_enddate = document.getElementById("input_enddate"); //종료일
+            var select_isopen = document.getElementById("select_isopen"); // 결과공개여부
+            var input_isnow_idx = document.getElementById("input_isnow_idx"); // 화면에 바로표시
+            var input_click_max = document.getElementById("input_click_max"); // 1개당 최대클릭횟수
+            var input_click_interval = document.getElementById("input_click_interval"); // 다음클릭시간
+        
+            var iconid_value = 0;
+            
+            var settitle = now_trand_setting.settitle ? now_trand_setting.settitle : {"size":"medium", "color":"#ffffff"};
+            var setitem = now_trand_setting.setitem ? now_trand_setting.setitem : {"color":"#ffffff"};
+            var new_trandsetting = {"maxclicks":parseInt(input_click_max.value),"maxsize":300,"clickInterval":parseInt(input_click_interval.value),"settitle":settitle,"setitem":setitem}; 
+           
+            var surveydata = {
+                "title": input_sv_title.value,
+                "svdata": now_trand_items,
+                "svsetting": new_trandsetting,
+                "startdate": input_startdate.value,
+                "enddate": input_enddate.value,
+                "max": parseInt(input_sv_max.value),
+                "resultopen": parseInt(select_isopen.value),
+                "iconid": iconid_value
+            }
+            edit_surveydata.sv_title = input_sv_title.value;
+            edit_surveydata.sv_data = JSON.stringify(now_trand_items);
+            edit_surveydata.sv_setting = JSON.stringify(new_trandsetting);
+            edit_surveydata.sv_startdate = input_startdate.value;
+            edit_surveydata.sv_enddate = input_enddate.value;
+            edit_surveydata.sv_max = input_sv_max.value;
+            edit_surveydata.sv_resultopen = parseInt(select_isopen.value);
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "surveydata": surveydata,
+                "svidx": sv_idx,
+
+            }
+            //현재 트랜드 아이디를 가져온다.
+            AJAX_AdmGetGame("updatesurveydata", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    //                    var insertdata = res.message;
+                    tb_tranddatas[edit_index] = edit_surveydata;
+
+                    if (input_isnow_idx.checked) {
+
+                        var survey_idx = edit_surveydata.sv_idx; //데이타 idx  sv_idx
+                        var sindex = 0; //리스트 인덱스 0~ max
+                        for (var i = 0; i < tb_tranddatas.length; i++) {
+                            if (tb_tranddatas[i].sv_idx == survey_idx) {
+                                sindex = i;
+                                now_sv_idx = survey_idx;
+                                
+                                break;
+                            }
+                        }
+
+                        moveToTop(sindex);
+                    } else {
+                        renderSurveys();
+                    }
+                    alertMsg("성공적으로 수정하였습니다.");
+                }
+
+            });
+        }
+
+        function sendInsertTrand() {
+            console.log("트랜드조사 삽입한다.!!");
+            var input_sv_title = document.getElementById("input_sv_title"); //트랜드 제목
+           
+            var input_sv_max = document.getElementById("input_sv_max"); // 최대 참여인원 
+            var input_startdate = document.getElementById("input_startdate"); // 시작일 
+            var input_enddate = document.getElementById("input_enddate"); //종료일
+            var select_isopen = document.getElementById("select_isopen"); // 결과공개여부
+            var input_isnow_idx = document.getElementById("input_isnow_idx"); // 화면에 바로표시
+            var input_click_max = document.getElementById("input_click_max"); // 1개당 최대클릭횟수
+            var input_click_interval = document.getElementById("input_click_interval"); // 다음클릭시간
+        
+            var iconid_value = 0;
+            
+            var settitle = now_trand_setting.settitle ? now_trand_setting.settitle : {"size":"medium", "color":"#ffffff"};
+            var setitem = now_trand_setting.setitem ? now_trand_setting.setitem : {"color":"#ffffff"};
+            var new_trandsetting = {"maxclicks":parseInt(input_click_max.value),"maxsize":300,"clickInterval":parseInt(input_click_interval.value),"settitle":settitle,"setitem":setitem}; 
+           
+                
+            
+            var surveydata = {
+                "title": input_sv_title.value,
+                "svdata": now_trand_items,
+                "svsetting": new_trandsetting,
+                "startdate": input_startdate.value,
+                "enddate": input_enddate.value,
+                "max": parseInt(input_sv_max.value),
+                "resultopen": parseInt(select_isopen.value),
+                "iconid": iconid_value
+                
+            }
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "surveydata": surveydata,
+                "type":"trand"
+            }
+            //현재 트랜드 아이디를 가져온다.
+            AJAX_AdmGetGame("insertsurveydata", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    var insertdata = res.message;
+                    tb_tranddatas.push(insertdata);
+                    if (input_isnow_idx.checked) {
+
+                        var survey_idx = insertdata.sv_idx; //데이타 idx  sv_idx
+                        var sindex = 0; //리스트 인덱스 0~ max
+                        for (var i = 0; i < tb_tranddatas.length; i++) {
+                            if (tb_tranddatas[i].sv_idx == survey_idx) {
+                                sindex = i;
+                                now_sv_idx = survey_idx;
+                                
+                                break;
+                            }
+                        }
+
+                        moveToTop(sindex);
+                    } else {
+                        renderSurveys();
+                    }
+                }
+
+            });
+        }
+
+        
+
+        function renderSurveys() {
+            list.innerHTML = '';
+            tb_tranddatas.forEach((s, index) => {
+                const svidx = s.sv_idx;
+                
+                var _enddate = s.sv_enddate.substr(0,10)+" 23:59:59";
+                const endDate = new Date(_enddate);
+                const isFinished = today > endDate;
+                console.log("index is " + index);
+                var bg_color = index == 0 ? "#e2faf9" : "#ffffff";
+                if(isFinished)bg_color = "#dddddd";
+                const wrapper = document.createElement('div');
+                wrapper.style.backgroundColor = bg_color;
+                wrapper.className = `bg-white p-6 rounded-lg shadow flex justify-between items-center ${index === 0 ? 'highlight' : ''} ${isFinished ? 'finished' : ''}`;
+                wrapper.innerHTML = `
+                    <div class="flex items-center space-x-3" >
+                        <div>
+                        <p class="text-xl font-semibold">📊 ${s.sv_title}</p><br>
+                        <p class="text-sm text-gray-500">기간: ${s.sv_startdate.substr(0,10)} ~ ${s.sv_enddate.substr(0,10)}</p>
+                        ${isFinished ? '<p class="text-sm text-red-600 font-semibold mt-1">✅ 트랜드이 종료되었습니다</p>' : '<p class="text-sm text-green-600 font-semibold mt-1">🟢 트랜드 진행 중</p>'}
+                        </div>
+                        </div>
+                        <div class="space-x-2">
+                        <button class="text-sm text-blue-600 border border-blue-600 rounded px-3 py-1 hover:bg-blue-100" onclick="moveToTop(${index})">상단 고정</button>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-green-100" onclick='showResult(${s.sv_idx})'>결과보기</button>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-red-100" onclick='insertSurvey(${s.sv_idx})'>수정</button>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-red-100" onclick='showDelete(${s.sv_idx})'>삭제</button>
+                    </div>
+                `;
+                list.appendChild(wrapper);
+            });
+        }
+         function moveToTopFirst(index) {
+            now_sv_idx = tb_tranddatas[index].sv_idx;
+            const item = tb_tranddatas.splice(index, 1)[0];
+            tb_tranddatas.unshift(item);
+            renderSurveys();
+            console.log("111 tb_tranddatas ", tb_tranddatas);
+
+        }
+        function moveToTop(index) {
+            now_sv_idx = tb_tranddatas[index].sv_idx;
+            
+
+
+            updateNowSurvay(function() {
+                const item = tb_tranddatas.splice(index, 1)[0];
+                tb_tranddatas.unshift(item);
+                renderSurveys();
+                console.log("111 tb_tranddatas ", tb_tranddatas);
+            });
+
+
+
+
+        }
+
+        function showResult(sv_idx) {
+            var trand_items = [];
+            var trand_setting = {};
+            
+            for (var i = 0; i < tb_tranddatas.length; i++) {
+                if (parseInt(tb_tranddatas[i].sv_idx) == sv_idx) {
+
+                    trand_items = tb_tranddatas[i].sv_data != "" ? JSON.parse(tb_tranddatas[i].sv_data) : [];
+                    trand_setting = tb_tranddatas[i].sv_setting != "" ? JSON.parse(tb_tranddatas[i].sv_setting) : {};
+                    break;
+                }
+            }
+
+            var resultArr = trand_items;
+            var item_names = [];
+            var total_clicks = 0;
+            
+            for (var i = 0; i < trand_items.length; i++) {
+                item_names.push(trand_items[i].name);   
+                total_clicks += parseInt(trand_items[i].clicks);
+            }
+            
+            document.getElementById('resultOverlay').classList.remove('hidden');
+            document.getElementById('resultModal').classList.remove('hidden');
+            document.getElementById("lbl_total_count").innerHTML = "총투표 "+total_clicks+"표";
+
+            const content = document.getElementById('resultContent');
+            content.innerHTML = '';
+
+
+            var max = 0;
+            for (var i = 0; i < trand_items.length; i++) {
+                const count = parseInt(trand_items[i].clicks);
+                 if(count > max)max = count;
+            }
+            console.log(" max is "+max);
+
+            const pastelColors = [
+                '#a7c5eb', '#b2d8b2', '#f6caca', '#f8e1a7', '#c7bfe6',
+                '#a8e6cf', '#dcedc1', '#ffd3b6', '#ffaaa5', '#ff8b94'
+            ];
+
+            trand_items = sortByKeyInt(trand_items, "clicks",true);
+            for (var i = 0; i < trand_items.length; i++) {
+                
+                const count = parseInt(trand_items[i].clicks);
+                console.log("max "+max+" count"+count );
+                const percent = parseInt((count / max) * 100);
+                console.log(i+" max "+max+" count"+count+" = precent is "+percent);
+                const li = document.createElement('li');
+                const barColor = ['bg-red-400','bg-green-400','bg-blue-400','bg-yellow-400','bg-purple-400','bg-pink-400','bg-indigo-400','bg-orange-400','bg-teal-400','bg-cyan-400'][i % 10];
+
+                li.innerHTML = `
+                  <div class="flex justify-between mb-1" >
+                    <span class="font-medium text-gray-700">${trand_items[i].name}</span>
+                    <span class="text-gray-500">${count}표</span>
+                  </div>
+                  <div class="w-full h-5 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-5 ${barColor} rounded-full bar bar-animated" style="--bar-width:${percent}%; width:${percent}%"></div>
+                  </div>
+                `;
+                content.appendChild(li);
+                
+            };
+        }
+
+        function closeResult() {
+            document.getElementById('resultOverlay').classList.add('hidden');
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+    </script>
+</body>
+
+</html>

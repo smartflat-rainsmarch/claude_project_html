@@ -1,0 +1,23 @@
+{
+  "id": "b88abbbb-1164-413f-85a4-f68922a5260a",
+  "name": "스마트병원",
+  "description": "",
+  "address": "",
+  "settings": {
+    "gridSize": 10,
+    "labelSettings": {
+      "fontSize": 20,
+      "backgroundOpacity": 0
+    },
+    "routeAnimationSettings": {
+      "arrowSize": 34,
+      "lineWidth": 8
+    },
+    "currentLocation": {
+      "floorId": "466f2212-c43b-4387-998d-d051bece26f9",
+      "x": 380,
+      "y": 560
+    }
+  },
+  "floorsCount": 3
+}

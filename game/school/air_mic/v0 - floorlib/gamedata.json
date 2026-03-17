@@ -1,0 +1,271 @@
+{
+    "hm_home_data": [
+
+        {
+            "id": "home_bg",
+            "name": "배경",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbg.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "960",
+            "w": "1080",
+            "h": "1920"
+        },
+        {
+            "id": "home_logo",
+            "name": "로고",
+            "type": "img",
+            "animationtype": "showani",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/logo.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "70"
+        },
+        
+        {
+            "id": "home_search_back",
+            "name": "검색배경",
+            "type": "img",
+
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/search_back.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "200"
+        },
+        {
+            "id": "home_search_title",
+            "name": "검색배경 타이틀",
+            "type": "text",
+            "updatetime": "60000",
+            "fontsize": "30",
+            "fontweight": "bold",
+            "fontcolor": "#313131",
+            "text": "* 입점업체 찾기",
+            "x": "190",
+            "y": "170"
+        },
+        {
+            "id": "home_search_back",
+            "name": "검색아이콘",
+            "type": "button",
+
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/icon_search.png",
+            "clickurl": "",
+            "x": "950",
+            "y": "200"
+        },
+        {
+            "id": "home_title",
+            "name": "층별안내",
+            "type": "text",
+            "fontweight": "bold",
+            "updatetime": "60000",
+            "fontsize": "45",
+            "fontcolor": "#313131",
+            "text": "층별안내",
+            "x": "140",
+            "y": "410"
+        },        
+        {
+            "id": "home_floor_title",
+            "name": "층 이름",
+            "type": "text",
+            "fontweight": "bold",
+            "updatetime": "60000",
+            "fontsize": "80",
+            "fontcolor": "#313131",
+            "text": "",
+            "textalign":"left",
+            "x": "50",
+            "y": "550"
+        },
+        {
+            "id": "home_floor_subtitle",
+            "name": "층 설명",
+            "type": "text",
+            "updatetime": "60000",
+            "fontsize": "26",
+            "fontcolor": "#313131",
+            "text": "",
+            "textalign":"left",
+            "x": "50",
+            "y": "600"
+        },
+        {
+            "id": "home_floorbtn0",
+            "name": "지하1층",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbtn.png",
+            "desc":"식품 & 식당",
+            "clickurl": "",
+            "x": "152",
+            "y": "1505",
+            "text": {
+                "KO": {
+                    "x": 110,
+                    "y": 35,
+                    "message": "B1",
+                    "fontsize": 36,
+                    "fontweight": "bold",
+                    "color": "#000000",
+                    "textalign": "center"
+                }
+            },
+            "event": {
+                "page": "findfloor",
+                "tab": "0",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_floorbtn1",
+            "name": "1층",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbtn.png",
+            "desc":"화장품 & 잡화 & 구두",
+            "clickurl": "",
+            "x": "152",
+            "y": "1390",
+            "text": {
+                "KO": {
+                     "x": 110,
+                    "y": 35,
+                    "message": "1층",
+                    "fontsize": 36,
+                    "fontweight": "bold",
+                    "color": "#000000",
+                    "textalign": "center"
+                }
+            },
+            "event": {
+                "page": "findfloor",
+                "tab": "1",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_floorbtn2",
+            "name": "2층",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbtn.png",
+            "desc":"아웃도어 & 키즈",
+            "clickurl": "",
+            "x": "152",
+            "y": "1275",
+            "text": {
+                "KO": {
+                    "x": 110,
+                    "y": 35,
+                    "message": "2층",
+                    "fontsize": 36,
+                    "fontweight": "bold",
+                    "color": "#000000",
+                    "textalign": "center"
+                }
+            },
+            "event": {
+                "page": "findfloor",
+                "tab": "2",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_floormap0",
+            "name": "지하1층 지도",
+            "type": "img",
+            "animationtype": "showani",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/floor_map0.png",
+            "clickurl": "",
+            "x": "666",
+            "y": "900"
+        },
+        {
+            "id": "home_floormap1",
+            "name": "1층 지도",
+            "type": "img",
+            "animationtype": "showani",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/floor_map1.png",
+            "clickurl": "",
+            "x": "666",
+            "y": "900"
+        },
+        {
+            "id": "home_floormap2",
+            "name": "2층 지도",
+            "type": "img",
+            "animationtype": "showani",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/floor_map2.png",
+            "clickurl": "",
+            "x": "666",
+            "y": "900"
+        },
+        
+        
+        
+
+        
+        {
+            "id": "home_md",
+            "name": "월/일",
+            "type": "text",
+            "texttype": "m/d",
+            "updatetime": "60000",
+            "fontsize": "35",
+            "fontcolor": "#ffffff",
+            "text": "",
+            "x": "945",
+            "y": "60"
+        },
+        {
+            "id": "home_week",
+            "name": "요일",
+            "type": "text",
+            "texttype": "weekday",
+            "updatetime": "60000",
+            "fontsize": "35",
+            "fontcolor": "#ffffff",
+            "text": "Thursday",
+            "x": "1020",
+            "y": "60"
+        },
+        {
+            "id": "home_hhmm",
+            "name": "시:분",
+            "type": "text",
+            "texttype": "hh:mm",
+            "updatetime": "1000",
+            "fontsize": "30",
+            "fontcolor": "#ffffff",
+            "text": "",
+            "x": "1000",
+            "y": "100"
+        },
+        {
+            "id": "home_mic",
+            "name": "버튼_Mic",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mic_on.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "1770",
+            "event": {
+                "page": "speak",
+                "index": "0"
+            }
+        }
+
+    ],
+    "hm_gr_idx": 0,
+    "hm_ch_idx": 0,
+    "hm_projectid": "air_mic",
+    "hm_orientation": "P",
+    "hm_autoupdate": 0,
+    "hm_width": 1080,
+    "hm_height": 1920,
+    "hm_fcmtoken": "",
+    "hm_videolist": "",
+    "hm_region": "서울",
+    "hm_safety_closetime": "",
+    "hm_language": "KO"
+}

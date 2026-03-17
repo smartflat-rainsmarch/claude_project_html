@@ -1,0 +1,220 @@
+{
+    "id": "page1_0",
+    "name": "시설안내",
+    "type": "floor",
+    "floortitle": "층별 안내",
+    "floortitlebg": "res\/global\/floor_title_bg.png",
+    "desc": "사이즈는 2160x3142 기준이다 2배가 크다",
+    "floordata": [
+        {
+            "fname": "1F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map1.png",
+            "data": [
+                {
+                    "title": "카페터",
+                    "x": "422",
+                    "y": "384",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "기념관 일터",
+                        "img": "contentdata\/floor\/1F_카페터.png"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "2F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map2.png",
+            "data": [
+                {
+                    "title": "다목적홀",
+                    "x": "472",
+                    "y": "244",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "3F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map3.png",
+            "data": [
+                {
+                    "title": "전시관",
+                    "x": "582",
+                    "y": "424",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "전태일의 눈",
+                    "x": "480",
+                    "y": "284",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "다락방 봉제공장",
+                    "x": "570",
+                    "y": "214",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "전태일의 실천",
+                    "x": "522",
+                    "y": "130",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "모범업체",
+                    "x": "379",
+                    "y": "174",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "전태일의 꿈",
+                    "x": "260",
+                    "y": "140",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "4F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map4.png",
+            "data": [
+                {
+                    "title": "오픈 갤러리 덩이 조성중",
+                    "x": "363",
+                    "y": "525",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "세미나실",
+                    "x": "685",
+                    "y": "450",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "교육실",
+                    "x": "359",
+                    "y": "327",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "회의실",
+                    "x": "520",
+                    "y": "332",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "1인 미디어 스튜디오",
+                    "x": "309",
+                    "y": "131",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "5F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map5.png"
+        },
+        {
+            "fname": "6F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map6.png",
+            "data": [
+                {
+                    "title": "",
+                    "x": "-1000",
+                    "y": "1",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "옥상공원 & 직원휴게실",
+                        "img": ""
+                    }
+                }
+            ]
+        }
+    ],
+    "tab": "1",
+    "sub": "0"
+}

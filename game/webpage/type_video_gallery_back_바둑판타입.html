@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Video List</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        #video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .video-item {
+            background-color: #111;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .video-item:hover {
+            transform: scale(1.03);
+        }
+
+        .video-thumb {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            background-color: #222;
+        }
+
+        .video-name {
+            padding: 8px;
+            font-size: 14px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <div id="video-grid"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            try {
+                const str_videoList = android.getVideoListWithThumbs();
+                const videoList = JSON.parse(str_videoList);
+                const grid = document.getElementById("video-grid");
+                console.log("videolist : ",videoList);
+                console.log("videoList String : "+str_videoList);
+                videoList.forEach(video => {
+                    const item = document.createElement("div");
+                    item.className = "video-item";
+                    item.onclick = () => {
+                        style = {"x":0,"y":0,"w":1080,"h":1920};
+                        android.playVideo(video.path, style.toString());
+                    };
+
+                    const img = document.createElement("img");
+                    img.className = "video-thumb";
+                    img.src = video.thumb || "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMQAAADECAMAAAD3eH5ZAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAFFQTFRFAAAAdXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1ghgdZQAAABt0Uk5TAEppAbKzamtsHX2sMK2rfBuoe1ovLnBoR0hJ/yKS1wAAAhtJREFUeJzt2tlu2zAURVHFNpNmqB2HbdPm/z+0GZxYIsVRgQ5p7P1GCbi4y9KLAA8DERERERERERERERERERERERERERERUSNdbbbqFRZ3tTPdK14NpnfFu6FzxcnQt2JjTP+K7fVFKG5QtBKKdkLRTtsfKFqpe8Xt3b0Zd1Y8/DTz7Q+Pyo39bo/uitdphTm2pbjzN8xRPDlj7MprT7uf2TBDsZ9OsWbtvSfNrpihmAyxpkFEhmI8w7qotQv80EnFaIT1nszaBRBJxXmC9V+vtQshUoqvAdZ7MusXRCQUn/es92QEhRFxxemOdc6aIoio4uO6dc6iYoiY4v2qdc6qooiI4u2adc6y4oiwYpgamkYEFY6hbURI4RgaRwQUjqF1RNb3RfMIc5OhUBqyEDkKpSEPkaFQGjIRI8Wv5PfF+mUikgqlIRuRUigN+YiEQmkoQMQVSkMJIqpQGooQMYXSUIaIKJSGQkRYoTSUIoIKpaEYEVIoDeWIgEJpqECMFL/PCqWhBjGrUBqqEHMKpaEOMaNQGioRvkJpqEV4CqWhGuEqlIZ6hKNQGhYgpgqlYQliolAahv03KZSG4bAEMVJIe/T+oNKl4qn4jTr+Of/jrhFFVc8omukyFBsUzXQRiu1Iod6lvi/F7q96lQWdFF0bTordP/UaC3tVdG94U7yoVyAiIiIiIiIiIiIiIiIiIiIiIiIiIiIionD/AWPqQ94LqpzGAAAAAElFTkSuQmCC"; // 대체 썸네일
+
+                    const name = document.createElement("div");
+                    name.className = "video-name";
+                    name.innerText = video.path.split("/").pop();
+
+                    item.appendChild(img);
+                    item.appendChild(name);
+                    grid.appendChild(item);
+                });
+
+            } catch (e) {
+                console.error("Error loading video list:", e);
+            }
+        });
+
+      
+       // 예: 클릭 감지
+    document.addEventListener("click", () => {
+      window.parent.postMessage("iframe_clicked", "*");
+    });
+      // ✅ 스크롤 이벤트
+    window.addEventListener("scroll", () => {
+      window.parent.postMessage("iframe_scrolled", "*");
+    });
+  </script>
+</body>
+</html>

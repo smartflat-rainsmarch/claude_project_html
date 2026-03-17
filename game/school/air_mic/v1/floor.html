@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Floor JSON Editor (Local)</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; display: flex; height: 100vh; margin: 0; background: #2c3e50; color: white; }
+        /* 왼쪽: 캔버스 영역 */
+        #viewport { flex: 1; position: relative; overflow: auto; padding: 20px; display: flex; align-items: flex-start; justify-content: center; }
+        #canvas-container { position: relative;  }
+        #floor-bg { display: block; max-width: none; box-shadow: 0 0 20px rgba(0,0,0,0.5);}
+        /* 부모 노드: x, y 좌표가 이 박스의 정중앙이 됨 */
+        .node { 
+            position: absolute; 
+            display: flex;
+            align-items: center;      /* 세로 중앙 */
+            justify-content: center;   /* 가로 중앙 */
+            transform: translate(-50%, -50%); /* 중심점을 왼쪽 위에서 중앙으로 이동 */
+            white-space: pre;
+            cursor: move;
+            user-select: none;
+        }
+
+        /* 아이콘: 부모의 정중앙에 배치 */
+        .node-icon {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%); /* 아이콘 자체의 중심점도 중앙으로 */
+/*            pointer-events: none;  드래그 방해 금지 */
+        }
+        .node:hover { border-color: #3498db; background: rgba(52, 152, 219, 0.2); }
+        .node.active { border-color: #e74c3c; background: rgba(231, 76, 60, 0.2); z-index: 100; }
+
+        /* 오른쪽: 설정 패널 */
+        #panel { width: 350px; background: #34495e; padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.3); overflow-y: auto; }
+        .section { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #5d6d7e; }
+        label { display: block; font-size: 12px; margin-bottom: 5px; color: #bdc3c7; }
+        input, select { width: 100%; padding: 8px; margin-bottom: 10px; border-radius: 4px; border: none; }
+        button { width: 100%; padding: 10px; margin-top: 5px; cursor: pointer; border-radius: 4px; border: none; font-weight: bold; }
+        .btn-save { background: #27ae60; color: white; }
+        .btn-add { background: #3498db; color: white; }
+        .btn-del { background: #c0392b; color: white; }
+    </style>
+</head>
+<body>
+
+<div id="viewport">
+    <div id="canvas-container" >
+        <img id="floor-bg" src="" style='width:100%;margin-top:75px'>
+        <div id="nodes-layer"></div>
+    </div>
+</div>
+
+<div id="panel">
+    <div class="section">
+        <h3>1. 파일 불러오기</h3>
+        <input type="file" id="file-input" accept=".json">
+    </div>
+
+    <div id="editor-ui" style="display:none;">
+        <div class="section">
+            <h3>2. 층 선택</h3>
+            <select id="floor-select" onchange="switchFloor()"></select>
+        </div>
+
+        <div class="section">
+            <h3>3. 요소 편집</h3>
+            <label>제목</label>
+            <textarea id="edit-title" rows="2" style="width:100%"></textarea>
+            <label>X 좌표</label><input type="number" id="edit-x">
+            <label>Y 좌표</label><input type="number" id="edit-y">
+            <label>폰트 크기</label><input type="number" id="edit-size">
+            <label>폰트 색상</label><input type="color" id="edit-color">
+            <label>이벤트 이미지 경로</label><input type="text" id="edit-img">
+            
+            
+            <label>아이콘 파일명 (icon.name)</label>
+            <input type="text" id="edit-icon-name" placeholder="예: ic_exit1.png">
+            <label>아이콘 X 상대위치 (ix)</label>
+            <input type="number" id="edit-ix">
+            <label>아이콘 Y 상대위치 (iy)</label>
+            <input type="number" id="edit-iy">
+            
+            <button class="btn-add" onclick="addNode()">현재 층에 요소 추가</button>
+            <button class="btn-del" onclick="deleteNode()">선택 요소 삭제</button>
+        </div>
+        
+        <div class="section">
+            <h3>4. 결과 저장</h3>
+            <button class="btn-save" onclick="downloadJson()">수정된 JSON 다운로드</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let rawData = null;
+    let currentFloorIdx = 0;
+    let selectedIdx = null;
+
+    // 파일 로드
+    document.getElementById('file-input').onchange = function(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            rawData = JSON.parse(event.target.result);
+            setupEditor();
+        };
+        reader.readAsText(file);
+    };
+
+    function setupEditor() {
+        const select = document.getElementById('floor-select');
+        select.innerHTML = '';
+        rawData.floordata.forEach((f, i) => {
+            const opt = document.createElement('option');
+            opt.value = i; opt.innerText = f.fname;
+            select.appendChild(opt);
+        });
+        document.getElementById('editor-ui').style.display = 'block';
+        switchFloor();
+    }
+
+    function switchFloor() {
+        currentFloorIdx = document.getElementById('floor-select').value;
+        const floor = rawData.floordata[currentFloorIdx];
+        
+        const container = document.getElementById('canvas-container');
+        container.style.width = rawData.width + 'px';
+        container.style.height = rawData.height + 'px';
+        
+        document.getElementById('floor-bg').src = floor.floorbg;
+        renderNodes();
+    }
+
+    // [수정] 렌더링 함수: 노드를 생성하고 드래그 이벤트를 바인딩합니다.
+   function renderNodes() {
+        const layer = document.getElementById('nodes-layer');
+        layer.innerHTML = '';
+        const data = rawData.floordata[currentFloorIdx].data;
+
+        data.forEach((item, idx) => {
+            const el = document.createElement('div');
+            el.className = 'node' + (selectedIdx === idx ? ' active' : '');
+            el.id = 'node-' + idx;
+
+            // 좌표 적용
+            el.style.left = item.x + 'px';
+            el.style.top = item.y + 'px';
+            el.style.fontSize = item.fontsize + 'px';
+            el.style.color = item.fontcolor;
+           
+            // 아이콘 렌더링
+            if (item.icon && item.icon.name && item.icon.name.trim() !== "") {
+                const img = document.createElement('img');
+                img.src = 'res/' + item.icon.name;
+                img.className = 'node-icon';
+               
+                // 중앙(50%) 기준에서 사용자의 ix, iy만큼 이동
+                // 0, 0 이면 정확히 글자 정중앙에 겹칩니다.
+                img.style.marginLeft = (item.icon.ix/2 || 0) + 'px';
+                img.style.marginTop = (item.icon.iy/2 || 0) + 'px';
+                img.style.width = "35px";
+                img.style.cursor = "pointer";
+                img.onclick = () => {
+                    console.log("dddd");
+                    if (selectedIdx !== idx) {
+                        selectedIdx = idx;
+                        updateEditorForm(item);
+                        document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
+                        el.classList.add('active');
+                    }      
+                };
+                                
+                
+                el.appendChild(img);
+            }
+
+            const textSpan = document.createElement('span');
+            textSpan.innerText = item.title;
+            el.appendChild(textSpan);
+
+            // 드래그 로직 (중앙 정렬 기준에 맞춘 좌표 보정)
+            el.onmousedown = (e) => {
+                e.preventDefault(); e.stopPropagation();
+                if (selectedIdx !== idx) {
+                    selectedIdx = idx;
+                    updateEditorForm(item);
+                    document.querySelectorAll('.node').forEach(n => n.classList.remove('active'));
+                    el.classList.add('active');
+                }
+
+                let startX = e.clientX;
+                let startY = e.clientY;
+                let origX = item.x;
+                let origY = item.y;
+
+                function onMouseMove(event) {
+                    item.x = origX + (event.clientX - startX);
+                    item.y = origY + (event.clientY - startY);
+                    el.style.left = item.x + 'px';
+                    el.style.top = item.y + 'px';
+                    document.getElementById('edit-x').value = item.x;
+                    document.getElementById('edit-y').value = item.y;
+                }
+
+                function onMouseUp() {
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                }
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            };
+            layer.appendChild(el);
+        });
+    }
+
+    // [추가] 폼 업데이트만 담당하는 함수 (렌더링 방해 방지)
+    function updateEditorForm(item) {
+        document.getElementById('edit-title').value = item.title;
+        document.getElementById('edit-x').value = item.x;
+        document.getElementById('edit-y').value = item.y;
+        document.getElementById('edit-size').value = item.fontsize;
+        document.getElementById('edit-color').value = item.fontcolor;
+        document.getElementById('edit-img').value = (item.event && item.event.img) ? item.event.img : "";
+
+        // 아이콘 데이터가 있으면 값을 채우고, 없으면 빈값/0으로 초기화
+        if (item.icon) {
+            document.getElementById('edit-icon-name').value = item.icon.name || "";
+            document.getElementById('edit-ix').value = item.icon.ix || 0;
+            document.getElementById('edit-iy').value = item.icon.iy || 0;
+        } else {
+            document.getElementById('edit-icon-name').value = "";
+            document.getElementById('edit-ix').value = 0;
+            document.getElementById('edit-iy').value = 0;
+        }
+    }
+
+    // [수정] 입력 폼 변경 시 해당 노드만 실시간 업데이트
+    function initEventListeners() {
+        const inputs = ['edit-title', 'edit-x', 'edit-y', 'edit-size', 'edit-color', 'edit-img', 'edit-icon-name', 'edit-ix', 'edit-iy'];
+        inputs.forEach(id => {
+            document.getElementById(id).oninput = () => {
+                if (selectedIdx === null) return;
+                const item = rawData.floordata[currentFloorIdx].data[selectedIdx];
+
+                // 기본 정보 업데이트
+                item.title = document.getElementById('edit-title').value;
+                item.x = parseInt(document.getElementById('edit-x').value) || 0;
+                item.y = parseInt(document.getElementById('edit-y').value) || 0;
+                item.fontsize = parseInt(document.getElementById('edit-size').value) || 12;
+                item.fontcolor = document.getElementById('edit-color').value;
+
+                // 아이콘 관련 입력값이 하나라도 있으면 icon 객체 생성
+                const iconName = document.getElementById('edit-icon-name').value;
+                if (iconName.trim() !== "") {
+                    if (!item.icon) item.icon = {}; // 객체가 없으면 생성
+                    item.icon.name = iconName;
+                    item.icon.ix = parseInt(document.getElementById('edit-ix').value) || 0;
+                    item.icon.iy = parseInt(document.getElementById('edit-iy').value) || 0;
+                } else {
+                    // 아이콘 이름을 다 지우면 데이터에서 제거 (선택 사항)
+                    delete item.icon;
+                }
+
+                renderNodes(); 
+            };
+        });
+    }
+
+    // 2. selectNode는 오직 '값 표시'만 담당하게 합니다.
+    function selectNode(idx) {
+        selectedIdx = idx;
+        const item = rawData.floordata[currentFloorIdx].data[idx];
+
+        // 입력창에 값 세팅 (이때 oninput이 트리거되지 않도록 주의)
+        document.getElementById('edit-title').value = item.title;
+        document.getElementById('edit-x').value = item.x;
+        document.getElementById('edit-y').value = item.y;
+        document.getElementById('edit-size').value = item.fontsize;
+        document.getElementById('edit-color').value = item.fontcolor;
+        document.getElementById('edit-img').value = item.event.img;
+
+        renderNodes(); // 선택된 노드에 빨간 테두리(active 클래스)를 표시하기 위해 호출
+    }
+
+    // 3. 페이지 로드 시 초기화 실행
+    initEventListeners();
+
+    function addNode() {
+        const newNode = { "title": "새 위치", "x": 100, "y": 100, "fontsize": 13, "fontcolor": "#313131", "event": { "type": "popup", "message": "", "img": "" } };
+        rawData.floordata[currentFloorIdx].data.push(newNode);
+        renderNodes();
+        selectNode(rawData.floordata[currentFloorIdx].data.length - 1);
+    }
+
+    function deleteNode() {
+        if(selectedIdx === null) return;
+        rawData.floordata[currentFloorIdx].data.splice(selectedIdx, 1);
+        selectedIdx = null;
+        renderNodes();
+    }
+
+    function downloadJson() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(rawData, null, 4));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "floor.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    }
+</script>
+
+</body>
+</html>

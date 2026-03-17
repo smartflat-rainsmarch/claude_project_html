@@ -1,0 +1,654 @@
+{
+    "hm_home_data": [
+
+        {
+            "id": "home_bg",
+            "name": "배경",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbg.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "960",
+            "w": "1080",
+            "h": "1920"
+        },
+        {
+            "id": "home_logo",
+            "name": "로고",
+            "type": "img",
+            "animationtype": "showani",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/logo.png",
+            "clickurl": "",
+            "x": "130",
+            "y": "110"
+        },
+        {
+            "id": "home_title",
+            "name": "타이틀",
+            "type": "img",
+            "animationtype": "showani",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/title.png",
+            "clickurl": "",
+            "x": "400",
+            "y": "130"
+        },
+        {
+            "id": "home_subtitle",
+            "name": "타이틀",
+            "type": "img",
+            "animationtype": "showani",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/subtitle.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "230"
+        },
+        {
+            "id": "home_search_back",
+            "name": "검색배경",
+            "type": "img",
+
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/search_back.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "470"
+        },
+        {
+            "id": "home_search_title",
+            "name": "검색배경 타이틀",
+            "type": "text",
+            "updatetime": "60000",
+            "fontsize": "50",
+            "fontweight": "bold",
+            "fontcolor": "#313131",
+            "text": "* 진료과 위치 찾기",
+            "x": "270",
+            "y": "430"
+        },
+        {
+            "id": "home_search_back",
+            "name": "검색아이콘",
+            "type": "button",
+
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/icon_search.png",
+            "clickurl": "",
+            "x": "950",
+            "y": "440"
+        },
+
+        {
+            "id": "home_btn0",
+            "name": "버튼_항공우주의료원 소개",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbtn0.png",
+            "clickurl": "",
+            "x": "205",
+            "y": "1450",
+            "event": {
+                "page": "main",
+                "tab": "0",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_btn1",
+            "name": "버튼_건강검진(항공,특수)",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbtn1.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "1450",
+            "event": {
+                "page": "main",
+                "tab": "1",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_btn2",
+            "name": "버튼_보건건강정보",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbtn2.png",
+            "clickurl": "",
+            "x": "880",
+            "y": "1450",
+            "event": {
+                "page": "main",
+                "tab": "2",
+                "sub": "0"
+            }
+        },
+         {
+            "id": "home_btn3",
+            "name": "버튼_진료안내",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbtn3.png",
+            "clickurl": "",
+            "x": "205",
+            "y": "1740",
+            "event": {
+                "page": "main",
+                "tab": "3",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_btn4",
+            "name": "버튼_층별안내도",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbtn4.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "1740",
+            "event": {
+                "page": "main",
+                "tab": "4",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_btn5",
+            "name": "버튼_주변길안내",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbtn5.png",
+            "clickurl": "",
+            "x": "880",
+            "y": "1740",
+            "event": {
+                "page": "main",
+                "tab": "5",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_md",
+            "name": "월/일",
+            "type": "text",
+            "texttype": "m/d",
+            "updatetime": "60000",
+            "fontsize": "35",
+            "fontcolor": "#ffffff",
+            "text": "",
+            "x": "945",
+            "y": "60"
+        },
+        {
+            "id": "home_week",
+            "name": "요일",
+            "type": "text",
+            "texttype": "weekday",
+            "updatetime": "60000",
+            "fontsize": "35",
+            "fontcolor": "#ffffff",
+            "text": "Thursday",
+            "x": "1020",
+            "y": "60"
+        },
+        {
+            "id": "home_hhmm",
+            "name": "시:분",
+            "type": "text",
+            "texttype": "hh:mm",
+            "updatetime": "1000",
+            "fontsize": "30",
+            "fontcolor": "#ffffff",
+            "text": "",
+            "x": "1000",
+            "y": "100"
+        },
+        {
+            "id": "home_mic",
+            "name": "버튼_Mic",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mic_on.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "1500",
+            "event": {
+                "page": "speak",
+                "index": "0"
+            }
+        }
+
+    ],
+    "hm_main_data": [
+        {
+            "id": "home_bg",
+            "name": "배경",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/mbg.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "960",
+            "w": "1080",
+            "h": "1920"
+        },
+        {
+            "id": "home_logo",
+            "name": "로고",
+            "type": "button",
+            "animationtype": "showani",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_home/logo.png",
+            "clickurl": "",
+            "x": "130",
+            "y": "80",
+            "event": {
+                "page": "home",
+                "tab": 1,
+                "sub": 0
+            }
+        },
+         {
+            "id": "main_title0",
+            "name": "타이틀0",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/title0.png",
+            "clickurl": "",
+            "animationtype": "scale",
+            "animationscale":1,
+            "x": 470,
+            "y": 100
+        },
+        {
+            "id": "main_title1",
+            "name": "타이틀1",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/title1.png",
+            "clickurl": "",
+            "animationtype": "scale",
+            "animationscale": 1,
+            "x": 470,
+            "y": 100
+        },
+        {
+            "id": "main_title2",
+            "name": "타이틀2",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/title2.png",
+            "clickurl": "",
+            "animationtype": "scale",
+            "animationscale": 1,
+            "x": 470,
+            "y": 100
+        },
+        {
+            "id": "main_title3",
+            "name": "타이틀3",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/title3.png",
+            "clickurl": "",
+            "animationtype": "scale",
+            "animationscale": 1,
+            "x": 470,
+            "y": 90
+        },
+        {
+            "id": "main_title4",
+            "name": "타이틀4",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/title4.png",
+            "clickurl": "",
+            "animationtype": "scale",
+            "animationscale": 1,
+            "x": 470,
+            "y": 90
+        },
+        {
+            "id": "main_title5",
+            "name": "타이틀5",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/title5.png",
+            "clickurl": "",
+            "animationtype": "scale",
+            "animationscale": 1,
+            "x": 470,
+            "y": 90
+        },
+        {
+            "id": "menu_text",
+            "name": "제목",
+            "type": "text",
+            "updatetime": "60000",
+            "fontsize": "35",
+            "fontcolor": "#ffffff",
+            "text": "",
+            "x": "1020",
+            "y": "60"
+        },
+        {
+            "id": "main_mainrect_point",
+            "name": "네모포인트이미지",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/main_bg_target.png",
+            "clickurl": "",
+            "x": 135,
+            "y": 1640
+        },
+        {
+            "id": "main_mainrect",
+            "name": "가운데네모이미지",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/main_bg.png",
+            "clickurl": "",
+            "x": 540,
+            "y": 970
+        },
+        {
+            "id": "taboff0",
+            "name": "탭",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/taboff0.png",
+            "clickurl": "",
+            "x": 200,
+            "y": 240
+        },
+        {
+            "id": "taboff1",
+            "name": "탭",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/taboff1.png",
+            "clickurl": "",
+            "x": 530,
+            "y": 240
+        },
+         {
+            "id": "tabon0",
+            "name": "탭",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/tabon0.png",
+            "clickurl": "",
+            "x": 200,
+            "y": 240
+         },
+        {
+            "id": "tabon1",
+            "name": "탭",
+            "type": "img",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/tabon1.png",
+            "clickurl": "",
+            "x": 530,
+            "y": 240
+         },
+         
+           {
+            "id": "home_btn0",
+            "name": "버튼_항공우주의료원 소개",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/mbtn0.png",
+            "clickurl": "",
+            "x": "205",
+            "y": "1570",
+            "event": {
+                "page": "main",
+                "tab": "0",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_btn1",
+            "name": "버튼_건강검진(항공,특수)",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/mbtn1.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "1570",
+            "event": {
+                "page": "main",
+                "tab": "1",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_btn2",
+            "name": "버튼_보건건강정보",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/mbtn2.png",
+            "clickurl": "",
+            "x": "880",
+            "y": "1570",
+            "event": {
+                "page": "main",
+                "tab": "2",
+                "sub": "0"
+            }
+        },
+         {
+            "id": "home_btn3",
+            "name": "버튼_3",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/mbtn3.png",
+            "clickurl": "",
+            "x": "205",
+            "y": "1800",
+            "event": {
+                "page": "main",
+                "tab": "3",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_btn4",
+            "name": "버튼_4",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/mbtn4.png",
+            "clickurl": "",
+            "x": "540",
+            "y": "1800",
+            "event": {
+                "page": "main",
+                "tab": "4",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_btn5",
+            "name": "버튼_5",
+            "type": "button",
+            "imgurl": "../../../game/school/air_mic/v0/res/n_menu/mbtn5.png",
+            "clickurl": "",
+            "x": "880",
+            "y": "1800",
+            "event": {
+                "page": "main",
+                "tab": "5",
+                "sub": "0"
+            }
+        },
+        {
+            "id": "home_md",
+            "name": "월/일",
+            "type": "text",
+            "texttype": "m/d",
+            "updatetime": "60000",
+            "fontsize": "35",
+            "fontcolor": "#ffffff",
+            "text": "",
+            "x": "945",
+            "y": "60"
+        },
+        {
+            "id": "home_week",
+            "name": "요일",
+            "type": "text",
+            "texttype": "weekday",
+            "updatetime": "60000",
+            "fontsize": "35",
+            "fontcolor": "#ffffff",
+            "text": "Thursday",
+            "x": "1020",
+            "y": "60"
+        },
+        {
+            "id": "home_hhmm",
+            "name": "시:분",
+            "type": "text",
+            "texttype": "hh:mm",
+            "updatetime": "1000",
+            "fontsize": "30",
+            "fontcolor": "#ffffff",
+            "text": "",
+            "x": "1000",
+            "y": "100"
+        }
+    ],
+    "hm_content_data": [
+        {
+            "id": "page_home",
+            "name": "홈화면 이미지목록",
+            "type": "gallery2",
+            "imgfoldername": "gallery_home",
+            "url": "contentdata/page2_0.html",
+            "width": "1080",
+            "height": "700",
+            "isfirstscene": "0",
+            "indicator": {
+                "type": "indicator",
+                "x": 540,
+                "y": 1250
+            },
+            "zindex": 10
+        },
+        {
+            "id": "page0_0",
+            "name": "항공우주 의료원소개",
+            "type": "html",
+            "url": "contentdata/page0_0.html",
+            "tab": "0",
+            "sub": "0",
+            "images": [
+                "page0_0_0.png",
+                "page0_0_1.png",
+                "page0_0_2.png",
+                "page0_0_3.png",
+                "page0_0_4.png"
+            ]
+        },
+        {
+            "id": "page1_0",
+            "name": "항공검진과",
+            "type": "html",
+            "url": "contentdata/page1_0.html",
+            "tab": "1",
+            "sub": "0",
+            "images": [
+                "page1_0_0.png",
+                "page1_0_1.png",
+                "page1_0_2.png",
+                "page1_0_3.png",
+                "page1_0_4.png"
+            ]
+        },
+        {
+            "id": "page1_1",
+            "name": "특수검진과",
+            "type": "html",
+            "url": "contentdata/page1_1.html",
+            "tab": "1",
+            "sub": "1",
+            "images": [
+                "page1_1_0.png",
+                "page1_1_1.png",
+                "page1_1_2.png",
+                "page1_1_3.png",
+                "page1_1_4.png"
+            ]
+        },
+        {
+            "id": "page2_0",
+            "name": "보건.건강정보",
+            "type": "html",
+            "url": "contentdata/page0_2.html",
+            "tab": "2",
+            "sub": "0",
+            "images": [
+                "page2_0_0.png",
+                "page2_0_1.png",
+                "page2_0_2.png",
+                "page2_0_3.png",
+                "page2_0_4.png"
+            ]
+        },
+         {
+            "id": "page3_0",
+            "name": "진료 안내",
+            "type": "html",
+            "url": "contentdata/page0_2.html",
+            "tab": "3",
+            "sub": "0",
+            "images": [
+                "page3_0_0.png",
+                "page3_0_1.png",
+                "page3_0_2.png",
+                "page3_0_3.png",
+                "page3_0_4.png"
+            ]
+        },
+         {
+            "id": "page4_0",
+            "name": "층별 안내도",
+            "type": "html",
+            "url": "contentdata/page0_2.html",
+            "tab": "4",
+            "sub": "0",
+            "images": [
+                "page4_0_0.png",
+                "page4_0_1.png",
+                "page4_0_2.png",
+                "page4_0_3.png",
+                "page4_0_4.png"
+            ]
+        },
+         {
+            "id": "page5_0",
+            "name": "주변 길안내",
+            "type": "html",
+            "url": "contentdata/page0_2.html",
+            "tab": "5",
+            "sub": "0",
+            "images": [
+                "page5_0_0.png",
+                "page5_0_1.png",
+                "page5_0_2.png",
+                "page5_0_3.png",
+                "page5_0_4.png"
+            ]
+        },
+        {
+            "id": "map1",
+            "name": "지도1층",
+            "type": "mapimg",
+            "url": "contentdata/img/map1.png",
+            "value": "1",
+            "tab": "4",
+            "sub": "0",
+            "images": [
+                "map1.png"
+            ],
+            "isfirstscene": "0"
+        },
+        {
+            "id": "map2",
+            "name": "지도2층",
+            "type": "mapimg",
+            "url": "contentdata/img/map2.png",
+            "value": "2",
+            "tab": "4",
+            "sub": "1",
+            "images": [
+                "map2.png"
+            ],
+            "isfirstscene": "0"
+        }
+    ],
+    "hm_gr_idx": 0,
+    "hm_ch_idx": 0,
+    "hm_projectid": "air_mic",
+    "hm_orientation": "P",
+    "hm_autoupdate": 0,
+    "hm_width": 1080,
+    "hm_height": 1920,
+    "hm_fcmtoken": "",
+    "hm_videolist": "",
+    "hm_region": "서울",
+    "hm_safety_closetime": "",
+    "hm_language": "KO"
+}

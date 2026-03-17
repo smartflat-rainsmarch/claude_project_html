@@ -1,0 +1,97 @@
+[
+    {
+        "id": "home_bg",
+        "name": "배경",
+        "type": "img",
+        "imgurl": "../../../game/school/sample_land/v0/res/n_home/bg.png",
+        "clickurl": "",
+        "x": 960,
+        "y": 540
+    },
+    {
+        "id": "home_title",
+        "name": "제목",
+        "type": "img",
+        "imgurl": "../../../game/school/sample_land/v0/res/n_home/title.png",
+        "clickurl": "",
+        "x": "420",
+        "y": "100",
+        "animationtype": "showani",
+        "event": {
+            "page": "main",
+            "tab": "0",
+            "sub": "0"
+        }
+    },
+    {
+        "id": "home_btn0",
+        "name": "버튼0",
+        "type": "button",
+        "imgurl": "../../../game/school/sample_land/v0/res/n_home/mbtn0.png",
+        "clickurl": "../../../game/school/sample_land/v0/res/n_home/mbtn0_click.png",
+        "x": "440",
+        "y": "560",
+        "event": {
+            "page": "main",
+            "tab": "0",
+            "sub": "0"
+        }
+    },
+    {
+        "id": "home_btn1",
+        "name": "버튼1",
+        "type": "button",
+        "imgurl": "../../../game/school/sample_land/v0/res/n_home/mbtn1.png",
+        "clickurl": "../../../game/school/sample_land/v0/res/n_home/mbtn1_click.png",
+        "x": "1320",
+        "y": "560",
+        "event": {
+            "page": "main",
+            "tab": "1",
+            "sub": "0"
+        }
+    },
+    {
+        "id": "home_btn2",
+        "name": "버튼2",
+        "type": "button",
+        "imgurl": "../../../game/school/sample_land/v0/res/n_home/mbtn2.png",
+        "clickurl": "../../../game/school/sample_land/v0/res/n_home/mbtn2_click.png",
+        "x": "2200",
+        "y": "560",
+        "event": {
+            "page": "main",
+            "tab": "2",
+            "sub": "0"
+        }
+    },
+    {
+        "id": "home_btn3",
+        "name": "버튼3",
+        "type": "button",
+        "imgurl": "../../../game/school/sample_land/v0/res/n_home/mbtn3.png",
+        "clickurl": "../../../game/school/sample_land/v0/res/n_home/mbtn3_click.png",
+        "x": "3080",
+        "y": "560",
+        "event": {
+            "page": "main",
+            "tab": "3",
+            "sub": "0"
+        }
+    },
+    {
+        "id": "home_btn4",
+        "name": "버튼4",
+        "type": "button",
+        "imgurl": "../../../game/school/sample_land/v0/res/n_home/mbtn4.png",
+        "clickurl": "../../../game/school/sample_land/v0/res/n_home/mbtn4_click.png",
+        "x": "4692",
+        "y": "560",
+        "event": {
+            "page": "main",
+            "tab": "4",
+            "sub": "0"
+        }
+    }
+    
+]

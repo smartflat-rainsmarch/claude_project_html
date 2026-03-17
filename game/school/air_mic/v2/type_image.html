@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+    
+    <style>
+        body {
+            background-color: #fff;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        #div_list {
+            padding: 20px;
+            min-height: calc(100vh - 210px);
+            box-sizing: border-box;
+        }
+        .list-item {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background: #f7f7f7;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .list-item:hover {
+            background-color: #e0f7fa;
+        }
+        #bottomBar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: #fff;      /* 바탕을 흰색으로 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;                 /* 글자를 검정색으로 */
+            border-top: 1px solid #ddd;  /* 얇은 구분선 추가 (선택) */
+            z-index: 9999;
+        }
+
+        .page-button {
+            background: none;
+            border: none;
+            color: #000;                 /* 기본 글자 검정 */
+            font-size: 18px;
+            margin: 0 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .page-button:hover {
+            background: #f0f0f0;         /* 호버 시 연한 회색 */
+        }
+
+        .page-button.active {
+            background: #000;            /* 활성 페이지는 검정 배경 */
+            color: #fff;                 /* 활성 페이지 글자는 흰색 */
+        }
+
+        .list-table th, .list-table td {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .list-table tr:hover {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+ <div id='div_main_area' align="center" style="overflow-y: auto; height: 100vh; -ms-overflow-style: none; scrollbar-width: none;">
+  <img id='img_0' src="" style="width:100%" onerror="this.style.display='none'" />
+  <img id='img_1' src="" style="width:100%" onerror="this.style.display='none'" />
+  <img id='img_2' src="" style="width:100%" onerror="this.style.display='none'" />
+  <img id='img_3' src="" style="width:100%" onerror="this.style.display='none'" />
+  <img id='img_4' src="" style="width:100%" onerror="this.style.display='none'" />
+</div>
+<script>
+//    console.log("********* type_image");
+    var projectid = getParam("projectid") ? getParam("projectid") : "sample";  //프로젝트 아이디
+    var groupidx = getParam("groupidx") ? getParam("groupidx") : 0;  //프로젝트 아이디
+    document.addEventListener('DOMContentLoaded', function () {
+        var listid = getParam("listid") ? getParam("listid") : "";  //컨텐츠 아이디
+
+        // 최대 이미지 수 설정
+        const maxImages = 5;
+
+        for (let i = 0; i < maxImages; i++) {
+            const img = document.getElementById("img_" + i);
+            const imgPath = "./contentdata/img/" + listid + "_" + i + ".png";
+            console.log("aaa");
+            img.onload = function () {
+                this.style.display = "block";
+            };
+
+            img.onerror = function () {
+                this.style.display = "none";
+            };
+
+            img.src = imgPath;
+        }
+    });
+
+    // getParam 함수도 추가 필요 시 정의
+    function getParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+        // 예: 클릭 감지
+    document.addEventListener("click", () => {
+      window.parent.postMessage("iframe_clicked", "*");
+    });
+    // ✅ 스크롤 이벤트
+    window.addEventListener("scroll", () => {
+      window.parent.postMessage("iframe_scrolled", "*");
+    });
+</script>
+    </body>
+</html>

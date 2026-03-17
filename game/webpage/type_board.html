@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카탈로그</title>
+    <link href="./libs/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <script src="./libs/swiper/swiper-bundle.min.js"></script>
+    <script src="./libs/jquery/jquery-3.5.1.min.js"></script>
+    <script src="./js/scripts.js"></script>
+    
+
+    
+    
+    <style>
+       body {
+            background-color: #fff;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            font-size: 20px; /* 전체 폰트 기본 크기 키움 */
+        }
+
+        #div_list {
+             padding: 20px 20px 100px 20px; /* 여백 2배 */
+            min-height: calc(100vh - 210px);
+            box-sizing: border-box;
+        }
+
+        .list-item {
+            padding: 30px 40px;
+            margin-bottom: 20px;
+            background: #f7f7f7;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 28px;
+        }
+
+        .list-item:hover {
+            background-color: #e0f7fa;
+        }
+
+        #bottomBar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            border-top: 1px solid #ddd;
+            z-index: 9999;
+        }
+
+        .page-button {
+            background: none;
+            border: none;
+            color: #000;
+            font-size: 24px;
+            margin: 0 10px;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .page-button:hover {
+            background: #f0f0f0;
+        }
+
+        .page-button.active {
+            background: #000;
+            color: #fff;
+        }
+
+        .list-table th, .list-table td {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px;
+            font-size: 28px;
+        }
+
+        .list-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        button {
+            font-size: 24px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div id="div_list"></div>
+
+    <div id="bottomBar"></div>
+
+    <script>
+        var alllist = [];
+        var projectid = getParam("projectid") ? getParam("projectid") : "sample";  //프로젝트 아이디
+        var groupidx = getParam("groupidx") ? getParam("groupidx") : 0;  //그룹idx
+        var listid = getParam("listid") ? getParam("listid") : 0;  //게시판 아이디
+        var editmode = getParam("editmode") ? getParam("editmode") : 0;  //수정모드
+        
+        //수정모드가 1일때 
+        var ishideadd = getParam("ishideadd") ? getParam("ishideadd") : 0;  //버튼 Add 숨기기 : 1 , 보여주기 :0
+        var ishidedelete = getParam("ishidedelete") ? getParam("ishidedelete") : 0;  //버튼 Delete 숨기기 : 1 , 보여주기 :0
+        var ishideedit = getParam("ishideedit") ? getParam("ishideedit") : 0;  //버튼 Edit 숨기기 : 1 , 보여주기 :0
+        var now_pagenum = 0;
+      
+        let currentListMax    = 20;
+        let currentListId     = '';
+        let currentProjectId  = '';
+
+        function getPage(pagenum, list_length, list_name_id, projectid) {
+              currentListMax   = list_length;
+            currentListId    = list_name_id;
+            currentProjectId = projectid;
+            now_pagenum = pagenum;
+            const _data = {
+                "projectid": projectid,
+                "groupidx":groupidx,
+                "listnameid": list_name_id,
+                "pagenum": pagenum,
+                "listmax": list_length//
+            };
+            AJAX_AdmGetGame("getlistdata", _data, function (res) {
+                console.log("getgallerydata res is ", res);
+                const code = parseInt(res.code);
+                if (code === 100) {
+                    alllist = res.list;
+                    updateList(res);
+                    
+                } else {
+                    alert("데이터를 불러오지 못했습니다.");
+                }
+            });
+        }
+
+      
+        function updateList(res) {
+            /////////////////////////////
+            // 상단고정이 있는지 체크하여 정렬 START
+            /////////////////////////////
+            var listtop = [];
+            var listnormal = [];
+            var new_list = [];
+            var list_len = res.list.length;
+            for(var i = 0 ; i < list_len; i++){
+                var item = res.list[i];
+                if(item.lt_istop == "Y"){
+                    listtop.push(item);
+                }else{
+                    listnormal.push(item);
+                }
+            }
+            if(listtop)
+            for(var i = 0; i < listtop.length;i++){
+                new_list.push(listtop[i]);
+            }
+            if(listnormal)
+            for(var i = 0; i < listnormal.length;i++){
+                new_list.push(listnormal[i]);
+            }
+            /////////////////////////////
+            // 상단고정이 있는지 체크하여 정렬 END
+            /////////////////////////////
+            
+            
+            
+            const list        = new_list       || [];
+            const totalPage   = res.totalPage  || 1;
+            const currentPage = res.currentPage|| 1;
+            const listMax     = currentListMax;
+            const listContainer = document.getElementById('div_list');
+            const bottomBar     = document.getElementById('bottomBar');
+
+            // 1) 목록 초기화
+            listContainer.innerHTML = '';
+
+            // 2) 테이블 생성
+            const table = document.createElement('table');
+            table.className = 'list-table';
+            table.style.width = '100%';
+            table.style.borderCollapse = 'collapse';
+
+            // 3) 헤더 생성
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+
+            var headers = listid == "reservation" ?  [
+                { text: '순번', width: '10%' },
+                { text: '제목', width: '30%' },
+                { text: '부제목', width: '20%' },
+                { text: '시작일,종료일', width: '20%' },
+                { text: '등록일', width: '20%' }
+            ]: [
+                { text: '순번', width: '10%' },
+                { text: '제목', width: '70%' },
+                { text: '등록일', width: '20%' }
+            ];
+            
+            var addbtn_tag = editmode == 1 && ishideadd == 0 ? "<button style='font-size:12px;padding:5px 15px 7px 15px;float:right;border:0;border-radius:5px;color:white;background-color:#009ef7' onclick='addData()'>+새글작성</button>" : "";
+            if(editmode == 1){
+                headers = listid == "reservation" ?  [
+                    { text: '상단고정', width: '8%' },
+                    { text: '순번', width: '10%' },
+                    { text: '제목', width: '18%' },
+                    { text: '부제목', width: '18%' },
+                    { text: '시작일,종료일', width: '18%' },
+                    { text: '등록일', width: '18%' },
+                    { text: "버튼&nbsp;&nbsp;"+addbtn_tag, width: '10%'}
+                ] : [
+                    { text: '상단고정', width: '10%' },
+                    { text: '순번', width: '10%' },
+                    { text: '제목', width: '40%' },
+                    { text: '등록일', width: '20%' },
+                    { text: "버튼&nbsp;&nbsp;"+addbtn_tag, width: '20%'}
+                ];                
+            }
+            
+           // 헤더 셀 스타일 변경
+            headers.forEach(h => {
+                const th = document.createElement('th');
+                th.innerHTML = h.text;
+                th.style.width = h.width;
+                th.style.borderBottom = '1px solid #ccc';
+                th.style.textAlign = 'left';
+                th.style.padding = '16px';
+                th.style.fontSize = '28px';
+                headerRow.appendChild(th);
+            });
+
+
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // 4) 본문 추가
+            const tbody = document.createElement('tbody');
+            const baseIndex = (currentPage - 1) * listMax;
+            
+            
+
+            list.forEach((item, idx) => {
+                const row = document.createElement('tr');
+                row.className = 'list-row';
+                row.style.cursor = 'pointer';
+                if(editmode == 0)row.onclick = () => showMessagePopup(item.lt_title, item.lt_subtitle, item.lt_startdate, item.lt_enddate, item.lt_message);
+
+
+                if(editmode == 1){
+                   // 상단고정셀
+                    const checkboxCell = document.createElement('td');
+                    var checked = item.lt_istop == "Y" ? "checked" : "";
+                    checkboxCell.innerHTML = "<input type='checkbox' id='checkbox_top_"+idx+"' onchange='onchangecheckbox("+idx+","+item.lt_idx+")' "+checked+" style='scale:2;margin-left:30px'/>";
+                    checkboxCell.style.padding = '16px';
+                    checkboxCell.style.fontSize = '28px';
+                    row.appendChild(checkboxCell);
+                }
+
+                // 본문 셀 스타일 변경
+                const numberCell = document.createElement('td');
+                numberCell.innerText = baseIndex + idx + 1;
+                numberCell.style.padding = '16px';
+                numberCell.style.fontSize = '28px';
+
+                const titleCell = document.createElement('td');
+                titleCell.innerText = item.lt_title || '제목 없음';
+                titleCell.style.padding = '16px';
+                titleCell.style.fontSize = '28px';
+                if(item.lt_istop == "Y")titleCell.style.fontWeight = 'bold';
+
+                const subTitleCell = document.createElement('td');
+                subTitleCell.innerText = item.lt_subtitle || '부제목없음';
+                subTitleCell.style.padding = '16px';
+                subTitleCell.style.fontSize = '28px';
+                if(item.lt_istop == "Y")subTitleCell.style.fontWeight = 'bold';
+
+                const StartEndTimeCell = document.createElement('td');
+                StartEndTimeCell.innerText = item.lt_startdate.substr(0,13)+" ~ "+item.lt_enddate.substr(0,13) || '기간 없음';
+                StartEndTimeCell.style.padding = '16px';
+                StartEndTimeCell.style.fontSize = '28px';
+                if(item.lt_istop == "Y")StartEndTimeCell.style.fontWeight = 'bold';
+
+                const dateCell = document.createElement('td');
+                dateCell.innerText = item.lt_date.substr(0,10) || '';
+                if(item.lt_date && editmode == 1)dateCell.innerText = item.lt_date;
+                
+                dateCell.style.padding = '16px';
+                dateCell.style.fontSize = '28px';
+                if(item.lt_istop == "Y")dateCell.style.fontWeight = 'bold';
+                
+                
+              
+                row.appendChild(numberCell);
+                row.appendChild(titleCell);
+                 if(listid == "reservation"){
+                     
+                     row.appendChild(subTitleCell);
+                     row.appendChild(StartEndTimeCell);
+                }
+                row.appendChild(dateCell);
+                
+                if(editmode == 1){
+                    numberCell.onclick = () => showMessagePopup(item.lt_title, item.lt_subtitle,item.lt_startdate, item.lt_enddate, item.lt_message);
+                    titleCell.onclick = () => showMessagePopup(item.lt_title, item.lt_subtitle,item.lt_startdate, item.lt_enddate, item.lt_message);
+                    if(listid == "reservation"){
+                        subTitleCell.onclick = () => showMessagePopup(item.lt_title, item.lt_subtitle,item.lt_startdate, item.lt_enddate, item.lt_message);
+                        StartEndTimeCell.onclick = () => showMessagePopup(item.lt_title, item.lt_subtitle,item.lt_startdate, item.lt_enddate, item.lt_message);
+                     }
+                    dateCell.onclick = () => showMessagePopup(iitem.lt_title, item.lt_subtitle,item.lt_startdate, item.lt_enddate, item.lt_message);
+                                                            
+                     var btn_edit = document.createElement("button");
+                    btn_edit.style = "font-size:12px;border:0;border-radius:5px;color:#fff;background-color:#009ef7;margin-right:20px;width:70px;height:30px";
+                    btn_edit.innerText="수정";
+                    btn_edit.onclick = function(){
+                        editData(item.lt_idx, item.lt_title, item.lt_subtitle, item.lt_startdate, item.lt_enddate, item.lt_message);
+                    }
+                    var btn_delete = document.createElement("button");
+                    btn_delete.style = "font-size:12px;border:0;border-radius:5px;color:#fff;background-color:#af4254;width:70px;height:30px";
+                    btn_delete.innerText="삭제";
+                    btn_delete.onclick = function(){
+                        deleteData(item.lt_idx, item.lt_title, item.lt_subtitle, item.lt_startdate, item.lt_enddate, item.lt_message);
+                    }
+                    
+                    const btnCell = document.createElement('td');
+                    if(editmode == 1 && ishideedit == 0)btnCell.appendChild(btn_edit);
+                    if(editmode == 1 && ishidedelete == 0)btnCell.appendChild(btn_delete);
+                    
+                    btnCell.style.padding = '8px';
+                    row.appendChild(btnCell);
+                }
+                
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(tbody);
+            listContainer.appendChild(table);
+
+            // 5) 페이지 네비게이션 생성
+            bottomBar.innerHTML = '';
+
+            const makeButton = (text, page, isActive = false) => {
+                const btn = document.createElement('button');
+                btn.className = 'page-button' + (isActive ? ' active' : '');
+                btn.innerText = text;
+                btn.onclick = () => getPage(page, listMax, currentListId, currentProjectId);
+                return btn;
+            };
+
+            bottomBar.appendChild(makeButton('<<', Math.max(1, currentPage - 1)));
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPage, currentPage + 2); i++) {
+                bottomBar.appendChild(makeButton(i, i, i === currentPage));
+            }
+            bottomBar.appendChild(makeButton('>>', Math.min(totalPage, currentPage + 1)));
+        }
+        //상단고정 체크박스
+        function onchangecheckbox(idx, lt_idx){
+            var checkbox = document.getElementById("checkbox_top_"+idx);
+            var lt_istop = checkbox.checked ? "Y" : "N";
+            updateCheckboxIsTop(lt_idx, lt_istop);
+        }
+        
+        //상단고정갑 업데이트
+        function updateCheckboxIsTop(lt_idx , lt_istop){
+            const _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,              
+                "ltidx":lt_idx,
+                "ltistop":lt_istop
+               
+            };
+            AJAX_AdmGetGame("updatelististop", _data, function (res) {
+                console.log("getgallerydata res is ", res);
+                const code = parseInt(res.code);
+                if (code === 100) {
+                    getPage(now_pagenum, currentListMax, listid, projectid);
+                    
+                } else {
+                    alert("데이터를 불러오지 못했습니다.");
+                }
+            });
+        }
+        function addData() {
+            showEditorPopup({
+                title: "데이터 추가",
+                lt_idx: "",
+                lt_title: "",
+                lt_subtitle:"",
+                lt_startdate:"",
+                lt_enddate:"",
+                lt_message: "",
+                type: "add"
+            });
+        }
+
+        function editData(lt_idx, lt_title,  lt_subtitle,  lt_startdate,  lt_enddate, lt_message) {
+            
+            showEditorPopup({
+                title: "데이터 수정",
+                lt_idx,
+                lt_title,
+                lt_subtitle,
+                lt_startdate,
+                lt_enddate,
+                lt_message,
+                type: "edit"
+            });
+        }
+
+        function deleteData(lt_idx, lt_title,  lt_subtitle,  lt_startdate,  lt_enddate, lt_message) {
+            C_showConfirmPopup({
+                message: `"${lt_title}" 를 삭제하시겠습니까?`,
+                onConfirm: () => updateData(lt_idx, lt_title,  lt_subtitle,  lt_startdate,  lt_enddate, lt_message, "delete")
+            });
+        }
+       function showEditorPopup({ title, lt_idx, lt_title, lt_subtitle, lt_startdate, lt_enddate, lt_message, type }) {
+            const existing = document.getElementById('popupOverlay');
+            if (existing) existing.remove();
+
+            // 토글 상태 변수
+            let isCode = false;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'popupOverlay';
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10000
+            });
+
+            const box = document.createElement('div');
+            Object.assign(box.style, {
+                width: '80%', height: '80%',
+                backgroundColor: '#fff', borderRadius: '8px',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                display: 'flex', flexDirection: 'column',
+                overflow: 'hidden'
+            });
+
+            // Header
+            const header = document.createElement('div');
+            header.innerText = title;
+            Object.assign(header.style, {
+                padding: '15px 20px', backgroundColor: '#f9f9f9',
+                fontWeight: 'bold', borderBottom: '1px solid #eee'
+            });
+
+            // Content Container
+            const content = document.createElement('div');
+            Object.assign(content.style, {
+                padding: '20px', display: 'flex', flexDirection: 'column',
+                flexGrow: 1, overflow: 'auto', gap: '15px'
+            });
+
+            // Input Title & SubTitle (생략 가능하나 유지)
+            const inputTitle = document.createElement('input');
+            inputTitle.type = 'text'; inputTitle.value = lt_title || '';
+            Object.assign(inputTitle.style, { padding: '10px', fontSize: '16px', width: '100%', boxSizing: 'border-box' });
+
+            // --- 내용 입력부 레이아웃 ---
+            const messageHeader = document.createElement('div');
+            Object.assign(messageHeader.style, {
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+            });
+
+            const label_message = document.createElement("label");
+            label_message.innerHTML = "내용입력";
+            label_message.style.fontWeight = "bold";
+
+            // 코드보기 토글 버튼
+            const toggleCodeBtn = document.createElement('button');
+            toggleCodeBtn.innerText = "<Html>";
+            Object.assign(toggleCodeBtn.style, {
+                padding: '4px 8px', fontSize: '12px', cursor: 'pointer',
+                borderRadius: '4px', border: '1px solid #ccc', backgroundColor: '#f0f0f0'
+            });
+
+            const inputMessage = document.createElement('div');
+            inputMessage.contentEditable = true;
+            inputMessage.innerHTML = lt_message || '';
+            Object.assign(inputMessage.style, {
+                padding: '10px', fontSize: '14px', minHeight: '150px',
+                border: '1px solid #ddd', borderRadius: '4px',
+                backgroundColor: '#fafafa', height: '100%', overflowY: 'auto',
+                fontFamily: 'inherit'
+            });
+
+            // 토글 이벤트 리스너
+            toggleCodeBtn.onclick = () => {
+                isCode = !isCode;
+                if (isCode) {
+                    // 코드 모드 ON: 태그가 텍스트로 보이게 변환
+                    const currentHTML = inputMessage.innerHTML;
+                    inputMessage.innerText = currentHTML; 
+                    inputMessage.style.fontFamily = 'monospace'; // 코드 느낌 제공
+                    inputMessage.style.backgroundColor = '#2d2d2d';
+                    inputMessage.style.color = '#fff';
+                    toggleCodeBtn.innerText = "<Html>";
+                    toggleCodeBtn.style.backgroundColor = '#ffc107';
+                } else {
+                    // 코드 모드 OFF: 텍스트를 다시 태그로 렌더링
+                    const currentText = inputMessage.innerText;
+                    inputMessage.innerHTML = currentText;
+                    inputMessage.style.fontFamily = 'inherit';
+                    inputMessage.style.backgroundColor = '#fafafa';
+                    inputMessage.style.color = '#000';
+                    toggleCodeBtn.innerText = "<Html>";
+                    toggleCodeBtn.style.backgroundColor = '#f0f0f0';
+                }
+            };
+
+            // 엘리먼트 조립
+            content.appendChild(label_message); // 제목 레이블
+            content.appendChild(inputTitle);
+
+            // 내용 입력 헤더 (레이블 + 토글버튼)
+            messageHeader.appendChild(label_message);
+            messageHeader.appendChild(toggleCodeBtn);
+            content.appendChild(messageHeader);
+            content.appendChild(inputMessage);
+
+            // Footer
+            const footer = document.createElement('div');
+            Object.assign(footer.style, {
+                display: 'flex', justifyContent: 'flex-end', gap: '10px',
+                padding: '15px 20px', borderTop: '1px solid #eee', flexShrink: 0
+            });
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerText = '취소';
+            cancelBtn.onclick = () => overlay.remove();
+
+            const confirmBtn = document.createElement('button');
+            confirmBtn.innerText = type === "add" ? '추가' : '수정';
+            confirmBtn.style.backgroundColor = '#0d6efd';
+            confirmBtn.style.color = '#fff';
+
+            confirmBtn.onclick = () => {
+                // 최종 저장 시 코드가 켜져있다면 텍스트를 태그로 인식해서 저장해야 함
+                let finalContent = isCode ? inputMessage.innerText : inputMessage.innerHTML;
+
+                updateData(
+                    lt_idx,
+                    inputTitle.value.trim(),
+                    "", // lt_subtitle 등 필요시 추가
+                    "", // lt_startdate
+                    "", // lt_enddate
+                    finalContent.trim(),
+                    type
+                );
+                overlay.remove();
+            };
+
+            [cancelBtn, confirmBtn].forEach(btn => {
+                Object.assign(btn.style, {
+                    padding: '8px 16px', border: 'none', borderRadius: '4px', cursor: 'pointer'
+                });
+            });
+
+            footer.appendChild(cancelBtn);
+            footer.appendChild(confirmBtn);
+            box.appendChild(header);
+            box.appendChild(content);
+            box.appendChild(footer);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+        }
+
+        
+
+
+        //type : "add","edit","delete
+        function updateData(lt_idx , lt_title,  lt_subtitle,  lt_startdate,  lt_enddate, lt_message, type){
+            const _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "listnameid": listid,
+                "ltidx":lt_idx,
+                "lttitle":lt_title,
+                "ltsubtitle":lt_subtitle,
+                "ltstartdate":lt_startdate,
+                "ltenddate":lt_enddate,
+                "ltmessage":lt_message,                
+                "type": type
+            };
+            AJAX_AdmGetGame("updatelistdata", _data, function (res) {
+                console.log("getgallerydata res is ", res);
+                const code = parseInt(res.code);
+                if (code === 100) {
+//                    alllist = res.list;
+//                    updateList(res);
+                    if(type == "add")
+                        getPage(1, currentListMax, listid, projectid);
+                    else
+                        getPage(now_pagenum, currentListMax, listid, projectid);
+                    
+                } else {
+                    alert("데이터를 불러오지 못했습니다.");
+                }
+            });
+        }
+        
+        function showMessagePopup(title, subtitle, starttime, endtime, message) {
+            const existing = document.getElementById('popupOverlay');
+            if (existing) existing.remove();
+
+            // Overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'popupOverlay';
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10000
+            });
+
+            // Box
+            const box = document.createElement('div');
+            Object.assign(box.style, {
+                width: '80vw',
+                height: '80vh',
+                backgroundColor: '#fff',
+                borderRadius: '16px',
+                boxSizing: 'border-box',
+                display: 'flex',
+                flexDirection: 'column',
+                boxShadow: '0 6px 20px rgba(0,0,0,0.35)',
+                position: 'relative',
+                overflow: 'hidden'
+            });
+
+            // Header
+            const header = document.createElement('div');
+            Object.assign(header.style, {
+                flex: '0 0 auto',
+                padding: '30px 40px',
+                borderBottom: '2px solid #eee',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: '#f9f9f9'
+            });
+
+            const hTitle = document.createElement('div');
+            hTitle.innerText = title || '제목 없음';
+            Object.assign(hTitle.style, {
+                fontSize: '36px',
+                fontWeight: 'bold',
+                color: '#333'
+            });
+
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '&times;';
+            Object.assign(closeBtn.style, {
+                fontSize: '48px',
+                lineHeight: '1',
+                border: 'none',
+                background: 'none',
+                cursor: 'pointer',
+                color: '#999'
+            });
+            closeBtn.onclick = () => overlay.remove();
+
+            header.appendChild(hTitle);
+            header.appendChild(closeBtn);
+
+            // Subtitle
+            const hSubTitle = document.createElement('div');
+            hSubTitle.innerText = subtitle || '부제목 없음';
+            Object.assign(hSubTitle.style, {
+                fontSize: '36px',
+                padding: '30px 40px',
+                color: '#a88'
+            });
+
+            // Start / End time
+            const hStartEndtime = document.createElement('div');
+            hStartEndtime.innerText =
+                (starttime && endtime)
+                    ? starttime.substr(0, 13) + " ~ " + endtime.substr(0, 13)
+                    : '기간 없음';
+            Object.assign(hStartEndtime.style, {
+                fontSize: '28px',
+                padding: '20px 40px',
+                color: '#333'
+            });
+
+            // Content
+            console.log("message is ",message);
+            const content = document.createElement('div');
+            content.innerHTML = (message || '').replace(/\n/g, '<br>');
+            Object.assign(content.style, {
+                flex: '1 1 auto',
+                padding: '40px',
+                overflowY: 'auto',
+                color: '#555',
+                fontSize: '28px',
+                lineHeight: '1.6',
+                whiteSpace: 'pre-wrap'
+            });
+
+            // Footer
+            const footer = document.createElement('div');
+            Object.assign(footer.style, {
+                flex: '0 0 auto',
+                padding: '20px 40px',
+                borderTop: '2px solid #eee',
+                textAlign: 'right'
+            });
+
+            const btn = document.createElement('button');
+            btn.innerText = '닫기';
+            Object.assign(btn.style, {
+                padding: '16px 32px',
+                backgroundColor: '#0d6efd',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '28px'
+            });
+            btn.onclick = () => overlay.remove();
+
+            footer.appendChild(btn);
+
+            // Assemble
+            box.appendChild(header);
+            if (listid === "reservation") {
+                box.appendChild(hSubTitle);
+                box.appendChild(hStartEndtime);
+            }
+            box.appendChild(content);
+            box.appendChild(footer);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+        }
+
+//        // 실제 서버에 요청하는 가짜 함수 (테스트용)
+//        function AJAX_AdmGetGame(url, data, callback) {
+//            console.log("AJAX Call:", url, data);
+//            // 여기서는 더미 데이터 생성
+//            const dummyList = [];
+//            for (let i = 0; i < data.list_length; i++) {
+//                dummyList.push({ title: `게시글 ${((data.pagenum - 1) * data.list_length) + i + 1}` });
+//            }
+//            callback({
+//                code: 100,
+//                list: dummyList,
+//                totalPage: 5,
+//                currentPage: data.pagenum,
+//                gameid: data.projectid
+//            });
+//        }
+
+        // 초기 로딩
+        window.onload = function() {
+            getPage(1, 20, listid, projectid);
+        };
+        document.addEventListener("click", () => {
+          window.parent.postMessage("iframe_clicked", "*");
+        });
+        // ✅ 스크롤 이벤트
+        window.addEventListener("scroll", () => {
+          window.parent.postMessage("iframe_scrolled", "*");
+        });
+    </script>
+
+</body>
+</html>

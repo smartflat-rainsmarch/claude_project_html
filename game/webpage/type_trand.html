@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>트렌드 화면</title>
+    <link rel="stylesheet" href="style.css">
+    <!--배경화면 파티클 테스트-->
+    
+<!--    <script src="https://cdn.tailwindcss.com"></script>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
+      <script src="./libs/tailwindcss.js"></script>
+   <script src="./libs/chart.js"></script>
+    <link rel="stylesheet" href="./libs/bgparticle/soon_particle.css">
+    <script src="./libs/bgparticle/soon_particle.js" crossorigin="anonymous"></script>
+
+    <script src="./libs/jquery/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+    <script src="./js/scripts.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&display=swap');
+
+        :root {
+            --pastel-blue: #a7c5eb;
+            --pastel-green: #b2d8b2;
+            --pastel-pink: #f6caca;
+            --pastel-yellow: #f8e1a7;
+            --pastel-purple: #c7bfe6;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #f0f4f7;
+/*            background-color: #1d2736;*/
+            font-family: 'Nanum Gothic', sans-serif;
+             /* 텍스트 드래그 방지 추가 */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* 최상단 트랜드 제목 */
+        .page-title {
+           
+            top: 20px;
+/*
+            left: 50%;
+            transform: translateX(-50%);
+*/
+            font-size: 1.5em;
+            font-weight: 700;
+            text-align: middle;
+            color: #333;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        /* 풍선 컨테이너 */
+        .bubble-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        /* 트랜드 풍선 스타일 */
+        .bubble {
+/*
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 60% 40% / 40% 60%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: transform 0.2s ease-out;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+            word-break: break-word;
+*/
+        }
+
+        .bubble span {
+            font-weight: 700;
+            color: #fff;
+            
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            pointer-events: none; /* 텍스트 클릭 방지 */
+        }
+
+        /* + 추가 버튼 스타일 */
+        .add-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: #87ceeb; /* 파스텔 블루 */
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 2em;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+            z-index: 1000;
+        }
+
+        .add-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .add-button:active {
+            transform: scale(0.95);
+        }
+
+        /* 모달 팝업창 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        .modal-content input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            width: 45%;
+        }
+
+        #addTrendBtn {
+            background-color: var(--pastel-blue);
+            color: white;
+        }
+
+        #closeModalBtn {
+            background-color: #ccc;
+            color: #333;
+        }
+
+        /* 애니메이션 키프레임 */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(-1deg); }
+        }
+
+        @keyframes move-bubble {
+            from {
+                top: var(--start-y);
+                left: var(--start-x);
+                opacity: 0.9;
+            }
+            to {
+                top: var(--end-y);
+                left: var(--end-x);
+                opacity: 0.9;
+            }
+        }
+        /* 최초 풍선이  생기는 애니메이션*/
+        @keyframes bubblePopIn {
+          0% {
+            transform: translate(-50%, -50%) scale(0.1);
+            opacity: 0;
+          }
+          66% {
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 1;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+          }
+        }
+        .bubble.pop-in {
+          animation: bubblePopIn 1.5s cubic-bezier(.1,.3,.2,0.4) forwards;
+        }
+        #historyPanel {
+            position: absolute;
+            
+            right: 1rem;
+            background: #1f2937;
+            color: white;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 50;
+            display:none;
+            /*      box-shadow: 0 4px 10px rgba(0,0,0,0.2);*/
+        }
+
+        #historyModal {
+            display: none;
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            z-index: 200;
+        }
+         .bar {
+            transition: width 1.2s ease-out;
+        }
+
+        .bar-animated {
+            animation: barGrow 1.2s ease-out;
+        }
+
+        @keyframes barGrow {
+            0% {
+                width: 0%;
+            }
+
+            100% {
+                width: var(--bar-width);
+            }
+        }
+    </style>
+</head>
+<body>
+     <div id="soonParticles" style='position:absolute;width:100%;height:100%;'></div>
+     <div id="resultOverlay" class="overlay hidden"></div>
+       
+      <!-- 📊 지난 트랜드 결과 모달 -->
+        <div id="historyModal">
+            <h3 id="result_survey_title" class="text-2xl font-bold mb-6">📊 트랜드 결과 </h3>
+            <div style='max-height: 600px;overflow-y: scroll'>
+                <ul id="resultContent" class="space-y-4"></ul>        
+            </div>
+            <button onclick="toggleHistoryModal()" class="mt-6 w-full bg-gray-800 text-white py-3 rounded-lg text-lg">닫기</button>
+        </div>
+        
+     <div id="resultModal" class="modal hidden">
+        <h2 class="text-xl font-bold mb-4">📊 트랜드 결과</h2>
+        <ul id="resultContent" class="space-y-4"></ul>
+        <button onclick="closeResult()" class="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">닫기</button>
+     </div>
+     <div id ="div_trand_main">
+        <div class="bubble-container" id="bubbleContainer" ></div>
+
+        <div align="center" style="margin:30px;padding:10px 30px;border-radius:30px;background-color:#aafaff33; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);"><label id='trand_title' class="page-title"></label></div>
+        <!-- 📂 지난 트랜드 보기 버튼 -->
+        <div id="historyPanel" onclick="toggleHistoryModal()">📂 트랜드결과 보기</div>
+
+        <button class="add-button" id="addButton">+</button>
+
+        <div id="trendModal" class="modal">
+            <div class="modal-content">
+                <h2>새 트렌드 추가</h2>
+                <input type="text" id="trendInput" placeholder="새로운 트렌드 입력">
+                <div class="modal-buttons">
+                    <button id="addTrendBtn">추가</button>
+                    <button id="closeModalBtn">취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id='div_trand_message' align="center" style="float:bottom;margin:400px 50px 50px 50px; padding:5px 5px;border-radius:30px;background-color:#8afad133; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);display:none;z-index: 999999"><h4 id='txt_trand_message' style="color:white">현재 트랜드가 없습니다.</h4></div>
+
+
+    <script>
+        console.log("트랜드 보여주기");
+        
+        var projectid = getParam("projectid") ? getParam("projectid") : "sample"; 
+        var groupidx = getParam("groupidx") ? getParam("groupidx") : 0; 
+        var surveyidx = getParam("surveyidx") ? getParam("surveyidx") : 0; //트랜드 아이디 DB를 같이써서 surveyidx 로 쓴다.
+        var editmode = getParam("editmode") ? getParam("editmode") : 0;  //수정모드
+        
+        var trand_title = document.getElementById("trand_title");
+        var trand_items = null;
+        var trand_setting = null;
+        
+        
+        var div_trand_main = document.getElementById("div_trand_main");
+        var div_trand_message = document.getElementById("div_trand_message");
+        var txt_trand_message = document.getElementById("txt_trand_message");
+        var historyPanel = document.getElementById("historyPanel");
+        var label_title = document.getElementById("trand_title");
+        
+         // 파스텔톤 색상 목록
+        const pastelColors = [
+            '#a7c5eb', '#b2d8b2', '#f6caca', '#f8e1a7', '#c7bfe6',
+            '#a8e6cf', '#dcedc1', '#ffd3b6', '#ffaaa5', '#ff8b94'
+        ];
+        var isFinish = 1;
+         var tb_surveydata  = null;
+         $(document).ready(function() {
+            particleground(document.getElementById('soonParticles'), {
+                dotColor: '#ffffff',
+                lineColor: '#ffffff'
+              });
+
+            var _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "surveyidx": surveyidx,
+                "type":"trand"
+            }
+            
+           
+            AJAX_AdmGetGame("getsurveydata", _data, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    tb_surveydata  = res.message;
+                    console.log("tb_surveydata ",tb_surveydata);
+                    
+                    trand_title.innerHTML = tb_surveydata["sv_title"];
+                    trand_items = tb_surveydata["sv_data"] ? JSON.parse(tb_surveydata["sv_data"]) : [];
+                    trand_setting = tb_surveydata["sv_setting"] ? JSON.parse(tb_surveydata["sv_setting"]) : {};
+                    
+                    for(var i = 0 ; i < trand_items.length;i++){
+                        trand_items[i].color = pastelColors[i%pastelColors.length];
+                    }
+                    
+                    var _enddate = tb_surveydata["sv_enddate"].substr(0,10)+" 23:59:59";
+                    isFinish = isWithinPeriod(tb_surveydata["sv_startdate"], _enddate);
+                    console.log("isFinish "+isFinish);
+                    
+                    trand_title.style.color = trand_setting.settitle.color;
+                    trand_title.style.fontSize = trand_setting.settitle.size == "small" ? "25px": trand_setting.settitle.size == "medium" ? "35px" : "50px";
+                    
+                    
+                    if(isFinish == 1) //트랜드 기간이다
+                        inittrand_items();
+                    else if (isFinish == 0) //트랜드종료됨
+                        end_survey(surveydata.sv_title);
+                    else  //트랜드시작전
+                        ready_survey(surveydata.sv_startdate);
+                    
+                }else {
+                    //test
+//                    trand_items = [
+//                        { name: '상추', size: 100, fontSize: 16, clicks: 0, color: pastelColors[0] },
+//                        { name: '나로호 우주선', size: 110, fontSize: 17, clicks: 0, color: pastelColors[1] },
+//                        { name: '옥수수', size: 95, fontSize: 15, clicks: 0, color: pastelColors[2] },
+//                        { name: '밤나무', size: 105, fontSize: 16, clicks: 0, color: pastelColors[3] },
+//                        { name: '수박', size: 120, fontSize: 18, clicks: 0, color: pastelColors[4] },
+//                        { name: '토마토', size: 115, fontSize: 17, clicks: 0, color: pastelColors[5] },
+//                        { name: '오이', size: 90, fontSize: 15, clicks: 0, color: pastelColors[6] },
+//                        { name: '해바라기', size: 130, fontSize: 19, clicks: 0, color: pastelColors[7] },
+//                        { name: '민들레', size: 110, fontSize: 17, clicks: 0, color: pastelColors[8] },
+//                        { name: '왕똥', size: 100, fontSize: 16, clicks: 0, color: pastelColors[9] }
+//                    ];
+//                    //maxclicks : 풍선 최대클릭횟수 , maxsize : 풍선 최대크기 , clickInterval : 풍선 1번클릭후 다음클릭까지 시간
+//                    trand_setting = {"maxclicks":30,"maxsize":300,"clickInterval":5000}; 
+//                    
+//                    var testdata = {"datas":trand_items,"setting":trand_setting};
+//                    console.log("testdata: "+JSON.stringify(testdata));
+                }
+                
+            });
+             
+        });
+          function ready_survey(startdate){
+            label_title.style.marginTop = "440px";
+            label_title.innerHTML = "📊 "+title+" (트랜드시작전) "+startdate.substr(0,10)+" 일 시작";
+            historyPanel.style.display = "none";
+        }
+        function end_survey(title){
+            label_title.style.marginTop = "440px";
+            label_title.innerHTML = "📊 "+title+" (트랜드종료됨)";
+            historyPanel.style.display = "none";
+        }
+        function empty_survey(){
+            label_title.style.marginTop = "440px";
+            label_title.innerHTML = "📊 현재 트랜드 내용이 없습니다.";
+            historyPanel.style.display = "none";
+        }
+        function inittrand_items(){
+              if(trand_items && trand_items.length > 0){
+//                 trand_items.forEach(createBubble);    
+                  historyPanel.style.display = tb_surveydata.sv_resultopen == 0 ? "none" : "block";
+                  for(var i = 0 ; i < trand_items.length; i++){
+                      console.log(i+" ",trand_items[i]);
+                      createBubble(trand_items[i]);
+                  }
+                  
+              }else {
+                  div_trand_main.style.display = "none";
+                  div_trand_message.style.display = "block";
+              }
+              
+        }
+        function toggleHistoryModal() {
+            const modal = document.getElementById('historyModal');
+            if (modal.style.display === 'none' || modal.style.display === '') {
+                modal.style.display = 'block';
+//                renderChart();
+                showResult();
+            } else {
+                modal.style.display = 'none';
+            }
+        }
+        function showResult() {
+          
+            const pastelColors = [
+                '#a7c5eb', '#b2d8b2', '#f6caca', '#f8e1a7', '#c7bfe6',
+                '#a8e6cf', '#dcedc1', '#ffd3b6', '#ffaaa5', '#ff8b94'
+            ];
+
+          
+         
+            var item_names = [];
+            var total_clicks = 0;
+            
+            for (var i = 0; i < trand_items.length; i++) {
+                item_names.push(trand_items[i].name);   
+                total_clicks += parseInt(trand_items[i].clicks);
+            }
+
+            document.getElementById('resultOverlay').classList.remove('hidden');
+            document.getElementById('resultModal').classList.remove('hidden');
+
+            const content = document.getElementById('resultContent');
+            content.innerHTML = '';
+
+
+             var max = 0;
+             for (var i = 0; i < trand_items.length; i++) {
+                const count = parseInt(trand_items[i].clicks);
+                 if(count > max)max = count;
+             }
+          
+             trand_items = sortByKeyInt(trand_items, "clicks",true);
+            
+             for (var i = 0; i < trand_items.length; i++) {
+                
+                const count = parseInt(trand_items[i].clicks);
+//                console.log("max "+max+" count"+count );
+                const percent = parseInt((count / max) * 100);
+//                console.log(i+" max "+max+" count"+count+" = precent is "+percent);
+                const li = document.createElement('li');
+                const barColor = ['bg-red-400','bg-green-400','bg-blue-400','bg-yellow-400','bg-purple-400','bg-pink-400','bg-indigo-400','bg-orange-400','bg-teal-400','bg-cyan-400'][i % 10];
+
+                li.innerHTML = `
+                  <div class="flex justify-between mb-1" >
+                    <span class="font-medium text-gray-700">${trand_items[i].name}</span>
+                    <span class="text-gray-500">${count}표</span>
+                  </div>
+                  <div class="w-full h-5 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-5 ${barColor} rounded-full bar bar-animated" style="--bar-width:${percent}%; width:${percent}%"></div>
+                  </div>
+                `;
+                content.appendChild(li);
+                
+            };
+        }
+        
+        const bubbleContainer = document.getElementById('bubbleContainer');
+        const addButton = document.getElementById('addButton');
+        const trendModal = document.getElementById('trendModal');
+        const addTrendBtn = document.getElementById('addTrendBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const trendInput = document.getElementById('trendInput');
+        if(editmode == 0)addButton.style.display = "none";
+
+       
+
+//            var trand_items = [
+//                { name: '상추', size: 100, fontSize: 16, clicks: 0, color: pastelColors[0] },
+//                { name: '나로호 우주선', size: 110, fontSize: 17, clicks: 0, color: pastelColors[1] },
+//                { name: '옥수수', size: 95, fontSize: 15, clicks: 0, color: pastelColors[2] },
+//                { name: '밤나무', size: 105, fontSize: 16, clicks: 0, color: pastelColors[3] },
+//                { name: '수박', size: 120, fontSize: 18, clicks: 0, color: pastelColors[4] },
+//                { name: '토마토', size: 115, fontSize: 17, clicks: 0, color: pastelColors[5] },
+//                { name: '오이', size: 90, fontSize: 15, clicks: 0, color: pastelColors[6] },
+//                { name: '해바라기', size: 130, fontSize: 19, clicks: 0, color: pastelColors[7] },
+//                { name: '민들레', size: 110, fontSize: 17, clicks: 0, color: pastelColors[8] },
+//                { name: '왕똥', size: 100, fontSize: 16, clicks: 0, color: pastelColors[9] }
+//            ];
+
+        function getBubbleStyle(idx){
+            var borderRadius = ["50%;", "15px;", "60% 40% / 40% 60%;", "50% 50% 10% 10%;", "10% 10% 50% 50%;", "60% 40% 70% 30% / 40% 60% 30% 70%;", "30% 70% 70% 30% / 30% 30% 70% 70%;", "50% 50% 50% 50% / 60% 60% 40% 40%;", "50% 50% 50% 50% / 50% 30% 70% 50%;", "70% 30% 60% 40% / 50% 50% 50% 50%;", "50% 50% 50% 50% / 70% 30% 70% 30%;"];
+//            console.log("borderRadius[idx%(borderRadius.length)] "+borderRadius[idx%(borderRadius.length)]);
+            return borderRadius[idx % borderRadius.length];
+        }
+        var clickTimestamp = 0;
+        // 풍선 생성 함수
+        function createBubble(data) {
+//            console.log("data is ",data);
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.dataset.clicks = data.clicks;
+            bubble.dataset.name = data.name;
+            const style = "position: absolute;display: flex;align-items: center;justify-content: center;border-radius: "+getBubbleStyle(parseInt(data.clicks))+"box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);cursor: pointer;transition: transform 0.2s ease-out;text-align: center;padding: 10px;box-sizing: border-box;word-break: break-word;";
+            bubble.style = style;
+            const span = document.createElement('span');
+            
+            span.style.setProperty('color', trand_setting.setitem.color, 'important'); //강력하게 색깔을 적용한다.
+            span.textContent = data.name;
+
+            bubble.appendChild(span);
+            bubbleContainer.appendChild(bubble);
+
+            // 초기 스타일 적용
+            applyBubbleStyle(bubble, data);
+
+            // --- 1) 초기 랜덤 위치를 부모(bubbleContainer) 기준으로 설정 ---
+            const contRect = bubbleContainer.getBoundingClientRect();
+            const safeWidth = Math.max(1, contRect.width - data.size);
+            const safeHeight = Math.max(1, contRect.height - data.size);
+
+            // 중심 좌표로 사용 (transform: translate(-50%,-50%) 가 적용되어 있으므로 left/top = center)
+            const initCenterX = Math.random() * safeWidth + data.size / 2;
+            let initCenterY = Math.random() * safeHeight + data.size / 2;
+            // 기존 의도대로 상단 너무 가까운 건 보정
+            if (initCenterY < 200) initCenterY += 200;
+            if (initCenterY > contRect.height) initCenterY = contRect.height - data.size / 2;
+
+            const startX = initCenterX;
+            const startY = initCenterY;
+            bubble.style.left = `${initCenterX}px`;
+            bubble.style.top  = `${initCenterY}px`;
+
+            // --- 2) 팝인 애니메이션 적용: 끝나면 떠다니기 시작 ---
+            bubble.classList.add('pop-in');
+            const onPopEnd = (ev) => {
+                // animationend 는 다른 애니메이션 이벤트도 올 수 있으니 이름 확인(브라우저에 따라 animationName 사용)
+                // 단순히 실행되면 바로 animateBubble 호출해도 무방
+                bubble.removeEventListener('animationend', onPopEnd);
+                bubble.classList.remove('pop-in');
+
+                // animateBubble은 현재 위치(센터)를 기준으로 시작하도록 구현했음
+                animateBubbleNew(bubble,startX - data.size / 2, startY - data.size / 2);
+            };
+            bubble.addEventListener('animationend', onPopEnd);
+
+            // 클릭 이벤트 (크기 + 색상 변경)
+            bubble.addEventListener('click', () => {
+//                    console.log("클릭했다!!"+isCheckDrag);
+                if(!isCheckDrag){
+//                        console.log("클릭했다!!222");
+                    if(isFinish != 1){
+                        showTrandMessage("트랜드 조사기간이 종료되었습니다.");
+                        return;
+                    }
+                    var date = new Date();
+                    var nowtimestamp = date.getTime();
+                    if(nowtimestamp  > clickTimestamp+parseInt(trand_setting.clickInterval)){  
+                         
+                         if(parseInt(data.clicks) < parseInt(trand_setting.maxclicks)){
+                            
+                                data.clicks = parseInt(data.clicks)+1;
+                              
+                                var ismaxsizeflg = false;
+                                if(trand_setting && data.size < trand_setting.maxsize){
+                                    data.size = parseInt(data.size)+5;
+                                    data.fontSize = parseInt(data.fontSize)+1;
+                                    ismaxsizeflg = true;
+//                                    const colorIndex = data.clicks % pastelColors.length;
+//                                    data.color = pastelColors[colorIndex];                            
+                                }
+                             
+                                updateTrandData(function(res){
+                                    if(res == "success"){
+                                        applyBubbleStyleClick(bubble, data);
+                                        clickTimestamp = date.getTime();
+                                        hideTrandMessage();
+                                    }else {
+                                        
+                                        data.clicks = parseInt(data.clicks)-1;
+                                        if(ismaxsizeflg){
+                                            data.size = parseInt(data.size)-5;
+                                            data.fontSize = parseInt(data.fontSize)-1;
+                                            
+                                        }
+                                    }                                    
+                                });                                   
+                        }else{
+                            showTrandMessage("더이상 클릭할 수 없습니다.");
+                        }    
+                    }else{
+                        var remaintime = (clickTimestamp+parseInt(trand_setting.clickInterval) - nowtimestamp)/1000;
+                        showTrandMessage( remaintime.toFixed(1)+" 초 이후에 선택가능합니다.");    
+                    }
+                }
+            });
+            
+            
+            var start_trand_messagetime = 0;
+            function showTrandMessage(str){
+//                var date = new Date();
+//                var nowtimestamp = date.getTime();
+//                
+//                
+//                txt_trand_message.innerHTML =  str;
+//                div_trand_message.style.display = "block";
+//               
+//                setTimeout(function(){                    
+//                    div_trand_message.style.display = "none";                    
+//                },3000);
+//                start_trand_messagetime = nowtimestamp;
+                alertMsg(str);
+            }
+            function hideTrandMessage(){
+                div_trand_message.style.display = "none"; 
+            }
+
+            // === 드래그 기능 ===
+            let isDragging = false;
+            var startx = 0;
+            var starty = 0;
+            var isCheckDrag = false;
+            const startDrag = (e) => {
+//                    console.log("클릭클릭");
+                e.preventDefault();
+                isDragging = true;
+                isCheckDrag = false; 
+
+                // 드래그 중 애니메이션 제거
+                bubble.style.animation = 'none';
+
+                let clientX, clientY;
+                if (e.type.startsWith('touch')) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                // 풍선의 중심이 터치/마우스 지점으로 이동
+                bubble.style.position = 'absolute';
+                bubble.style.left = (clientX - data.size / 2) + 'px';
+                bubble.style.top = (clientY - data.size / 2) + 'px';
+                startx = clientX - data.size / 2;
+                starty = clientY - data.size / 2;
+                bubble.style.transform = 'none';//텍스트 선택 드래그 안되도록 하기
+            };
+
+            const onDrag = (e) => {
+
+
+                if (!isDragging) return;
+//                    console.log("무브무브");
+                isCheckDrag = true;
+                let clientX, clientY;
+                if (e.type.startsWith('touch')) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                bubble.style.left = (clientX - data.size / 2) + 'px';
+                bubble.style.top = (clientY - data.size / 2) + 'px';
+                console.log("Drag x "+bubble.style.left+" y "+bubble.style.top);
+                 startx = clientX - data.size / 2;
+                starty = clientY - data.size / 2;
+            };
+
+            const endDrag = (e) => {
+//                    console.log("종료종료");
+                if (!isDragging) return;
+
+                setTimeout(function(){
+                    isDragging = false;    
+                },100);
+
+                console.log("endDrag!!");
+
+                // 드래그 끝나면 다시 천천히 떠다니게
+                let clientX, clientY;
+                if (e.type.startsWith('touch')) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                var endx = (clientX - data.size / 2);
+                var endy = (clientY - data.size / 2);
+                bubble.style.left = endx + 'px';
+                bubble.style.top = endy + 'px';
+                
+                console.log("End x "+bubble.style.left+" y "+bubble.style.top);
+                if(endx < 0)endx = 0;
+                else if(endx > window.innerWidth)endx = window.innerWidth-100;
+                if(endy < 0)endy = 0;
+                else if(endy > window.innerHeight)endy = window.innerHeight-100;
+                
+                animateBubbleNew(bubble, endx, endy);
+
+
+//                    isCheckDrag = false; 
+            };
+
+            // 마우스 이벤트
+            bubble.addEventListener('mousedown', startDrag);
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', endDrag);
+
+            // 터치 이벤트
+            bubble.addEventListener('touchstart', startDrag);
+            document.addEventListener('touchmove', onDrag);
+            document.addEventListener('touchend', endDrag);
+            
+            bubble.classList.add('pop-in');
+            bubble.addEventListener('animationend', () => {
+                bubble.classList.remove('pop-in'); // 재사용 위해 제거
+            });
+
+        }
+
+
+        // 풍선 스타일 적용 함수
+        function applyBubbleStyle(bubble, data) {
+            
+            bubble.style.width = `${data.size}px`;
+            bubble.style.height = `${data.size}px`;
+            bubble.style.backgroundColor = data.color;
+            bubble.style.transform = 'translate(-50%, -50%)'; // 초기 위치 보정
+            bubble.style.zIndex = parseInt(data.clicks)+1;
+            bubble.querySelector('span').style.fontSize = `${data.fontSize}px`;
+        }
+         function applyBubbleStyleClick(bubble, data) {
+            var before_color = bubble.style.color; 
+            var intervalcnt = 0;
+            
+            const msize = parseInt(data.size);
+            const fsize =  parseInt(data.fontSize);
+            const mcolor =  data.color;
+            const mx = parseInt(bubble.style.marginLeft);
+            const my = parseInt(bubble.style.marginTop);
+             console.log("mcolor is "+mcolor);
+            var bubbleClickInterval = setInterval(function(){
+                
+                console.log("bubbleClickInterval "+intervalcnt);
+                const anisize = intervalcnt < 50 ? msize+intervalcnt : msize+100-intervalcnt;
+                const anifsize = intervalcnt < 50 ? fsize+intervalcnt/5 : fsize+20-intervalcnt/5;
+                const newColor = pastelColors[(intervalcnt/4)%10];
+                bubble.style.width = `${anisize}px`;
+                bubble.style.height = `${anisize}px`;
+                bubble.style.backgroundColor = newColor;
+               
+                bubble.querySelector('span').style.fontSize = `${anifsize}px`;
+                
+                if(intervalcnt > 100){
+                    clearInterval(bubbleClickInterval);
+                    
+                    bubble.style.width = `${data.size}px`;
+                    bubble.style.height = `${data.size}px`;
+                    bubble.style.backgroundColor = data.color;
+                    bubble.style.transform = 'translate(-50%, -50%)'; // 초기 위치 보정
+                    bubble.style.zIndex = parseInt(data.clicks)+1;
+                    bubble.querySelector('span').style.fontSize = `${data.fontSize}px`;
+                }
+                intervalcnt++;
+            },5);
+            
+        }
+
+        // 풍선 애니메이션 적용 함수
+        function animateBubbleNew(bubble, cx, cy) {
+            // 무작위 애니메이션 지속 시간
+            const duration = Math.random() * 20 + 30; // 30~50초
+
+            // 시작점은 전달받은 cx, cy
+            let startX = cx;
+            let startY = cy;
+
+            // 안전 범위 보정
+            if (startY < 100) startY += 100;
+            if (startY > window.innerHeight - 100) startY = window.innerHeight - 100;
+            if (startX > window.innerWidth - 100) startX = window.innerWidth - 100;
+
+            // 끝점은 화면 안의 랜덤 좌표
+            let endX = Math.random() * window.innerWidth;
+            let endY = Math.random() * window.innerHeight;
+
+            if (endY < 100) endY += 100;
+            if (endY > window.innerHeight - 100) endY = window.innerHeight - 100;
+            if (endX > window.innerWidth - 100) endX = window.innerWidth - 100;
+
+            // CSS 변수에 전달
+            bubble.style.setProperty('--start-x', `${startX}px`);
+            bubble.style.setProperty('--start-y', `${startY}px`);
+            bubble.style.setProperty('--end-x', `${endX}px`);
+            bubble.style.setProperty('--end-y', `${endY}px`);
+
+            // 떠다니는 애니메이션 적용
+            //bubble.style.animation = `move-bubble ${duration}s linear infinite alternate, float 3s ease-in-out infinite`;
+            bubble.style.animation = `move-bubble ${duration}s linear infinite alternate, float 3s ease-in-out infinite`;
+        }
+//        function animateBubble(bubble) {
+//            // 무작위 시작/끝 위치 및 애니메이션 시간 설정
+//            const duration = Math.random() * 20 + 30; // 30s ~ 50s
+//            var startX = Math.random() * window.innerWidth;
+//            var startY = Math.random() * window.innerHeight;
+//            if(startY < 200)startY = startY+200;
+//            if(startY > window.innerHeight)startY = startY -100;
+//            if(startX > window.innerWidth)startX = startX -100;
+//            const endX = Math.random() * window.innerWidth;
+//            const endY = Math.random() * window.innerHeight;
+//
+//            bubble.style.setProperty('--start-x', `${startX}px`);
+//            bubble.style.setProperty('--start-y', `${startY}px`);
+//            bubble.style.setProperty('--end-x', `${endX}px`);
+//            bubble.style.setProperty('--end-y', `${endY}px`);
+//
+//            bubble.style.animation = `move-bubble ${duration}s linear infinite alternate, float 3s ease-in-out infinite`;
+//        }
+//        // 풍선 애니메이션 재시작 함수 (특정 위치부터 시작)
+//        function animateBubbleRestart(bubble, x, y) {
+//            const duration = Math.random() * 20 + 30; // 30s ~ 50s
+//            const startX = x;
+//            const startY = y;
+//            const endX = Math.random() * x;
+//            const endY = Math.random() * y;
+//
+//            bubble.style.setProperty('--start-x', `${startX}px`);
+//            bubble.style.setProperty('--start-y', `${startY}px`);
+//            bubble.style.setProperty('--end-x', `${endX}px`);
+//            bubble.style.setProperty('--end-y', `${endY}px`);
+//
+//            bubble.style.animation = `move-bubble ${duration}s linear infinite alternate, float 3s ease-in-out infinite`;
+//        }
+
+
+        // 초기 10개 트렌드 생성
+
+
+        // '+' 버튼 클릭 이벤트
+        addButton.addEventListener('click', () => {
+            trendModal.style.display = 'flex';
+            trendInput.focus();
+        });
+
+        // 모달 '추가' 버튼 클릭 이벤트
+        addTrendBtn.addEventListener('click', () => {
+            if(isFinish != 1){
+                showTrandMessage("기간종료");
+                return;
+            }
+            const newTrendName = trendInput.value.trim();
+            if (newTrendName) {
+                const newTrend = {
+                    name: newTrendName,
+                    size: 90,
+                    fontSize: 15,
+                    clicks: 0,
+                    color: pastelColors[Math.floor(Math.random() * pastelColors.length)]
+                };
+                trand_items.push(newTrend);
+                
+                
+                updateTrandData(function (res){
+                    if(res == "success"){
+                        createBubble(newTrend);
+                        trendInput.value = '';
+                        trendModal.style.display = 'none';    
+                    }else{
+                        trand_items.splice(trand_items.length - 1, 1);
+                    }
+                    
+                });
+            }
+        });
+        
+
+        // 모달 '취소' 버튼 클릭 이벤트
+        closeModalBtn.addEventListener('click', () => {
+            trendInput.value = '';
+            trendModal.style.display = 'none';
+        });
+        
+        
+        function updateTrandData(callback){
+           
+            var _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "surveyidx": surveyidx,
+                "json_svdatas" :trand_items
+
+            }
+            AJAX_AdmGetGame("updatesvsticker", _data, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    
+                   
+                    callback("success");
+                }else{
+                    callback("error");
+                }
+
+            });
+        }
+        
+        
+        window.addEventListener('click', function(e) {
+             window.parent.postMessage("iframe_clicked", "*");
+        });
+        
+       
+        // ✅ 스크롤 이벤트
+        window.addEventListener("scroll", () => {
+          window.parent.postMessage("iframe_scrolled", "*");
+        });
+        
+        
+        
+        
+    </script>
+</body>
+</html>

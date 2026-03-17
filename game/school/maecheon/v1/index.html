@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <title>wrong pictures</title>
+
+        <link rel="manifest" href="app.manifest" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="HandheldFriendly" content="true" />
+        <meta property="og:title" content="wrong pictures" />
+
+        <script src="ion.sound.min.js"></script>
+        <script type="text/javascript" src="static/js/aes/aes.js"></script>
+        <script type="text/javascript" src="static/js/aes/aes-ctr.js"></script>
+        <script type="text/javascript" src="static/js/aes/utf8.js"></script>
+        <script type="text/javascript" src="static/js/aes/base64.js"></script>
+        <script src="jquery-3.2.1.min.js"></script> <!-- jquery required-->
+        <script type="text/javascript" src="static/js/firebase4.6.2.js"></script>
+        
+        <style type="text/css">
+
+            html,body {
+                margin: 0px;
+                padding: 0px;
+                overflow: hidden;
+                outline: none;
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -khtml-user-select: none;
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+                background-color: rgb(0,0,0);
+
+            }
+            #youTubePlayer1 {position:relative;width:100%;height:36%;}
+            #youTubePlayer1 iframe {position:absolute;width:100%;height:100%;}
+            canvas {
+                overflow: hidden;
+                outline: none;
+                background-color: rgb(0,0,0);
+            }
+/*            버튼콘테이너*/
+            .btn_container {  
+                width: 100%;  
+                height: 20%;  
+/*                버튼콘테이너 영역을 표시하기 위해서*/
+                border: 1px solid red;  
+                display: flex;  
+                justify-content: center;  
+                align-items: center;  
+            }  
+            button {  
+                background-color: yellow;  
+                color: black;  
+                font-size: 20px;  
+            } 
+        </style>
+       
+    </head>
+    <body>
+        
+         <script>
+        // url 에서 parameter 추출
+        function getParam(sname) {
+            var params = location.search.substr(location.search.indexOf("?") + 1);
+            var sval = "";
+            params = params.split("&");
+            for (var i = 0; i < params.length; i++) {
+                temp = params[i].split("=");
+                if ([temp[0]] == sname) { sval = temp[1]; }
+            }
+            return sval;
+        }
+        var getgamedata = null;
+        var param_projectid = getParam("projectid");
+        var param_groupidx = getParam("groupidx");
+        if(param_projectid == "maecheon" && !param_groupidx)param_groupidx = 1;//매천중학교만 예외처리
+             
+//        var param_uid = getParam("uid");
+//        var param_id = getParam("id");
+//        var param_groupcode = getParam("groupcode");
+//        var param_centername = getParam("centername");
+//             
+//        var param_healthday = getParam("healthday");
+//        var param_healthlevel= getParam("healthlevel");
+//        var param_healthtype = 0; // 팔운동 ,등운동, ... 리소스를 로드하기 위한 코드번호이다.
+//        var param_healthcolor = decodeURI(getParam("healthcolor")); // 파랑색 노랑색 ... 
+//        var param_healthpart = decodeURI(getParam("healthpart")); // 등운동 팔운동.... 
+//        var param_modelnames = decodeURI(getParam("modelnames")); // 모델이름들 QR 코들 찍을때 가이드로 머신 이름들을 알려준다. 
+       
+//        param_healthcolor = param_healthcolor.replace(/%2C/g,",");
+//        param_healthpart = param_healthpart.replace(/%2C/g,",");
+             
+//             console.log("param_healthday "+param_healthday+" param_healthlevel "+param_healthlevel+" param_healthtype"+param_healthtype+" param_healthcolor"+param_healthcolor);
+//             console.log("param_healthcolor "+param_healthcolor+" param_healthpart "+param_healthpart);
+        //var param_today_first = getParam("today_first");
+        var param_today_first = true;
+        
+        var global_app_datalist = [];
+        function AndroidCallback(key,value){
+            var data = {"key":key, "value":value};
+            global_app_datalist.push(data);
+            
+        }
+        function IOSCallback(key,value){
+            var data = {"key":key, "value":value};
+            global_app_datalist.push(data);
+            
+        }
+        function CheckAppCallbackData(key){
+            var return_data = null;
+            for(var i = 0; i < global_app_datalist.length; i++) {
+                if(global_app_datalist[i].key == key) {
+                    return_data = global_app_datalist[i].value;
+                    global_app_datalist.splice(i, 1);
+                    break;
+                }
+            }
+            return return_data;
+        }
+             
+             
+        
+        </script>
+        
+      
+            
+        <canvas id="gameCanvas" width="1080" height="1920" ></canvas>
+       
+        <script type="text/javascript" src="cocos2d-js-v3.13.js" charset="UTF-8"></script>
+        <script type="text/javascript" src="main.js" charset="UTF-8"></script>
+           
+<!--        <iframe id="myFrame" src="https://maecheon.dge.ms.kr/maecheonm/ad/fm/foodmenu/selectFoodMenuView.do" width="1000" height="1000" style='positon:absolute;margin-top:-1600px;zindex:9999999999999999999999999999999'></iframe>-->
+     
+        
+         
+        <script>
+            // youtube API 불러옴
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/player_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+//            // 플레이어변수 설정
+//            var youTubePlayer1;
+//
+//            function onYouTubeIframeAPIReady() {
+//                youTubePlayer1 = new YT.Player('youTubePlayer1', {
+//                    width: '500',
+//                    height: '280',
+//                    videoId: '0Ui6uGHmiks',
+//                    playerVars: {rel: 0},//추천영상 안보여주게 설정
+//                    events: {
+//                      'onReady': onPlayerReady, //로딩할때 이벤트 실행
+//                      'onStateChange': onPlayerStateChange //플레이어 상태 변화시 이벤트실행
+//                    }
+//                });//youTubePlayer1셋팅
+//            }
+
+//            unstarted	YT.PlayerState.UNSTARTED	-1
+//            ended	YT.PlayerState.ENDED	0
+//            playing	YT.PlayerState.PLAYING	1
+//            paused	YT.PlayerState.PAUSED	2
+//            bufferring	YT.PlayerState.BUFFERING	3
+//            video cued	YT.PlayerState.CUED	5
+
+            
+            function onPlayerReady(event) {
+                console.log("onPlayerReady");
+                event.target.playVideo();//자동재생
+                //로딩할때 실행될 동작을 작성한다.
+            }
+
+            function onPlayerStateChange(event) {
+                console.log("onPlayerStateChange",event);
+                if (event.data == YT.PlayerState.PLAYING) {
+                    console.log("playing");
+                    //플레이어가 재생중일때 작성한 동작이 실행된다.
+                }else  if (event.data == YT.PlayerState.STOP) {
+                    console.log("stop");
+                }
+                    
+            }
+
+            
+//            var iframe = document.getElementById("myFrame");
+//            iframe.onload = function() {
+//                var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+//
+//                // 이제 iframe 안에서 요소를 찾을 수 있어요
+//                var header = iframeDoc.getElementById("header");
+//                var footer = iframeDoc.getElementById("footer");
+//                var quickMenu = iframeDoc.getElementById("quickMenu");
+//                if (header) header.style.display = "none";
+//                if (footer) footer.style.display = "none";
+//                if (quickMenu) quickMenu.style.display = "none";
+//                var subvisual = iframeDoc.getElementsByClassName("subvisual");
+//                for(var i = 0 ; i < subvisual.length; i++){
+//                    subvisual[i].style.display = "none";
+//                }
+//                var subLocation = iframeDoc.getElementsByClassName("subLocation");
+//                for(var i = 0 ; i < subLocation.length; i++){
+//                    subLocation[i].style.display = "none";
+//                }
+//                
+////                 ["header", "footer", "quickMenu"].forEach(function(id) {
+////                    var el = iframeDoc.getElementById(id);
+////                    if (el) el.style.display = "none";
+////                });
+////
+////                // 클래스 제거
+////                ["subvisual", "subLocation"].forEach(function(className) {
+////                    var elements = iframeDoc.getElementsByClassName(className);
+////                    for (var i = 0; i < elements.length; i++) {
+////                        elements[i].style.display = "none";
+////                    }
+////                });
+//            };
+        </script>
+    </body>
+</html>

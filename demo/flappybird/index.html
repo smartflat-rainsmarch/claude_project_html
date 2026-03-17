@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>FlappyBird</title>
+    <link rel="stylesheet" href="style.css" > 
+    <link href="https://fonts.googleapis.com/css?family=Squada+One&display=swap" rel="stylesheet">
+    <style>
+  canvas {
+    image-rendering: pixelated;
+    transform: scale(2.8);
+    transform-origin: top left;
+    display: block;
+  }
+</style>
+</head>
+<body style="width:100%;height:auto">
+    <canvas id="canvas" width="276" height="414" style="flaot:left;margin-left:130px"></canvas>
+    <script src="game.js"></script>
+    <script>
+     document.addEventListener("click", () => {
+          window.parent.postMessage("iframe_clicked", "*");
+        });
+        // ✅ 스크롤 이벤트
+        window.addEventListener("scroll", () => {
+          window.parent.postMessage("iframe_scrolled", "*");
+        });
+    </script>
+</body>
+</html>

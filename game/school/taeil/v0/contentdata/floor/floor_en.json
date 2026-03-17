@@ -1,0 +1,246 @@
+{
+    "id": "page1_0",
+    "name": "영어_시설안내",
+    "type": "floor",
+    "floortitle": "영어_층별 안내",
+    "floortitlebg": "res\/global\/floor_title_bg.png",
+    "desc": "사이즈는 2160x3142 기준이다 2배가 크다",
+    "floordata": [
+        {
+            "fname": "1F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map1.png",
+            "data": [
+                {
+                    "title": "Café",
+                    "x": "422",
+                    "y": "384",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1F_카페터.png"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "2F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map2.png",
+            "data": [
+                {
+                    "title": "Multi-purpose Hal",
+                    "x": "472",
+                    "y": "244",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "3F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map3.png",
+            "data": [
+                {
+                    "title": "Chun Tae-il’s Childhood",
+                    "x": "582",
+                    "y": "424",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "Through Chun Tae-il’s Eyes",
+                    "x": "480",
+                    "y": "284",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "The Attic Garment Factory",
+                    "x": "570",
+                    "y": "214",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "Chun Tae-il in Action",
+                    "x": "522",
+                    "y": "130",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "Model Workplace",
+                    "x": "379",
+                    "y": "174",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                },
+                {
+                    "title": "Chun Tae-il’s Dream",
+                    "x": "260",
+                    "y": "140",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": "contentdata\/floor\/1f_kids.jpg"
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "4F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map4.png",
+            "data": [
+                {
+                    "title": "Open Gallery (Under Development)",
+                    "x": "363",
+                    "y": "525",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "Seminar Hall",
+                    "x": "685",
+                    "y": "450",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "Training Room",
+                    "x": "100",
+                    "y": "111",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "Meeting Room",
+                    "x": "520",
+                    "y": "332",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "1-Person Media Studio",
+                    "x": "309",
+                    "y": "131",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                },
+                {
+                    "title": "",
+                    "x": "33",
+                    "y": "22",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "5F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map5.png",
+            "data": [
+                {
+                    "title": "",
+                    "x": "-1000",
+                    "y": "1",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                }
+            ]
+        },
+        {
+            "fname": "6F",
+            "height": "192",
+            "floorbg": "contentdata\/img\/map6.png",
+            "data": [
+                {
+                    "title": "",
+                    "x": "-1000",
+                    "y": "1",
+                    "fontsize": "30",
+                    "fontcolor": "#313131",
+                    "event": {
+                        "type": "popup",
+                        "message": "",
+                        "img": ""
+                    }
+                }
+            ]
+        }
+    ],
+    "tab": "1",
+    "sub": "0"
+}

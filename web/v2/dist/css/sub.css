@@ -1,0 +1,102 @@
+@charset "utf-8";
+
+/* Layout */
+.content			{ position:relative; width:1200px; min-height:400px; margin:0 auto; padding-bottom:20px; }
+
+/* Sub Navi */
+.lnb				{ width:100%; margin-bottom:30px; background:#fbfbfb; border:1px solid #ddd; border-top:2px solid #ed5c22;}
+.lnb ul			{ float:none; width:100%; margin:0; zoom:1}
+.lnb ul:after		{ content:""; clear:both; display:block}
+.lnb li			{ float:left; padding:0; background:none; border-left:1px solid #ddd;}
+.lnb li:first-child	{ border-left:none;}
+.lnb li a			{ display:block; padding:17px 8px 16px; font-size:15px; letter-spacing:-.025em; font-family:'Spoqa Han Sans'; font-weight:400; text-align:center; color:#666; background:#fbfbfb; -webkit-transition: color 300ms; transition: color 300ms; }
+.lnb li a:hover,	
+.lnb li a:focus,
+.lnb li a._over		{ color:#ed5c22; background:#fff; }
+.lnb li:first-child:nth-last-child(3),
+.lnb li:first-child:nth-last-child(3)~li	{ width:33.2%}
+.lnb li:first-child:nth-last-child(4),
+.lnb li:first-child:nth-last-child(4)~li	{ width:24.9%}
+.lnb li:first-child:nth-last-child(5),
+.lnb li:first-child:nth-last-child(5)~li	{ width:19.9%}
+.lnb li:first-child:nth-last-child(8),
+.lnb li:first-child:nth-last-child(8)~li	{ width:12.4%;}
+
+/* Local Title */
+.local_title				{ width:100%; margin:45px 0 21px}
+.local_title:after			{ content:""; clear:both; display:block}
+.local_title h2.tit			{ float:left; margin:0; font-weight:400; font-family:'Spoqa Han Sans'; font-size:26px; color:#231b00; letter-spacing:-.1em}
+.local_title>ul				{ float:right; width:auto; margin-top:8px}
+.local_title>ul li			{ float:left; margin-right:10px; padding-left:13px; font-family:'Spoqa Han Sans'; font-weight:300; font-size:14.5px; color:#909090; letter-spacing:-.04em; background:url("/img/sub/bgLocal.png") no-repeat 0 50%}
+.local_title>ul li:first-child	{ background:none}
+.local_title>ul li:last-child		{ font-weight:400; color:#9a9a9a}
+.local_title>ul li a			{ font-family:'Spoqa Han Sans'; font-size:14px; color:#9a9a9a;}
+
+/* Shop */
+.shop_area>p:first-child,
+.shop_area .align							{ display:none}
+/* ī�װ���*/
+.shop_area .shop_category					{ border-top:0; margin-bottom:40px;}
+.shop_area .shop_category h4					{ display:none; }
+.shop_area .shop_category #category_wrap			{ padding:0; background:#fbfbfb; border:1px solid #ddd; border-top:2px solid #ed5c22;}
+.shop_area .shop_category #category_wrap ul		{ float:none; width:100%; margin:0; zoom:1}
+.shop_area .shop_category #category_wrap ul:after	{ content:""; clear:both; display:block}
+.shop_area .shop_category #category_wrap li		{ float:left; width:99.9%; padding:0; background:none; border-left:1px solid #ddd;}
+.shop_area .shop_category #category_wrap li:first-child	{ border-left:none;}
+.shop_area .shop_category #category_wrap li a strong	{ font-weight:300; letter-spacing:.1em }
+.shop_area .shop_category #category_wrap li>a		{ display:block; padding:17px 8px 16px; font-size:15px; letter-spacing:-.025em; font-family:'Spoqa Han Sans'; font-weight:400; text-align:center; color:#666; background:#fbfbfb; -webkit-transition: color 300ms; transition: color 300ms;}
+.shop_area .shop_category #category_wrap li>a:hover	{ color:#ed5c22; background:#fff; }
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(2),
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(2)~li	{ width:49.9%}
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(3),
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(3)~li	{ width:33.2%}
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(4),
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(4)~li	{ width:24.9%}
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(5),
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(5)~li	{ width:19.9%}
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(6),
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(6)~li	{ width:16.59%;}
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(7),
+.shop_area .shop_category #category_wrap li:first-child:nth-last-child(7)~li	{ width:14.21%;}
+/* ��ǰ����Ʈ */
+.shop_area .products				{ margin:0 0 30px 40px; text-align:center }
+.shop_area .products:nth-child(3n+1)	{ margin-left:0}	
+.shop_area .products .icon_movie,
+.shop_area .products .new			{ display:none}
+.shop_area .products .item img		{ width:100%; border:none}
+.shop_area .products li.blue			{ width:90%; overflow:hidden; margin:33px auto 4px; color:#666; font-size:15px; letter-spacing:-.075em; font-weight:300; text-overflow:ellipsis; white-space:nowrap;}
+.shop_area .products li.title			{ position:absolute; bottom:75px }
+.shop_area .products li.title a		{ width:90%; overflow:hidden; margin:0 auto; font-family:'Spoqa Han Sans'; font-size:17.5px; color:#333; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+.shop_area .products_text del			{ color:#9e9e9e; font-size:14px; font-weight:400; }
+.shop_area .products_text span		{ color:#ff6c00; font-size:17px; font-weight:400; }
+.shop_area .products li.price	span:last-child { display:block; margin-top:2px}
+/* ��ǰ�������� */
+.shopview .shop_view_img .small		{ display:none}
+
+/* Board */
+.board_area>p:first-child				{ display:none}
+.board_area .magazine					{ width:535px; margin:10px 30px }
+.board_area .T_gallery_text ul li a			{ font-size:18px; color:#231b00; font-weight:400; }
+.board_area .board_img_set #writeContents p>img { max-width:100%}
+
+/* ������ */
+.recipeWrite			{ margin:80px 0; letter-spacing:-.05em }
+.titBox				{ display:block; width:185px; margin:0 auto; padding:8px 0; font-size:17px; font-weight:300; color:#fff; text-align:center; background:#231b00 }
+.recipeWrite h4			{ margin:40px 0 80px; font-size:50px; font-weight:600; color:#231b00; text-align:center; }
+.recipeWrite p.img		{ text-align:center;}	
+.recipeWrite dl			{ width:900px; margin:50px auto;}
+.recipeWrite dt			{ margin:0; font-size:30px; font-weight:500; color:#231b00;}
+.recipeWrite dd			{ margin:20px 0 70px; font-size:20px; font-weight:300; color:#666258; line-height:1.5}
+.recipeWrite ol			{ padding:0}
+div.bt_list .bt_right>a>img	{ vertical-align:top}
+.board_view td div>a		{ display:block; width:200px; margin:0 auto 70px; padding:13px 0; font-size:14.5px; color:#333; font-weight:400; text-align:center; border:1px solid #333; border-radius:10px}
+.board_view td div>a:hover	{ color:#fff; background:#333;}
+
+/* ���� �Խù� */
+.mypost_wrap			{ width:100%; text-align:left;}
+.mypost				{ width:92%; margin:25px auto; padding:2.5% 4% 3.5%; border:1px solid #e3e3e3;}
+.mypost h3.tit			{ position:relative; padding:0 0 10px 15px; margin-bottom:10px; font-family:'Spoqa Han Sans'; font-size:18px; font-weight:400;  color:#111; letter-spacing:-.075em; }
+.mypost h3.tit:before		{ position:absolute; top:17%; left:0; height:18px; width:2px; background:#111; content:""}
+.mypost img				{ width:100%}
+.mypost .board			{ width:100%}
+

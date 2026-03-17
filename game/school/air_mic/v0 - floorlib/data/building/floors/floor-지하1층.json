@@ -1,0 +1,988 @@
+{
+  "id": "792860ff-3d1f-4b3c-b5cb-192d47418843",
+  "name": "지하1층",
+  "level": 0,
+  "description": "시설안내",
+  "backgroundImage": {
+    "filename": "images/floor-지하1층.png",
+    "embedded": true,
+    "base64": null,
+    "originalWidth": 680,
+    "originalHeight": 941,
+    "transform": {
+      "x": 0,
+      "y": 0,
+      "width": 680,
+      "height": 941,
+      "rotation": 0,
+      "opacity": 0.9
+    },
+    "locked": true,
+    "visible": true
+  },
+  "elements": [
+    {
+      "id": "aaf0da48-46d2-43b8-ba75-41a64099ef09",
+      "type": "PATH",
+      "points": [
+        320,
+        530,
+        290,
+        530
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "8b36b013-d3d6-427a-a2e8-4cfb300c5f5f",
+      "type": "POI",
+      "points": [
+        190,
+        410
+      ],
+      "properties": {
+        "name": " 구내식당",
+        "description": "구내식당\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineRestaurant",
+        "customIconName": "식당",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "6b00c08c-5fa0-4abc-97a9-294bba7c7cff",
+      "type": "PATH",
+      "points": [
+        240,
+        80,
+        240.00000000000006,
+        850.3274387264371,
+        380,
+        850,
+        380,
+        170,
+        240,
+        170
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "bb6aab45-7f45-4882-b214-89f111942d76",
+      "type": "PATH",
+      "points": [
+        380,
+        170,
+        480,
+        170
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "f93afa82-2468-453d-bfcc-83f988f3630c",
+      "type": "PATH",
+      "points": [
+        160,
+        560,
+        480,
+        560
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "551634eb-e7c3-4edf-b3ec-903ba04153a4",
+      "type": "PATH",
+      "points": [
+        130,
+        680,
+        600,
+        680
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "baffe67e-141a-46b5-ad1a-ae095ea1bb87",
+      "type": "PATH",
+      "points": [
+        240,
+        380,
+        400,
+        380,
+        430,
+        390,
+        450,
+        410,
+        470,
+        440,
+        480,
+        480,
+        480,
+        560
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "12ad4e22-136f-45fe-96ba-a4616e53918f",
+      "type": "POI",
+      "points": [
+        480,
+        770
+      ],
+      "properties": {
+        "name": "제어실",
+        "color": "#64748b",
+        "description": "제어실\n관계자외 출입금지",
+        "markerShape": "circle",
+        "customIconId": "ai/AiFillSetting",
+        "customIconName": "AiFillSetting",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "50a9c13c-9a1e-4540-9945-5e1362a8e5d2",
+      "type": "PATH",
+      "points": [
+        460,
+        470,
+        580,
+        420
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "79dede6d-f258-4a7a-9ae5-a6e2f8874e6e",
+      "type": "PATH",
+      "points": [
+        480,
+        560,
+        380,
+        490,
+        320,
+        560
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "4d7c4a97-5e5d-4bb3-9967-37e0ed3cb9e5",
+      "type": "PATH",
+      "points": [
+        320,
+        490,
+        380,
+        560,
+        480,
+        490,
+        380,
+        490
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "b4598a79-9447-4399-8b8a-a9588e3dcea1",
+      "type": "ELEVATOR",
+      "points": [
+        100,
+        640,
+        140,
+        720
+      ],
+      "properties": {
+        "capacity": 10,
+        "avgWaitTime": 60,
+        "connectedFloors": [],
+        "elevatorGroupId": "A"
+      },
+      "style": {
+        "fill": "rgba(139, 92, 246, 0.1)",
+        "stroke": "#8b5cf6",
+        "strokeWidth": 2
+      },
+      "renderMode": "functional"
+    },
+    {
+      "id": "5dc7c388-431c-4393-a292-9de73dfbf88e",
+      "type": "PATH",
+      "points": [
+        300,
+        850,
+        300,
+        890
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "2372127a-6a71-4ae0-b377-a4d0752b25de",
+      "type": "PATH",
+      "points": [
+        240,
+        490,
+        380,
+        490
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "794be6e7-4bbe-4086-a65a-caa0dd3565e4",
+      "type": "PATH",
+      "points": [
+        320,
+        560,
+        320,
+        580,
+        620,
+        580
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "0f30e298-23ef-459d-9bda-51dffe67a118",
+      "type": "PATH",
+      "points": [
+        480,
+        740,
+        480,
+        560
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "d0644dd2-4f4f-4d35-ad6d-ed09571685a2",
+      "type": "STAIR",
+      "points": [
+        280,
+        870,
+        330,
+        940
+      ],
+      "properties": {
+        "direction": "up",
+        "travelTime": 30,
+        "connectedFloors": [
+          {
+            "floorId": "466f2212-c43b-4387-998d-d051bece26f9",
+            "targetStairId": "dc6bb45e-a482-41fb-899c-cd7b474eb5f8"
+          }
+        ]
+      },
+      "style": {
+        "fill": "rgba(16, 185, 129, 0.1)",
+        "stroke": "#10b981",
+        "strokeWidth": 2
+      },
+      "renderMode": "functional"
+    },
+    {
+      "id": "07885352-dfef-4043-955b-998861dd8493",
+      "type": "PATH",
+      "points": [
+        240,
+        170,
+        190,
+        170,
+        190,
+        490,
+        240,
+        490
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "69cf99c1-9e04-410d-9aa6-e360d75c0b56",
+      "type": "PATH",
+      "points": [
+        380,
+        170,
+        380,
+        120
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "c6cead86-342d-4a5e-8726-a4b362925b0f",
+      "type": "PATH",
+      "points": [
+        300,
+        280,
+        460,
+        280
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "cf4f0e5a-fc90-4081-a8ea-11f186a4ed59",
+      "type": "PATH",
+      "points": [
+        300,
+        630,
+        300,
+        730
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "30392649-cda9-43df-a7eb-01d4e20ea9ac",
+      "type": "PATH",
+      "points": [
+        190,
+        630,
+        190,
+        730
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "c46e6690-9da9-4ac5-9fc4-552e6e584d50",
+      "type": "PATH",
+      "points": [
+        430,
+        630,
+        430,
+        680
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "5c972694-82d0-44be-890a-647e25890953",
+      "type": "PATH",
+      "points": [
+        550,
+        630,
+        550,
+        680
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "e9c87983-766a-4771-8d16-d857f427e927",
+      "type": "PATH",
+      "points": [
+        520,
+        390,
+        560,
+        490
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "41ebb148-a506-4081-8f55-e5f8bdc5eb33",
+      "type": "PATH",
+      "points": [
+        310,
+        430,
+        410,
+        430
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "8c720801-5495-42bf-b6da-fc5edb9cf455",
+      "type": "PATH",
+      "points": [
+        320,
+        490,
+        320,
+        560
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "d8fd195e-2f49-47f0-a1f8-70b913dff125",
+      "type": "PATH",
+      "points": [
+        350,
+        120,
+        410,
+        120
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "bbb9ff70-4f8f-4e46-a5d3-b53a9fe18c2e",
+      "type": "POI",
+      "points": [
+        430,
+        120
+      ],
+      "properties": {
+        "name": "남자화장실",
+        "color": "#06b6d4",
+        "categoryId": "restroom-m",
+        "description": "지하1층 남자화장실",
+        "markerShape": "circle",
+        "customIconId": "fa/FaMale",
+        "customIconName": "FaMale (Fa)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "393e711d-35af-4cbd-918d-4e35d76472a8",
+      "type": "POI",
+      "points": [
+        320,
+        120
+      ],
+      "properties": {
+        "name": "여자화장실",
+        "color": "#f97316",
+        "categoryId": "restroom-f",
+        "description": "지하1층 여자화장실",
+        "markerShape": "circle",
+        "customIconId": "fa/FaFemale",
+        "customIconName": "여자화장실",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "b2082810-7f75-463e-92ce-ccf9117de4b0",
+      "type": "POI",
+      "points": [
+        480,
+        330
+      ],
+      "properties": {
+        "name": "카페",
+        "description": "카페\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalCafe",
+        "customIconName": "카페",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "c093f24d-3835-420f-b048-677d87761e07",
+      "type": "POI",
+      "points": [
+        430,
+        630
+      ],
+      "properties": {
+        "name": "휴게실",
+        "description": "휴게실\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "hi/HiChatAlt2",
+        "customIconName": "HiChatAlt2",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "83f980d8-c035-4e93-b1e9-95ff39b93bd4",
+      "type": "POI",
+      "points": [
+        560,
+        520
+      ],
+      "properties": {
+        "name": "약제실",
+        "description": "약제실\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "cg/CgPill",
+        "customIconName": "CgPill (Cg)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "79222ceb-400e-4afc-87a8-70ab28e7720e",
+      "type": "POI",
+      "points": [
+        190,
+        770
+      ],
+      "properties": {
+        "name": "연구실",
+        "description": "연구실\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "fa/FaFlask",
+        "customIconName": "FaFlask (Fa)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "ebc320c6-eecd-4e6b-9e13-aba4cc943080",
+      "type": "POI",
+      "points": [
+        300,
+        280
+      ],
+      "properties": {
+        "name": "운영과",
+        "description": "카페\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "pi/PiBuildingOfficeBold",
+        "customIconName": "PiBuildingOfficeBold (Pi)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "05aebbaa-6902-40cc-97a7-302fd54bc40b",
+      "type": "POI",
+      "points": [
+        300,
+        430
+      ],
+      "properties": {
+        "name": "기획과",
+        "description": "카페\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "pi/PiBuildingOfficeBold",
+        "customIconName": "PiBuildingOfficeBold (Pi)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "8f309a6e-a36d-4f12-a328-0c270216cbdc",
+      "type": "POI",
+      "points": [
+        280,
+        530
+      ],
+      "properties": {
+        "name": "접견실",
+        "description": "안내데스크\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "lu/LuSofa",
+        "customIconName": "LuSofa (Lu)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "a33b5768-cdab-4259-af0c-272f8ed7b7b5",
+      "type": "POI",
+      "points": [
+        300,
+        770
+      ],
+      "properties": {
+        "name": "자료실",
+        "description": "자료실\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "bi/BiBookOpen",
+        "customIconName": "BiBookOpen (Bi)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "11606c21-6b79-43e8-aeb4-85854b1be1d3",
+      "type": "POI",
+      "points": [
+        190,
+        630
+      ],
+      "properties": {
+        "name": "총무과",
+        "description": "총무과\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "pi/PiBuildingOfficeBold",
+        "customIconName": "PiBuildingOfficeBold (Pi)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "6d3ae572-ba4c-4dfe-98cf-83d031fde7e7",
+      "type": "POI",
+      "points": [
+        300,
+        630
+      ],
+      "properties": {
+        "name": "회의실",
+        "description": "회의실\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "pi/PiBuildingOfficeBold",
+        "customIconName": "PiBuildingOfficeBold (Pi)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "74d5c8c5-7b62-49a0-b600-a2a64b0ce89d",
+      "type": "POI",
+      "points": [
+        550,
+        630
+      ],
+      "properties": {
+        "name": "행정실",
+        "description": "행정실\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "pi/PiBuildingOfficeBold",
+        "customIconName": "PiBuildingOfficeBold (Pi)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    }
+  ]
+}

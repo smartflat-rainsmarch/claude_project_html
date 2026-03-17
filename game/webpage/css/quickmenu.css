@@ -1,0 +1,53 @@
+/* 퀵메뉴 닫힘 */
+.quickMenuHide{position:absolute; right:-9rem; top:8rem; z-index:101; transition: right .2s; -webkit-transition: right .2s;}
+.quickMenuHide h3{text-align:center; color:#fff; font-weight: 600; font-size:1rem; margin-bottom:1rem; z-index:100;}
+.quickMenuHide .inner{ position: relative; padding:1.25rem 0 .5rem .5rem; border-radius:1.5rem 0 0 1.5rem; background:#0077d1; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index:1; }
+.quickMenuHide .list{border-radius:1rem 0 0 1rem; background:#fff; overflow:hidden;}
+.quickMenuHide .logo{ width:100%; height:4.9rem; margin:1rem 0; background:url('/resource/images/schl/layout/ico_quick_logo.png') no-repeat center/contain;}
+.quickMenuHide ul{width:8.5rem; border-top:2px dotted #ddd; padding:1rem .5rem; visibility: hidden;}
+.quickMenuHide li + li{margin-top:.5rem;}
+.quickMenuHide li a{ position:relative; display:block; padding-left:.75rem; color:#000; word-break: break-all;}
+.quickMenuHide li a:before{content:""; position:absolute; left:0; top:.5rem; width:.25rem; height:.25rem; border-radius:50%; background:#999; }
+.quickMenuHide .toggleBtn{position:absolute; left:-2rem; top:0; width:3.5rem; height:3rem; border-radius:0.5rem; padding-left:.5rem; background:#00508d; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index:0;}
+.quickMenuHide .toggleBtn:before{content:"\e93b"; display:inline-block; color:#fff; line-height:3rem; font-size:1rem; font-family: 'xeicon';}
+/* active */    
+.openPop .quickMenuHide{top:15rem;}
+.quickMenuHide.active{right:0;}
+.quickMenuHide.active ul{visibility :inherit;}
+.quickMenuHide.active .toggleBtn:before{content:"\e93e";}
+
+/* 퀵메뉴 열림 */
+.quickMenuShow{position:absolute; right:0; top:8rem; z-index:101; transition: right .2s; -webkit-transition: right .2s;}
+.quickMenuShow h3{text-align:center; color:#fff; font-weight: 600; font-size:1rem; margin-bottom:1rem; z-index:100;}
+.quickMenuShow .inner{ position: relative; padding:1.25rem 0 .5rem .5rem; border-radius:1.5rem 0 0 1.5rem; background:#0077d1; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index:1; }
+.quickMenuShow .list{border-radius:1rem 0 0 1rem; background:#fff; overflow:hidden;}
+.quickMenuShow .logo{ width:100%; height:4.9rem; margin:1rem 0; background:url('/resource/images/schl/layout/ico_quick_logo.png') no-repeat center/contain;}
+.quickMenuShow ul{width:8.5rem; border-top:2px dotted #ddd; padding:1rem .5rem; visibility:revert;}
+.quickMenuShow li + li{margin-top:.5rem;}
+.quickMenuShow li a{ position:relative; display:block; padding-left:.75rem; color:#000; word-break: break-all;}
+.quickMenuShow li a:before{content:""; position:absolute; left:0; top:.5rem; width:.25rem; height:.25rem; border-radius:50%; background:#999; }
+.quickMenuShow .toggleBtn{position:absolute; left:-2rem; top:0; width:3.5rem; height:3rem; border-radius:0.5rem; padding-left:.5rem; background:#00508d; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index:0;}
+.quickMenuShow .toggleBtn:before{content:"\e93e"; display:inline-block; color:#fff; line-height:3rem; font-size:1rem; font-family: 'xeicon';}
+/* active */    
+.openPop .quickMenuShow{top:15rem;}
+.quickMenuShow.active{right:-9rem;}
+.quickMenuShow.active ul{visibility :hidden;}
+.quickMenuShow.active .toggleBtn:before{content:"\e93b";}
+
+/* 승인 대기 알림창 */
+.alarmbox {position: fixed;width: 16rem;height: 7rem;right: 10rem;bottom: 0;z-index: 102;box-shadow: 3px 5px 9px rgba(0,0,0,.2); display:none;}
+.alarmbox.open {display:block;}
+.alarmbox .inner {width:100%; height:100%;}
+.alarmbox .top {background:#00508d;padding: .5rem 1rem;color: #fff;border-top-left-radius: .5rem;border-top-right-radius: 0.5rem;}
+.alarmbox .top .span {display:inline-block; font-weight: bold;}
+.alarmbox .top .alarmbtn {display:inline-block;position: absolute;right: 1rem;}
+.alarmbox .top .alarmbtn i {width: 1.2rem;height: 1.2rem;line-height: 1.2rem;text-align:center;font-size: 1rem;vertical-align: top;}
+.alarmbox .bot {background:#fff;width: 100%;height: 100%;padding: .5rem 1rem;display: table;}
+.alarmbox .bot .txt {padding: 1rem 0;box-sizing: border-box;}
+.alarmbox .bot .txt .img {display:inline-block;vertical-align:middle;margin: 0 5px 0;}
+.alarmbox .bot .txt span.num {display:inline-block; font-weight:bold;}
+
+@media screen and (max-width: 1280px){   
+
+    .quickMenu{display:none;}
+}

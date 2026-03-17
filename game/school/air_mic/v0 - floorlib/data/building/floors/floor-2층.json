@@ -1,0 +1,1009 @@
+{
+  "id": "1fb1d625-57f4-4e67-94a7-1e21685f67e2",
+  "name": "2층",
+  "level": 2,
+  "description": "시설안내",
+  "backgroundImage": {
+    "filename": "images/floor-2층.png",
+    "embedded": true,
+    "base64": null,
+    "originalWidth": 680,
+    "originalHeight": 941,
+    "transform": {
+      "x": 0,
+      "y": 0,
+      "width": 680,
+      "height": 941,
+      "rotation": 0,
+      "opacity": 0.9
+    },
+    "locked": true,
+    "visible": true
+  },
+  "elements": [
+    {
+      "id": "dc77d71f-78e2-4683-8d0d-947d7f87ead4",
+      "type": "PATH",
+      "points": [
+        240,
+        170,
+        190,
+        170,
+        190,
+        490,
+        240,
+        490
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "1ef5c4af-96de-4fe9-ab8f-6ea8c5855e1f",
+      "type": "PATH",
+      "points": [
+        380,
+        170,
+        380,
+        120
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "4a265e4a-905f-456f-a431-1b760f2cc4e7",
+      "type": "PATH",
+      "points": [
+        300,
+        280,
+        460,
+        280
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "1cccfb55-e72c-4031-9953-21c2ad878938",
+      "type": "PATH",
+      "points": [
+        520,
+        390,
+        560,
+        490
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "89f99e56-fbbe-4df2-850c-978326c1faab",
+      "type": "PATH",
+      "points": [
+        310,
+        430,
+        410,
+        430
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "ea645582-907a-432d-963c-846945c79365",
+      "type": "PATH",
+      "points": [
+        320,
+        530,
+        290,
+        530
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "ed70ce8f-2cf0-45f6-b62b-807ea3c4bb8a",
+      "type": "PATH",
+      "points": [
+        380,
+        170,
+        480,
+        170
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "35052552-e1c5-4d10-bdd3-56f91f4a2ab4",
+      "type": "PATH",
+      "points": [
+        160,
+        560,
+        480,
+        560
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "e0ab63f1-5c63-4f16-9c6d-f582336fff06",
+      "type": "PATH",
+      "points": [
+        240,
+        380,
+        400,
+        380,
+        430,
+        390,
+        450,
+        410,
+        470,
+        440,
+        480,
+        480,
+        480,
+        560
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "c48eedd4-8b49-4485-bb67-ba162e890130",
+      "type": "PATH",
+      "points": [
+        300,
+        850,
+        300,
+        890
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "d7e9c9e9-f0c3-463e-8392-e864c54c66b0",
+      "type": "PATH",
+      "points": [
+        460,
+        470,
+        580,
+        420
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "e8cd5326-4de9-466a-9d52-345b3b69cd46",
+      "type": "PATH",
+      "points": [
+        480,
+        560,
+        380,
+        490,
+        320,
+        560
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "252c7510-c447-4eec-a150-068bad1aa977",
+      "type": "PATH",
+      "points": [
+        320,
+        490,
+        380,
+        560,
+        480,
+        490,
+        380,
+        490
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "6ea13dc6-5d86-45ad-b5c4-87f7d65df4dc",
+      "type": "PATH",
+      "points": [
+        240,
+        490,
+        380,
+        490
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "fd66f110-369e-40dd-ab28-32044f1379a0",
+      "type": "PATH",
+      "points": [
+        320,
+        490,
+        320,
+        560
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "30556348-c137-43b4-a4c8-4e0c5987d51e",
+      "type": "PATH",
+      "points": [
+        480,
+        680,
+        480,
+        560
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "82e3c70d-761f-4524-b561-7c7986f87124",
+      "type": "STAIR",
+      "points": [
+        280,
+        870,
+        330,
+        940
+      ],
+      "properties": {
+        "direction": "down",
+        "travelTime": 30,
+        "connectedFloors": [
+          {
+            "floorId": "466f2212-c43b-4387-998d-d051bece26f9",
+            "targetStairId": "dc6bb45e-a482-41fb-899c-cd7b474eb5f8"
+          }
+        ]
+      },
+      "style": {
+        "fill": "rgba(16, 185, 129, 0.1)",
+        "stroke": "#10b981",
+        "strokeWidth": 2
+      },
+      "renderMode": "functional"
+    },
+    {
+      "id": "3c914857-c808-4dff-8ba1-b11265d54f5e",
+      "type": "PATH",
+      "points": [
+        300,
+        630,
+        300,
+        730
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "2eeb0259-04f2-4adf-8e50-af850917d567",
+      "type": "PATH",
+      "points": [
+        190,
+        630,
+        190,
+        730
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "53a88437-8e57-46fa-899e-dba0eddd5cb6",
+      "type": "PATH",
+      "points": [
+        430,
+        630,
+        430,
+        730
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "4f185d94-f98a-4114-b0fd-d6ed1ba9a24d",
+      "type": "PATH",
+      "points": [
+        550,
+        630,
+        550,
+        730
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "45e24b48-d7ee-40fa-ad8a-700fa849e35c",
+      "type": "PATH",
+      "points": [
+        240,
+        80,
+        240.00000000000006,
+        850.3274387264371,
+        380,
+        850,
+        380,
+        170,
+        240,
+        170
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "92ce8922-724f-45c5-addc-69d00084a7ee",
+      "type": "PATH",
+      "points": [
+        130,
+        680,
+        600,
+        680
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "c8043c20-87a7-4cc4-b202-7463c6ff8f09",
+      "type": "ELEVATOR",
+      "points": [
+        100,
+        640,
+        140,
+        720
+      ],
+      "properties": {
+        "capacity": 10,
+        "avgWaitTime": 60,
+        "connectedFloors": [],
+        "elevatorGroupId": "A"
+      },
+      "style": {
+        "fill": "rgba(139, 92, 246, 0.1)",
+        "stroke": "#8b5cf6",
+        "strokeWidth": 2
+      },
+      "renderMode": "functional"
+    },
+    {
+      "id": "1c2dfbf8-d25c-43ec-87a6-6afb0a8d7138",
+      "type": "PATH",
+      "points": [
+        320,
+        560,
+        320,
+        580,
+        620,
+        580
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "dc3c47c3-421e-4564-b1e4-ca6041e62893",
+      "type": "PATH",
+      "points": [
+        350,
+        120,
+        410,
+        120
+      ],
+      "properties": {
+        "width": 100,
+        "pathType": "line",
+        "isAccessible": true,
+        "movementCost": 1,
+        "isBidirectional": true
+      },
+      "style": {
+        "fill": "rgba(148, 163, 184, 0.1)",
+        "stroke": "#94a3b8",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "2de5595c-3036-4c08-b626-15035ad908d8",
+      "type": "POI",
+      "points": [
+        430,
+        120
+      ],
+      "properties": {
+        "name": "남자화장실",
+        "color": "#06b6d4",
+        "categoryId": "restroom-m",
+        "description": "2층 남자화장실",
+        "markerShape": "circle",
+        "customIconId": "fa/FaMale",
+        "customIconName": "남자화장실",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "26c42af8-34eb-441d-b65a-26d0d6afcbae",
+      "type": "POI",
+      "points": [
+        320,
+        120
+      ],
+      "properties": {
+        "name": "여자화장실",
+        "color": "#f97316",
+        "categoryId": "restroom-f",
+        "description": "2층 여자화장실",
+        "markerShape": "circle",
+        "customIconId": "fa/FaFemale",
+        "customIconName": "여자화장실",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "833f6649-ab15-47a8-8a21-93c4a1f65a52",
+      "type": "POI",
+      "points": [
+        190,
+        410
+      ],
+      "properties": {
+        "name": "병동구역",
+        "description": "병동구역",
+        "markerShape": "circle",
+        "customIconId": "lu/LuBed",
+        "customIconName": "LuBed (Lu)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "b5d48617-c4fd-42cb-93d5-299dbb646c4c",
+      "type": "POI",
+      "points": [
+        280,
+        530
+      ],
+      "properties": {
+        "name": "휴게실",
+        "description": "휴게실\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "gr/GrBaby",
+        "customIconName": "GrBaby",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "7d0c7bec-07a1-449e-be59-4a2d3ede282b",
+      "type": "POI",
+      "points": [
+        480,
+        330
+      ],
+      "properties": {
+        "name": "검진실",
+        "description": "검진실\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalHospital",
+        "customIconName": "응급",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "d155a15b-e355-4e76-bd6b-4b1c104b3c1c",
+      "type": "POI",
+      "points": [
+        480,
+        770
+      ],
+      "properties": {
+        "name": "회의실",
+        "description": "회의실\n운영시간 : 8:00 ~ 20:00",
+        "markerShape": "circle",
+        "customIconId": "pi/PiBuildingOfficeBold",
+        "customIconName": "PiBuildingOfficeBold (Pi)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "07b69600-4ac7-4d99-8f5f-e57b5dfa436a",
+      "type": "POI",
+      "points": [
+        190,
+        770
+      ],
+      "properties": {
+        "name": "안과",
+        "description": "안과\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalHospital",
+        "customIconName": "응급",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "8ad7267a-240e-4a88-a708-2c487ed3886b",
+      "type": "POI",
+      "points": [
+        300,
+        770
+      ],
+      "properties": {
+        "name": "치과",
+        "description": "치과\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalHospital",
+        "customIconName": "응급",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "0f0efad1-080e-48cf-9d6a-7e6f41b91f28",
+      "type": "POI",
+      "points": [
+        300,
+        280
+      ],
+      "properties": {
+        "name": "이비인후과",
+        "description": "이비인후과\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalHospital",
+        "customIconName": "응급",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "bd57ccf2-2912-4e92-b6ab-c4ae44a6d794",
+      "type": "POI",
+      "points": [
+        560,
+        520
+      ],
+      "properties": {
+        "name": "피부과",
+        "description": "피부과\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalHospital",
+        "customIconName": "응급",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "f7b8db01-4dc7-4a93-a97f-5203c3c1b77b",
+      "type": "POI",
+      "points": [
+        420,
+        430
+      ],
+      "properties": {
+        "name": "치료실",
+        "description": "치료실\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalHospital",
+        "customIconName": "응급",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "400e02d1-30f8-4dfa-ac14-7cf72e703ed8",
+      "type": "POI",
+      "points": [
+        300,
+        430
+      ],
+      "properties": {
+        "name": "소아과",
+        "description": "소아과\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalHospital",
+        "customIconName": "응급",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "25a8f54e-a3c6-42d8-a3ef-cc423d9eb643",
+      "type": "POI",
+      "points": [
+        550,
+        630
+      ],
+      "properties": {
+        "name": "산부인과",
+        "description": "산부인과\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalHospital",
+        "customIconName": "응급",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "fe9abb42-d5fe-4b99-aeb2-0c4e7d16bf64",
+      "type": "POI",
+      "points": [
+        190,
+        630
+      ],
+      "properties": {
+        "name": "원장실",
+        "description": "원장실",
+        "markerShape": "circle",
+        "customIconId": "tb/TbArmchair",
+        "customIconName": "TbArmchair (Tb)",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "8d9d778f-4750-4633-9fdd-a9ea5787e3e8",
+      "type": "POI",
+      "points": [
+        300,
+        630
+      ],
+      "properties": {
+        "name": "비뇨기과",
+        "description": "비뇨기과\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalHospital",
+        "customIconName": "응급",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    },
+    {
+      "id": "a662c96c-b38f-4bd6-b712-1e5df1ce01f0",
+      "type": "POI",
+      "points": [
+        430,
+        630
+      ],
+      "properties": {
+        "name": "정신의학과",
+        "description": "정신의학과\n운영시간 : 9:00 ~ 18:00",
+        "markerShape": "circle",
+        "customIconId": "md/MdOutlineLocalHospital",
+        "customIconName": "응급",
+        "customIconColor": "#ffffff"
+      },
+      "style": {
+        "fill": "#f59e0b",
+        "stroke": "#f59e0b",
+        "strokeWidth": 2
+      },
+      "renderMode": "full"
+    }
+  ]
+}

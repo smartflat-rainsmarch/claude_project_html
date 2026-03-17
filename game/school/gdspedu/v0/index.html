@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <title>wrong pictures</title>
+
+        <link rel="manifest" href="app.manifest" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="HandheldFriendly" content="true" />
+        <meta property="og:title" content="wrong pictures" />
+
+        <script src="ion.sound.min.js"></script>
+        <script type="text/javascript" src="static/js/aes/aes.js"></script>
+        <script type="text/javascript" src="static/js/aes/aes-ctr.js"></script>
+        <script type="text/javascript" src="static/js/aes/utf8.js"></script>
+        <script type="text/javascript" src="static/js/aes/base64.js"></script>
+        <script src="jquery-3.2.1.min.js"></script> <!-- jquery required-->
+        <script type="text/javascript" src="static/js/firebase4.6.2.js"></script>
+        
+        <style type="text/css">
+
+            html,body {
+                margin: 0px;
+                padding: 0px;
+                overflow: hidden;
+                outline: none;
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -khtml-user-select: none;
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+                background-color: rgb(0,0,0);
+
+            }
+            #youTubePlayer1 {position:relative;width:100%;height:36%;}
+            #youTubePlayer1 iframe {position:absolute;width:100%;height:100%;}
+            canvas {
+                overflow: hidden;
+                outline: none;
+                background-color: rgb(0,0,0);
+            }
+/*            버튼콘테이너*/
+            .btn_container {  
+                width: 100%;  
+                height: 20%;  
+/*                버튼콘테이너 영역을 표시하기 위해서*/
+                border: 1px solid red;  
+                display: flex;  
+                justify-content: center;  
+                align-items: center;  
+            }  
+            button {  
+                background-color: yellow;  
+                color: black;  
+                font-size: 20px;  
+            } 
+            #gameCanvas {
+              background-color: transparent;
+            }
+        </style>
+       
+    </head>
+    <body>
+        
+         <script>
+        // url 에서 parameter 추출
+        function getParam(sname) {
+            var params = location.search.substr(location.search.indexOf("?") + 1);
+            var sval = "";
+            params = params.split("&");
+            for (var i = 0; i < params.length; i++) {
+                temp = params[i].split("=");
+                if ([temp[0]] == sname) { sval = temp[1]; }
+            }
+            return sval;
+        }
+        var getgamedata = null;
+        var param_projectid = getParam("projectid");
+        var param_groupidx = getParam("groupidx");
+        var param_sw = getParam("sw") ? parseInt(getParam("sw")) : 1080;
+        var param_sh = getParam("sh") ? parseInt(getParam("sh")) : 1920;
+        var param_au = getParam("au") ? getParam("au") : 0;//autoupdate = 1 이라면 업데이트체크한다.
+        var sample_orientation = location.href.indexOf("sample_land") >= 0 ? "sample_land" : location.href.indexOf("sample_port/") >= 0 ? "sample_port" : ""; //샘플일때 가로인지 세로인지 체크
+        if(param_projectid == "maecheon" && !param_groupidx)param_groupidx = 1;//매천중학교만 예외처리
+             
+             
+//        var param_lyrics = getParam("lyrics") ? parseInt(getParam("lyrics")) : "동";
+        var param_lyrics = getParam("lyrics") ? parseInt(getParam("lyrics")) : "동해물과 백두산이 마르고|닯도록 하느님이 보우하사|우리 나라 만세";
+        var param_subtitle = getParam("subtitle") ? parseInt(getParam("subtitle")) : "1절을 맞춰라!";
+        var param_level = getParam("lvl") ? parseInt(getParam("lvl")) : 1;  //1, 2, 3, 4, 5
+        var param_bgmurl = getParam("bgmurl") ? parseInt(getParam("bgmurl")) : "game_bgm";  //1, 2, 3, 4, 5
+        var param_issoundon = getParam("issoundon") && getParam("issoundon") != "1" ? false : true;  //1, 2, 3, 4, 5
+        var param_isword = getParam("isword") ? parseInt(getParam("isword")) : false;  // false : 1개 글자  , true : 단어
+            
+        var json_floor = null;
+        
+             
+        
+        if(sample_orientation){
+            param_projectid = sample_orientation;
+            param_groupidx = 0;
+        }
+        var app_fcmtoken = "";
+        window.onload = function () {
+            if(window.android)
+                app_fcmtoken = window.android.getToken();
+            
+            setTimeout(function(){
+                if(!app_fcmtoken && window.android)
+                    app_fcmtoken = window.android.getToken();
+            },3000);
+            console.log("app_fcmtoken "+app_fcmtoken);
+        };
+             
+//        var param_uid = getParam("uid");
+//        var param_id = getParam("id");
+//        var param_groupcode = getParam("groupcode");
+//        var param_centername = getParam("centername");
+//             
+//        var param_healthday = getParam("healthday");
+//        var param_healthlevel= getParam("healthlevel");
+//        var param_healthtype = 0; // 팔운동 ,등운동, ... 리소스를 로드하기 위한 코드번호이다.
+//        var param_healthcolor = decodeURI(getParam("healthcolor")); // 파랑색 노랑색 ... 
+//        var param_healthpart = decodeURI(getParam("healthpart")); // 등운동 팔운동.... 
+//        var param_modelnames = decodeURI(getParam("modelnames")); // 모델이름들 QR 코들 찍을때 가이드로 머신 이름들을 알려준다. 
+       
+//        param_healthcolor = param_healthcolor.replace(/%2C/g,",");
+//        param_healthpart = param_healthpart.replace(/%2C/g,",");
+             
+//             console.log("param_healthday "+param_healthday+" param_healthlevel "+param_healthlevel+" param_healthtype"+param_healthtype+" param_healthcolor"+param_healthcolor);
+//             console.log("param_healthcolor "+param_healthcolor+" param_healthpart "+param_healthpart);
+        //var param_today_first = getParam("today_first");
+        var param_today_first = true;
+        
+        var global_app_datalist = [];
+        function AndroidCallback(key,value){
+            var data = {"key":key, "value":value};
+            global_app_datalist.push(data);
+            
+        }
+        function IOSCallback(key,value){
+            var data = {"key":key, "value":value};
+            global_app_datalist.push(data);
+            
+        }
+        function CheckAppCallbackData(key){
+            var return_data = null;
+            for(var i = 0; i < global_app_datalist.length; i++) {
+                if(global_app_datalist[i].key == key) {
+                    return_data = global_app_datalist[i].value;
+                    global_app_datalist.splice(i, 1);
+                    break;
+                }
+            }
+            return return_data;
+        }
+             
+             
+        
+        </script>
+        
+
+        <video id="backgroundVideo" autoplay loop muted  style="width: 100%; height: 100%; position: absolute; z-index: 0;background-color: #dddddd;display:none"></video>
+        <canvas id="gameCanvas" width="1080" height="1920" style="background-color: transparent;" ></canvas>
+       
+        <script type="text/javascript" src="cocos2d-js-v3.13.js" charset="UTF-8"></script>
+        <script type="text/javascript" src="main.js" charset="UTF-8"></script>
+           
+        <iframe id="mWebView" style="position:absolute;top: 0;left: 0;border:0;display:none"></iframe>
+<!--        <iframe id="myFrame" src="https://maecheon.dge.ms.kr/maecheonm/ad/fm/foodmenu/selectFoodMenuView.do" width="1000" height="1000" style='positon:absolute;margin-top:-1600px;zindex:9999999999999999999999999999999'></iframe>-->
+     
+         <!-- 닉네임 입력 팝업 -->
+        <div id="ranking-popup" style="display:none; position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 100;">
+            <p id='txt_ranking'>축하합니다! 랭킹에 등록되었습니다.<br>닉네임을 입력해주세요:</p>
+            <input type="text" id="nickname-input" placeholder="닉네임 입력" style="padding: 10px; width: 200px;border:1px solid #e9e9e9;height:30px;border-radius:8px" maxlength="10">
+            <br><br>
+            <button onclick="closeNickname()" style="float:right;background-color:lightgray;border:1px solid #e9e9e9;width:80px;height:50px;border-radius:8px;margin-left:10px">닫기</button>
+            <button onclick="submitNickname()" style="float:right;background-color:aliceblue;border:1px solid #e9e9e9;width:100px;height:50px;border-radius:8px;">랭킹등록</button>
+        </div>
+         
+         
+         <!--STT 테스트 START -->
+         <div style="position:absolute;margin-top:-100px">
+<!--             <button id="recordBtn" style="padding: 10px 20px; font-size: 16px; cursor: pointer; ">🎤 녹음 시작</button>-->
+             <audio id="audioPreview" controls style="display:none;margin-top:10px;"></audio>
+             <pre id="resultText" style="display:none;white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; margin-top: 10px; border-radius: 8px; background: #f9f9f9;"></pre>
+         </div>
+         <!--STT 테스트 END -->
+         
+        <script>
+            // youtube API 불러옴
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/player_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+//            // 플레이어변수 설정
+//            var youTubePlayer1;
+//
+//            function onYouTubeIframeAPIReady() {
+//                youTubePlayer1 = new YT.Player('youTubePlayer1', {
+//                    width: '500',
+//                    height: '280',
+//                    videoId: '0Ui6uGHmiks',
+//                    playerVars: {rel: 0},//추천영상 안보여주게 설정
+//                    events: {
+//                      'onReady': onPlayerReady, //로딩할때 이벤트 실행
+//                      'onStateChange': onPlayerStateChange //플레이어 상태 변화시 이벤트실행
+//                    }
+//                });//youTubePlayer1셋팅
+//            }
+
+//            unstarted	YT.PlayerState.UNSTARTED	-1
+//            ended	YT.PlayerState.ENDED	0
+//            playing	YT.PlayerState.PLAYING	1
+//            paused	YT.PlayerState.PAUSED	2
+//            bufferring	YT.PlayerState.BUFFERING	3
+//            video cued	YT.PlayerState.CUED	5
+
+            
+            function onPlayerReady(event) {
+                console.log("onPlayerReady");
+                event.target.playVideo();//자동재생
+                //로딩할때 실행될 동작을 작성한다.
+            }
+
+            function onPlayerStateChange(event) {
+                console.log("onPlayerStateChange",event);
+                if (event.data == YT.PlayerState.PLAYING) {
+                    console.log("playing");
+                    //플레이어가 재생중일때 작성한 동작이 실행된다.
+                }else  if (event.data == YT.PlayerState.STOP) {
+                    console.log("stop");
+                }
+                    
+            }
+
+            
+//            var iframe = document.getElementById("myFrame");
+//            iframe.onload = function() {
+//                var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+//
+//                // 이제 iframe 안에서 요소를 찾을 수 있어요
+//                var header = iframeDoc.getElementById("header");
+//                var footer = iframeDoc.getElementById("footer");
+//                var quickMenu = iframeDoc.getElementById("quickMenu");
+//                if (header) header.style.display = "none";
+//                if (footer) footer.style.display = "none";
+//                if (quickMenu) quickMenu.style.display = "none";
+//                var subvisual = iframeDoc.getElementsByClassName("subvisual");
+//                for(var i = 0 ; i < subvisual.length; i++){
+//                    subvisual[i].style.display = "none";
+//                }
+//                var subLocation = iframeDoc.getElementsByClassName("subLocation");
+//                for(var i = 0 ; i < subLocation.length; i++){
+//                    subLocation[i].style.display = "none";
+//                }
+//                
+////                 ["header", "footer", "quickMenu"].forEach(function(id) {
+////                    var el = iframeDoc.getElementById(id);
+////                    if (el) el.style.display = "none";
+////                });
+////
+////                // 클래스 제거
+////                ["subvisual", "subLocation"].forEach(function(className) {
+////                    var elements = iframeDoc.getElementsByClassName(className);
+////                    for (var i = 0; i < elements.length; i++) {
+////                        elements[i].style.display = "none";
+////                    }
+////                });
+//            };
+        </script>
+        
+        
+        
+        <script>
+        /////////////////////////////////////////////
+        // STT 음성을 텍스트로 변환 START
+        /////////////////////////////////////////////
+                let mediaRecorder, audioChunks = [];
+                var _lastCallback = null;
+                async function initMediaRecord() {
+                  try {
+                    if (!mediaRecorder || mediaRecorder.state === "inactive") {
+                      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                      mediaRecorder = new MediaRecorder(stream);
+                      audioChunks = [];
+
+                      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+
+                      //음성을 종료했을때 전송한다.
+                      mediaRecorder.onstop = async () => {
+                          
+                           const { param1, param2, param3, callback } = mediaRecorder.customParams || {};
+                          
+                        const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+                        document.getElementById("audioPreview").src = URL.createObjectURL(audioBlob);
+//                        document.getElementById("audioPreview").style.display = "block";
+
+                       sendMediaFile(param1, param2, param3, audioBlob);
+                      };
+                    }
+                  } catch (err) {
+                    console.error("🎙️ 마이크 접근 실패:", err);
+                    alert("마이크 접근 권한을 허용해주세요.");
+                  }
+                }
+            
+                async function onRecordFinished(param1, param2, param3, base64Data) {
+                    try {
+                        // ✅ Base64 → Blob 변환
+                        const byteCharacters = atob(base64Data);
+                        const byteNumbers = new Array(byteCharacters.length);
+                        for (let i = 0; i < byteCharacters.length; i++) {
+                            byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        const byteArray = new Uint8Array(byteNumbers);
+                        const audioBlob = new Blob([byteArray], { type: "audio/wav" });
+
+                        sendMediaFile(param1, param2, param3, audioBlob);
+                    } catch (err) {
+                        console.error("🚨 onRecordFinished Error:", err);
+                        document.getElementById("resultText").textContent =
+                            "❌ 업로드 중 오류 발생: " + err.message;
+                    }
+                }
+            
+                //음성데이터 전송하기
+                function sendMediaFile(param1, param2, param3, audioBlob){
+                     try {
+                     // 미리보기
+                        document.getElementById("audioPreview").src = URL.createObjectURL(audioBlob);
+
+                        // ✅ FormData 생성
+                        const formData = new FormData();
+                        formData.append("file", audioBlob, "voice.wav");
+                        formData.append("param1", param1 || "");
+                        formData.append("param2", param2 || "");
+                        formData.append("param3", param3 || "");
+
+                        document.getElementById("resultText").textContent =
+                            "🎧 음성 분석 중... 잠시만 기다려주세요.";
+
+                        // ✅ 서버 업로드
+                        const res = await fetch("../../../../ssapi/upload_stt.php", {
+                            method: "POST",
+                            body: formData,
+                        });
+
+                        const text = await res.text();
+                        console.log("서버 응답(raw):", text);
+
+                        let data;
+                        try {
+                            data = JSON.parse(text);
+                        } catch (err) {
+                            console.error("❌ JSON 파싱 오류:", err);
+                            document.getElementById("resultText").textContent =
+                                "❌ 서버 응답이 JSON 형식이 아닙니다:\n" + text;
+                            return;
+                        }
+
+                        console.log("data is ", data);
+                        if (data.code == "100") {
+                            var message = data.message;
+                           
+                            
+                            if(_lastCallback){
+                                console.log("callback : ",_lastCallback);
+                                _lastCallback(message);
+                            }
+                            document.getElementById("resultText").textContent = "🗣️ 인식결과:\n" + data.text;
+                        } else {
+                            document.getElementById("resultText").textContent = "❌ 인식 실패 또는 오류 발생:\n" + (data.error || "Unknown error");
+                        }
+                    } catch (err) {
+                        console.error("🚨 sendMediaFile Error:", err);
+                        document.getElementById("resultText").textContent =
+                            "❌ 전송중 오류 발생: " + err.message;
+                    }
+                }
+                function startMediaRecord() {
+                    if (mediaRecorder && mediaRecorder.state === "inactive") {
+                        mediaRecorder.start();
+                        console.log("🎙️ 녹음 시작");
+                      
+                        if(android)android.startRecord();
+                    }
+                }
+
+                function stopMediaRecord(param1, param2, param3, callback) {
+                    
+                  if (mediaRecorder && mediaRecorder.state === "recording") {
+                        _lastCallback = callback;
+                        mediaRecorder.customParams = { param1, param2 , param3, callback};
+                        mediaRecorder.stop();
+                        console.log("⏹️ 녹음 중지");
+                        initMediaRecord();
+                        
+                        if(android)android.stopRecord(param1,param2,param3);
+                    }
+                }
+
+                // 페이지 로드 시 초기화
+                window.addEventListener("DOMContentLoaded", initMediaRecord);
+        /////////////////////////////////////////////
+        // STT 음성을 텍스트로 변환 END
+        /////////////////////////////////////////////
+        
+          </script>
+    </body>
+</html>

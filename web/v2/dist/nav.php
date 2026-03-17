@@ -1,0 +1,143 @@
+
+
+        <!--===========================-->
+        <!--        왼쪽 사이드바-->
+        <!--===========================-->
+        <div id="layoutSidenav">
+            <div id="layoutSidenav_nav">
+                <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                    <div class="sb-sidenav-menu">
+                        <div class="nav">
+                            <div class="sb-sidenav-menu-heading">Core</div>
+                            <a class="nav-link" onclick="loadMainDiv(0)">
+                                <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                                홈으로
+                            </a>
+                            <div class="sb-sidenav-menu-heading">Interface</div>
+                            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
+                                <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                                Layouts
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" href="layout-static.html">Static Navigation</a>
+                                    <a class="nav-link" href="layout-sidenav-light.html">Light Sidenav</a>
+                                </nav>
+                            </div>
+                            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
+                                <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
+                                Pages
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
+                                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#pagesCollapseAuth" aria-expanded="false" aria-controls="pagesCollapseAuth">
+                                        Authentication
+                                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                                    </a>
+                                    <div class="collapse" id="pagesCollapseAuth" aria-labelledby="headingOne" data-parent="#sidenavAccordionPages">
+                                        <nav class="sb-sidenav-menu-nested nav">
+                                            <a class="nav-link" href="login.php">Login</a>
+                                            <a class="nav-link" href="register.html">Register</a>
+                                            <a class="nav-link" href="password.html">Forgot Password</a>
+                                        </nav>
+                                    </div>
+                                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#pagesCollapseError" aria-expanded="false" aria-controls="pagesCollapseError">
+                                        Error
+                                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                                    </a>
+                                    <div class="collapse" id="pagesCollapseError" aria-labelledby="headingOne" data-parent="#sidenavAccordionPages">
+                                        <nav class="sb-sidenav-menu-nested nav">
+                                            <a class="nav-link" href="401.html">401 Page</a>
+                                            <a class="nav-link" href="404.html">404 Page</a>
+                                            <a class="nav-link" href="500.html">500 Page</a>
+                                        </nav>
+                                    </div>
+                                </nav>
+                            </div>
+                            <div class="sb-sidenav-menu-heading">페이지</div>
+                            <a id="nav_join" class="nav-link" href="join.php">
+                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                                고객 회원가입하기
+                            </a>
+                            <a id="nav_reservation"  class="nav-link" onclick="loadMainDiv(1)">
+                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                                PT/GX 예약하기
+                            </a>
+                            <a class="nav-link" onclick="loadMainDiv(100)">
+                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                                테스트 페이지
+                            </a>
+                            <a class="nav-link" href="charts.html">
+                                <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
+                                Charts
+                            </a>
+                            <a class="nav-link" href="tables.html">
+                                <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                                Tables
+                            </a>
+                        </div>
+                    </div>
+                    <div class="sb-sidenav-footer">
+                        <div class="small">Logged in as:</div>
+                        Start Bootstrap
+                    </div>
+                </nav>
+            </div>
+            
+        </div>
+        
+        <script>
+            function menu_click(){
+                setMainDiv(checkMainDiv());
+                $("body").toggleClass("sb-sidenav-toggled");
+            }
+//            var now_pageid = -1;
+//            var now_pagevalue = null;
+//            function loadMainDiv(id,value,callback){
+////                 clog("id "+id+" vaule "+value);
+//                var path = "";
+//                
+//                switch(id){
+//                    case 0:
+//                        path = "d_main.php";
+//                        
+//                        break;
+//                    case 1:
+//                        path = "d_reservation.php";
+//                        break;
+//                    case 2:
+//                        path = "d_insertdoc.php";
+//                        break;
+//                    case 3:
+//                       path = "d_statistics.php";
+//                        break;
+//                    case 100:
+//                        path = "testpage.php";
+//                        break;
+//                }
+//                try{
+////                    clog("div_main path : ",path);
+//                    if($("#div_main"))
+//                    $("#div_main").load(path, function() {
+//                       
+//                        maininit(value);
+//                        now_pageid = id;
+//                        now_pagevalue = value;
+//                        if(callback){
+//                            callback();
+//                            if(id == 0){
+//                                var def = document.getElementById("default_info");
+//                                if(def)def.style.display="none";
+//                            }
+//                        }
+//                    });    
+//                }catch(e){
+//                    clog("error !! ",e);
+//                    if(callback)callback();
+//                }
+//                
+//            }
+        </script>
+       

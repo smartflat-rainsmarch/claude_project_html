@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <title>wrong pictures</title>
+
+        <link rel="manifest" href="app.manifest" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, minimal-ui" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="HandheldFriendly" content="true" />
+        <meta property="og:title" content="wrong pictures" />
+
+        <script src="ion.sound.min.js"></script>
+        <script type="text/javascript" src="static/js/aes/aes.js"></script>
+        <script type="text/javascript" src="static/js/aes/aes-ctr.js"></script>
+        <script type="text/javascript" src="static/js/aes/utf8.js"></script>
+        <script type="text/javascript" src="static/js/aes/base64.js"></script>
+        <script src="jquery-3.2.1.min.js"></script> <!-- jquery required-->
+        <script type="text/javascript" src="static/js/firebase4.6.2.js"></script>
+        
+        <style type="text/css">
+
+            html,body {
+                margin: 0px;
+                padding: 0px;
+                overflow: hidden;
+                outline: none;
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                -khtml-user-select: none;
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+                background-color: rgb(0,0,0);
+
+            }
+            #youTubePlayer1 {position:relative;width:100%;height:36%;}
+            #youTubePlayer1 iframe {position:absolute;width:100%;height:100%;}
+            canvas {
+                overflow: hidden;
+                outline: none;
+                background-color: rgb(0,0,0);
+            }
+/*            버튼콘테이너*/
+            .btn_container {  
+                width: 100%;  
+                height: 20%;  
+/*                버튼콘테이너 영역을 표시하기 위해서*/
+                border: 1px solid red;  
+                display: flex;  
+                justify-content: center;  
+                align-items: center;  
+            }  
+            button {  
+                background-color: yellow;  
+                color: black;  
+                font-size: 20px;  
+            } 
+            #gameCanvas {
+              background-color: transparent;
+            }
+            
+            
+            /*
+            ====================================
+            플로팅 버튼묶음 이동 , 클릭 애니메이션
+            ====================================
+            */
+            
+             /* 플로팅 버튼 클릭시 에니매이션*/
+             .floating-img {
+                transition: transform 0.1s ease-in-out;
+                cursor: pointer;
+              }
+
+              .floating-img.clicked {
+                transform: scale(0.9);
+              }
+                
+               /* 공통 스타일 */
+              #div_floating {
+                transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+                will-change: transform, opacity;
+              }
+
+              /* 사라질 때: 오른쪽으로 이동하며 투명하게 */
+              .hide-right {
+                transform: translateX(150%);
+                opacity: 0;
+                pointer-events: none;
+              }
+
+              /* 나타날 때: 원래 위치로 복귀 */
+              .show-right {
+                transform: translateX(0);
+                opacity: 1;
+                pointer-events: auto;
+              }
+</styl
+        </style>
+       
+    </head>
+    <body>
+        <video id="backgroundVideo" autoplay loop muted  style="width: 100%; height: 100%; position: absolute; z-index: 0;background-color: #dddddd;display:none"></video>
+        <canvas id="gameCanvas" width="1080" height="1920" style="background-color: transparent;" ></canvas>
+       
+        
+        <script type="text/javascript" src="cocos2d-js-v3.13.js" charset="UTF-8"></script>
+        <script type="text/javascript" src="main.js" charset="UTF-8"></script>
+        
+         <iframe id="mWebView" style="position:absolute;top: 0;left: 0;border:0;display:none"></iframe>
+        <div id="div_floating" style="position: absolute;width:130px;top: 600px;right: 0;z-index: 2;pointer-events: auto;background-color:#d2dad9cc;border-radius:65px;margin-right:10px;padding-top:5px;">
+          
+            <img class="floating-img" data-index="0"  src='res/floating0.png' style='width:130px;height:145px'/>
+            <img class="floating-img" data-index="1"  src='res/floating1.png' style='width:130px;height:145px'/>
+            <img class="floating-img" data-index="2"  src='res/floating2.png' style='width:130px;height:145px'/>
+            <img class="floating-img" data-index="3"  src='res/floating3.png' style='width:130px;height:145px'/>
+        </div>
+        
+        
+         <script>
+             console.log("IIIIIII");
+        // url 에서 parameter 추출
+        function getParam(sname) {
+            var params = location.search.substr(location.search.indexOf("?") + 1);
+            var sval = "";
+            params = params.split("&");
+            for (var i = 0; i < params.length; i++) {
+                temp = params[i].split("=");
+                if ([temp[0]] == sname) { sval = temp[1]; }
+            }
+            return sval;
+        }
+        var getgamedata = null;
+        var param_projectid = getParam("projectid");
+        var param_groupidx = getParam("groupidx");
+        var param_au = getParam("au") ? getParam("au") : 0;//autoupdate = 1 이라면 업데이트체크한다.
+        var sample_orientation = location.href.indexOf("sample_land") >= 0 ? "sample_land" : location.href.indexOf("sample_port/") >= 0 ? "sample_port" : ""; //샘플일때 가로인지 세로인지 체크
+        if(param_projectid == "maecheon" && !param_groupidx)param_groupidx = 1;//매천중학교만 예외처리
+        
+        if(sample_orientation){
+            param_projectid = sample_orientation;
+            param_groupidx = 0;
+        }
+             
+        var param_today_first = true;
+        
+        var global_app_datalist = [];
+        function AndroidCallback(key,value){
+            var data = {"key":key, "value":value};
+            global_app_datalist.push(data);
+            
+        }
+        function IOSCallback(key,value){
+            var data = {"key":key, "value":value};
+            global_app_datalist.push(data);
+            
+        }
+        function CheckAppCallbackData(key){
+            var return_data = null;
+            for(var i = 0; i < global_app_datalist.length; i++) {
+                if(global_app_datalist[i].key == key) {
+                    return_data = global_app_datalist[i].value;
+                    global_app_datalist.splice(i, 1);
+                    break;
+                }
+            }
+            return return_data;
+        }
+             
+
+            // youtube API 불러옴
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/player_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+//            // 플레이어변수 설정
+//            var youTubePlayer1;
+//
+//            function onYouTubeIframeAPIReady() {
+//                youTubePlayer1 = new YT.Player('youTubePlayer1', {
+//                    width: '500',
+//                    height: '280',
+//                    videoId: '0Ui6uGHmiks',
+//                    playerVars: {rel: 0},//추천영상 안보여주게 설정
+//                    events: {
+//                      'onReady': onPlayerReady, //로딩할때 이벤트 실행
+//                      'onStateChange': onPlayerStateChange //플레이어 상태 변화시 이벤트실행
+//                    }
+//                });//youTubePlayer1셋팅
+//            }
+
+//            unstarted	YT.PlayerState.UNSTARTED	-1
+//            ended	YT.PlayerState.ENDED	0
+//            playing	YT.PlayerState.PLAYING	1
+//            paused	YT.PlayerState.PAUSED	2
+//            bufferring	YT.PlayerState.BUFFERING	3
+//            video cued	YT.PlayerState.CUED	5
+
+            
+            function onPlayerReady(event) {
+                console.log("onPlayerReady");
+                event.target.playVideo();//자동재생
+                //로딩할때 실행될 동작을 작성한다.
+            }
+
+            function onPlayerStateChange(event) {
+                console.log("onPlayerStateChange",event);
+                if (event.data == YT.PlayerState.PLAYING) {
+                    console.log("playing");
+                    //플레이어가 재생중일때 작성한 동작이 실행된다.
+                }else  if (event.data == YT.PlayerState.STOP) {
+                    console.log("stop");
+                }
+                    
+            }
+
+            
+            //////////////////////////////////////////////
+            // 플로팅 관련코드
+            //////////////////////////////////////////////
+            
+            window.addEventListener('load', function () {
+                var canvas = document.getElementById('gameCanvas');
+                var floatingDiv = document.getElementById('div_floating');
+
+                // 브라우저 창 크기
+                var screenWidth = window.innerWidth;
+                var screenHeight = window.innerHeight;
+
+                // 원본 캔버스 크기
+                var canvasWidth = 1080;
+                var canvasHeight = 1920;
+
+                // 캔버스를 화면에 맞추기 위한 비율 계산 (비율 유지)
+                var scale = Math.min(screenWidth / canvasWidth, screenHeight / canvasHeight);
+
+                // 축소된 실제 캔버스 크기
+                var scaledWidth = canvasWidth * scale;
+                var scaledHeight = canvasHeight * scale;
+
+                // 화면 중앙에 캔버스가 있다고 가정할 때의 좌표 계산
+                var canvasLeft = (screenWidth - scaledWidth) / 2;
+                var canvasTop = (screenHeight - scaledHeight) / 2;
+
+                // div_floating 위치 설정 (캔버스 오른쪽에 붙이기)
+                floatingDiv.style.left = (canvasLeft + scaledWidth -135) + 'px'; // +10px 여유
+                floatingDiv.style.top = (canvasTop + 600) + 'px'; // 예: 캔버스 위에서 100px 아래
+            });
+            
+            document.querySelectorAll('.floating-img').forEach(img => {
+                function triggerClickEffect(el) {
+                    el.classList.add('clicked');
+                    setTimeout(() => {
+                        el.classList.remove('clicked');
+                        hideFloatingPanel();
+                    }, 100);
+                }
+
+                function handleEvent(e) {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    triggerClickEffect(e.currentTarget);
+                    if (typeof C_nextScene === "function") {
+                        var scene = index == 0 ? SCENE_HOME : SCENE_MENU;
+                        var data = {"tab": index,
+                                    "page": "main",
+                                    "sub": 0
+                                };                    
+                        C_nextScene(scene, data);            
+//                        C_nextScene(index); // Cocos2d-JS 함수 호출
+                    } else {
+                        console.warn("C_nextScene 함수가 정의되지 않았습니다.");
+                    }
+                }
+
+                img.addEventListener('mousedown', handleEvent);
+                img.addEventListener('touchstart', handleEvent);
+            });
+            // 오른쪽으로 사라지게 하는 함수
+            function hideFloatingPanel() {
+                const el = document.getElementById("div_floating");
+                el.classList.remove("show-right");
+                el.classList.add("hide-right");
+            }
+
+            // 다시 오른쪽에서 나타나게 하는 함수
+            function showFloatingPanel() {
+                const el = document.getElementById("div_floating");
+                el.style.display="block";
+                el.classList.remove("hide-right");
+                el.classList.add("show-right");
+            }
+            hideFloatingPanel();
+        </script>
+    </body>
+</html>

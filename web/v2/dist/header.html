@@ -1,0 +1,35 @@
+ <nav  id="div_top" class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+            <button class="btn btn-link btn-sm order-1 order-lg-0" id="sidebarToggle" onclick="menu_click()" href="#"><i class="fas fa-bars"></i></button>
+           
+            <a class="navbar-brand" href="index.php">
+                <img width = 30 height = 30  src="https://bodypass.co.kr/real/black/web/icon/black_arc.ico" />
+                BLACK</a>
+            
+
+            <!--  유저 아이콘 -->
+            <ul class="navbar-nav ml-auto">
+                
+                <!--      로그인 버튼          -->
+                <button id = "btn_login" class="btn btn-link ml-auto" style="color:white" onclick="login()">로그인</button>
+                
+                <!--     회원가입 버튼           -->
+                <button id = "btn_logout" class="btn btn-link ml-auto" style="color:white"  onclick="join()">회원가입</button>
+                
+                <!--     회원 이름           -->
+                <button id = "txt_name" class="btn btn-link ml-auto" style="color:white"></button>
+                <!--     유저 아이콘           -->
+                <li id = "li_usericon" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="userDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                        <a class="dropdown-item" href="#">Settings</a>
+                        <a class="dropdown-item" href="#">Activity Log</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" onclick="logout()">로그아웃</a>
+                    </div>
+                </li>
+                <!--      관리자페이지 이동          -->
+                <button id = "btn_admin" class="btn btn-link ml-auto" style="color:white; display:none;font-size:10px" onclick="gotoadmin()">( 관리자 페이지 )</button>
+                
+            </ul>
+</nav>
+

@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>설문 리스트 관리</title>
+    <!--    <script src="./libs/sirvey/survey_tailwincss.com"></script>-->
+    <script src="./libs/tailwindcss.js"></script>   
+    <script src="./libs/jquery/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+    <script src="./js/scripts.js"></script>
+
+    <link href="./css/toggle.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f9fafb;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .highlight {
+            background-color: #e0f2fe;
+            border: 2px solid #0284c7;
+        }
+
+        .finished {
+            background-color: #fef2f2;
+            border: 2px solid #f87171;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            width: 600px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 900;
+        }
+
+        .bar {
+            transition: width 1.2s ease-out;
+        }
+
+        .bar-animated {
+            animation: barGrow 1.2s ease-out;
+        }
+
+        @keyframes barGrow {
+            0% {
+                width: 0%;
+            }
+
+            100% {
+                width: var(--bar-width);
+            }
+        }
+
+    </style>
+</head>
+
+<body >
+    <div style="padding:30px">
+        <h1 class="text-3xl font-bold mb-6">📋 설문 리스트 관리</h1>
+        <button id='add_survey' style="float:right;background-color:#f2faf9;width:100px;height:auto;padding:10px;border-radius:10px;border:1px solid #eeeeee;margin-top:-60px;margin-right:160px;" onclick="insertSurvey()">+설문추가</button>
+        <div style='width:150px;float:right; height:auto;padding-left:10px;padding-right:5px;margin-top:-55px'>
+            <label class='switch' style='float:left;'>
+                <input id='toggle_survey' type='checkbox' onchange="togglechange('survey', '설문ON', '설문OFF')" checked>
+                <span id='toggle_icon_survey' class='slider round'>
+                </span>
+            </label>
+            <text id='toggle_txt_survey' style='color:gray;float:left;font-size:16px;margin-left:5px;font-weight:500;margin-top:5px;'>설문ON</text>
+        </div>
+
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 p-4 mb-6" role="alert">
+            <p class="font-bold">알림</p>
+            <p>키오스크에 표시할 설문은 리스트 맨 위의 1개입니다. 상단 고정 버튼으로 순서를 조정하세요.</p>
+        </div>
+
+
+        <div id="surveyList" class="space-y-4"></div>
+
+        <!--
+        <div class="flex justify-center mt-8 space-x-4">
+            <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">이전</button>
+            <button class="px-4 py-2 bg-gray-800 text-white rounded">1</button>
+            <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">2</button>
+            <button class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">다음</button>
+        </div>
+-->
+    </div>
+
+    <div id="resultOverlay" class="overlay hidden"></div>
+    <div id="resultModal" class="modal hidden">
+        <h2 class="text-xl font-bold mb-4">📊 설문 결과</h2>
+        <ul id="resultContent" class="space-y-4"></ul>
+        <button onclick="closeResult()" class="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">닫기</button>
+    </div>
+
+    <script>
+        //버튼색 설정
+        setBtnEventColor("add_survey", "#f2faf9", "#e2eae9", "#cecec0");
+
+
+        const list = document.getElementById('surveyList');
+        const today = new Date();
+
+        //        const surveys = [{
+        //                title: "급식에서 가장 선호하는 메뉴는 무엇인가요?",
+        //                start: "2025-06-01",
+        //                end: "2025-06-10",
+        //                items: ["김치볶음밥", "치킨가라아게", "짜장면", "제육볶음"],
+        //                result: [33, 18, 21, 28]
+        //            },
+        //            {
+        //                title: "희망하는 동아리는 무엇인가요?",
+        //                start: "2025-06-02",
+        //                end: "2025-06-12",
+        //                items: ["과학탐구반", "밴드부", "미술반", "농구부"],
+        //                result: [12, 29, 24, 35]
+        //            },
+        //            {
+        //                title: "올해 체험학습으로 가고 싶은 장소는?",
+        //                start: "2025-06-03",
+        //                end: "2025-06-13",
+        //                items: ["과학관", "놀이공원", "역사박물관", "농촌체험"],
+        //                result: [18, 37, 22, 14]
+        //            },
+        //            {
+        //                title: "교내에 추가되었으면 하는 편의 시설은?",
+        //                start: "2025-06-04",
+        //                end: "2025-06-14",
+        //                items: ["휴게의자", "스낵자판기", "정수기", "그늘쉼터"],
+        //                result: [26, 31, 19, 22]
+        //            },
+        //            {
+        //                title: "학교 축제에서 가장 기대되는 프로그램은?",
+        //                start: "2025-06-05",
+        //                end: "2025-06-15",
+        //                items: ["댄스공연", "먹거리부스", "체험활동", "게임존"],
+        //                result: [30, 33, 20, 17]
+        //            },
+        //            {
+        //                title: "선호하는 학급 회의 방식은?",
+        //                start: "2025-06-06",
+        //                end: "2025-06-16",
+        //                items: ["전체 회의", "조별 토의 후 발표", "의견함 제출", "온라인 설문"],
+        //                result: [21, 28, 25, 26]
+        //            },
+        //            {
+        //                title: "등교 시간대 중 가장 집중이 잘 되는 시간은?",
+        //                start: "2025-06-07",
+        //                end: "2025-06-17",
+        //                items: ["08:00~08:30", "08:30~09:00", "09:00~09:30", "09:30 이후"],
+        //                result: [13, 22, 34, 18]
+        //            },
+        //            {
+        //                title: "교내 방송에서 듣고 싶은 코너는?",
+        //                start: "2025-06-08",
+        //                end: "2025-06-18",
+        //                items: ["음악 추천", "학생 뉴스", "퀴즈 코너", "사연 읽기"],
+        //                result: [31, 25, 17, 27]
+        //            },
+        //            {
+        //                title: "교복 외에 도입되었으면 하는 복장 규정은?",
+        //                start: "2025-06-09",
+        //                end: "2025-06-19",
+        //                items: ["체육복 등교 허용", "자율복 가능일 도입", "후드티 허용", "계절별 자율복"],
+        //                result: [36, 29, 14, 21]
+        //            },
+        //            {
+        //                title: "학교에서 개선되었으면 하는 점은?",
+        //                start: "2025-06-10",
+        //                end: "2025-06-20",
+        //                items: ["화장실 위생", "에어컨/난방", "학교 급식 질", "청소구역 분배"],
+        //                result: [27, 33, 21, 19]
+        //            }
+        //        ];
+
+
+        var projectid = getParam("projectid") ? getParam("projectid") : "sample";
+        var groupidx = getParam("groupidx") ? getParam("groupidx") : 0;
+        var contentid = getParam("listid") ? getParam("listid") : "";
+
+        //        var surveyidx = getParam("surveyidx") ? getParam("surveyidx") : 0; //현재설문 아이디
+        //    var editmode = getParam("editmode") ? getParam("editmode") : 0;  //게시판 아이디
+        //    var gamemode = getParam("gamemode") ? getParam("gamemode") : 0;
+        //    var nowindex = 0; //
+        var surveydatas = null;
+        var json_svdatas = null;
+        var now_sv_idx = 0;
+        var now_sv_onoff = 0;
+        
+        $(document).ready(function() {
+
+
+            var _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "type":"survey"
+            }
+            AJAX_AdmGetGame("getsurveydata", _data, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    surveydatas = res.message
+                    if(surveydatas == null)surveydatas = [];
+                    console.log("get surveydatas ", surveydatas);
+
+                    initNowSurvay(function() {
+                        renderSurveys();
+                        
+                        var toggle_survey = document.getElementById("toggle_survey");
+                        toggle_survey.checked = now_sv_onoff == 0 ? false : true;
+                        togglechange('survey', '설문ON', '설문OFF');
+                        
+                    })
+                }
+
+            });
+
+
+
+        });
+
+        //현재 선택된 설문을 가져와 맨위로 올린다.
+        function initNowSurvay(callback) {
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "contentid": contentid
+            }
+            //현재 설문 아이디를 가져온다.
+            AJAX_AdmGetGame("getnowsurveyidx", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    var rdata = res.message; //데이타 idx  sv_idx
+                    now_sv_idx = rdata["nowsurveyidx"];
+                    now_sv_onoff = rdata["nowsurveyonoff"];
+                    
+                    var sindex = 0; //리스트 인덱스 0~ max
+                    for (var i = 0; i < surveydatas.length; i++) {
+                        if (surveydatas[i].sv_idx == rdata["nowsurveyidx"]) {
+                            sindex = i;
+                            
+                            break;
+                        }
+                    }
+                    moveToTopFirst(sindex);
+                    
+                }
+                callback();
+
+            });
+        }
+        //현재 선택된 설문을 가져와 맨위로 올린다.
+        function updateNowSurvay(callback) {
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "contentid": contentid,
+                "nowsurveyidx": now_sv_idx,
+                "nowsurveyonoff" : now_sv_onoff
+
+            }
+            console.log("now_sv_idx ",now_sv_idx);
+            //현재 설문 아이디를 가져온다.
+            AJAX_AdmGetGame("updatenowsurveyidx", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    var survey_idx = res.message;
+
+                }
+                if(callback)callback();
+
+            });
+        }
+
+        function togglechange(key, txton, txtoff) {
+            console.log("toggle change!!");
+            var toggle = document.getElementById("toggle_" + key);
+            var toggle_icon = document.getElementById("toggle_icon_" + key);
+            var toggle_txt = document.getElementById("toggle_txt_" + key);
+            if (toggle.checked) {
+                console.log("토글 켜짐");
+                toggle_icon.style.backgroundColor = "#33aaaa";
+                toggle_txt.innerHTML = txton;
+                toggleSurveyListDisabled(false);
+            } else {
+                console.log("토글 꺼짐");
+                toggle_icon.style.backgroundColor = "#cccccc";
+                toggle_txt.innerHTML = txtoff;
+                toggleSurveyListDisabled(true);
+            }
+
+        }
+
+        function toggleSurveyListDisabled(flg) {
+            const surveyList = document.getElementById('surveyList');
+            const children = surveyList.children;
+
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
+                if (flg) {
+                    console.log("목록끈다.");
+                    // 끈 상태: 회색, 클릭 불가
+                    child.classList.add('bg-gray-200', 'text-gray-500', 'opacity-50', 'pointer-events-none');
+                    
+                } else {
+                    console.log("목록켠다.");
+                    // 켠 상태: 원래대로
+                    child.classList.remove('bg-gray-200', 'text-gray-500', 'opacity-50', 'pointer-events-none');
+                    
+                }
+                
+            }
+            if(flg){                
+                now_sv_onoff = 0;
+            }else{
+                now_sv_onoff = 1;
+            }
+            console.log("now_sv_onoff is "+now_sv_onoff);
+            updateNowSurvay();
+        }
+        //sv_idx 가 있다면 수정 , 없다면 삽입
+        function insertSurvey(sv_idx) {
+            var _surveydata = null;
+
+            var title = "";
+            var item0 = "";
+            var item1 = "";
+            var item2 = "";
+            var item3 = "";
+            var startdate = "";
+            var enddate = "";
+            var icon0_checked = "checked";
+            var icon1_checked = "";
+            var result_open = 0;
+            if (sv_idx) {
+                for (var i = 0; i < surveydatas.length; i++) {
+                    if (surveydatas[i].sv_idx == sv_idx) {
+                        _surveydata = surveydatas[i];
+
+                        break;
+                    }
+                }
+            }
+            if (_surveydata) {
+                title = _surveydata.sv_title;
+                var items = _surveydata.sv_data ? JSON.parse(_surveydata.sv_data) : [];
+                for (var i = 0; i < items.length; i++) {
+                    if (i == 0) item0 = items[i].name;
+                    if (i == 1) item1 = items[i].name;
+                    if (i == 2) item2 = items[i].name;
+                    if (i == 3) item3 = items[i].name;
+                }
+                startdate = _surveydata.sv_startdate.substr(0, 10);
+                enddate = _surveydata.sv_enddate.substr(0, 10);
+                result_open = _surveydata.sv_resultopen;
+                if (_surveydata.sv_iconid == 1) {
+                    icon1_checked = "checked";
+                    icon0_checked = "";
+                }
+            }
+
+            var resultopen_tag = result_open == 1 ? "<select id='select_isopen' class='w-full p-3 border rounded-lg mb-5 text-lg'><option value ='1' selected>공개</option><option value ='0'>비공개</option></select>" : "<select id='select_isopen' class='w-full p-3 border rounded-lg mb-5 text-lg'><option value ='1' >공개</option><option value ='0' selected>비공개</option></select>";
+
+            
+            if (surveydatas && surveydatas.length >= 10) {
+                alert("최대 10개까지 추가할 수 있습니다. ");
+                return;
+            }
+            console.log("!!! insertSurvey");
+            var sv_max = 300;
+            var message_tag = `
+                    <div align="left" style="padding:20px;overflow-y:scroll; max-height:500px">
+                        <h2 class="text-3xl font-bold mb-5">🛠 설문 정보</h2>
+
+                        <label class="block text-lg font-semibold mb-1">설문 제목</label>
+                        <input id="input_sv_title" type="text" value="${title}" class="w-full p-3 border rounded-lg mb-5 text-lg" placeholder="예: 가장 좋아하는 급식 메뉴는?" />
+
+                        <label class="block text-lg font-semibold mb-2">항목 입력 (최대 4개)</label>
+                        <div class="space-y-2 mb-5">
+                          <input id="input_item0" type="text" value="${item0}"  class="w-full p-3 border rounded-lg" placeholder="항목 1" />
+                          <input id="input_item1" type="text" value="${item1}" class="w-full p-3 border rounded-lg" placeholder="항목 2" />
+                          <input id="input_item2" type="text" value="${item2}" class="w-full p-3 border rounded-lg" placeholder="항목 3 (선택)" />
+                          <input id="input_item3" type="text" value="${item3}" class="w-full p-3 border rounded-lg" placeholder="항목 4 (선택)" />
+                        </div>
+
+                        <label class="block text-lg font-semibold mb-2">설문 기간</label>
+                        <div class="flex gap-4 mb-5">
+                          <input id="input_startdate" value="${startdate}" type="date" class="w-1/2 p-3 border rounded-lg" />
+                          <input id="input_enddate" value="${enddate}" type="date" class="w-1/2 p-3 border rounded-lg" />
+                        </div>
+
+
+                        <div class="flex gap-4 mb-5">
+                            <div>
+                                <label class="block text-lg font-semibold mb-2">설문 결과 공개 여부</label>
+                                ${resultopen_tag}
+                            </div>
+                            <div>
+                                <label class="block text-lg font-semibold mb-2">설문 최대참여자</label>
+                                <input id="input_sv_max" value ="${sv_max}" type="text" class="w-full p-3 border rounded-lg mb-5 text-lg" placeholder="최대 참여인원 300" />
+
+                            </div>
+
+
+                            <label class="block text-lg font-semibold mb-2" style="margin-top:10px">아이콘 선택</label>
+                            <div style="display:flex;border:1px solid gray;border-radius: 10px;padding;20px">
+                                 <label style="display: flex; align-items: center; cursor: pointer;margin:10px">
+                                    <input id="radio_icon0" type="radio" name="direction" value="0" style="margin-right: 8px;" ${icon0_checked}>
+                                    <img src="uiimg/img0.png" alt="왼쪽" style=" height: 60px;">
+                                  </label>
+
+                                  <label style="display: flex; align-items: center; cursor: pointer;margin:10px">
+                                    <input id="radio_icon1" type="radio" name="direction" value="1" style="margin-right: 8px;" ${icon1_checked}>
+                                    <img src="uiimg/img1.png" alt="오른쪽" style="height: 60px;">
+                                  </label>
+                            </div>
+
+                        </div>
+
+                         <label>
+                            <input id="input_isnow_idx" type="checkbox"> 설문 화면에 바로 표시
+                        </label>                   
+
+                      </div>`;
+
+            //<button class="w-full bg-blue-600 text-white text-xl font-semibold p-4 rounded-lg">설문 저장</button>
+            showConfirmPopup({
+                message: message_tag,
+                onConfirm: () => sv_idx ? sendUpdateSurvey(sv_idx) : sendInsertSurvey(),
+                okTxt: sv_idx ? "설문수정하기" : "설문추가하기"
+
+            });
+            
+        }
+
+        function showDelete(sv_idx) {
+            var sdata = null;
+            for (var i = 0; i < surveydatas.length; i++) {
+                if (surveydatas[i].sv_idx == sv_idx) {
+                    sdata = surveydatas[i];
+                    break;
+                }
+            }
+            if (sdata) {
+                showConfirmPopup({
+                    message: "<span style='color:blue'>[" + sdata.sv_title + "]</span><br> 을 삭제하시겠습니까?",
+                    onConfirm: () => sendDeleteSurvay(sv_idx),
+                    okTxt: "삭제하기"
+
+                });
+            }
+
+        }
+        function showConfirmPopup({
+            message,
+            onConfirm,
+            okTxt
+        }) {
+            const existing = document.getElementById('popupOverlay');
+            if (existing) existing.remove();
+
+            const overlay = document.createElement('div');
+            overlay.id = 'popupOverlay';
+            Object.assign(overlay.style, {
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10000
+            });
+
+            const box = document.createElement('div');
+            Object.assign(box.style, {
+                width: 'auto',
+                backgroundColor: '#fff',
+                borderRadius: '8px',
+                padding: '20px',
+                boxShadow: '0 4px 4px rgba(0,0,0,0.3)',
+                textAlign: 'center',
+               
+                
+            });
+
+            const text = document.createElement('div');
+            text.innerHTML = message;
+            Object.assign(text.style, {
+                marginBottom: '20px',
+                fontSize: '16px',
+                color: '#333'
+            });
+
+            const btnWrapper = document.createElement('div');
+            Object.assign(btnWrapper.style, {
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '5px'
+            });
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.innerText = '취소';
+            cancelBtn.onclick = () => overlay.remove();
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.innerText = okTxt;
+            deleteBtn.style.backgroundColor = '#dc3545';
+            deleteBtn.style.color = '#fff';
+            deleteBtn.onclick = () => {
+                onConfirm();
+                overlay.remove();
+            };
+
+            [cancelBtn, deleteBtn].forEach(btn => {
+                Object.assign(btn.style, {
+                    padding: '8px 16px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                });
+            });
+
+            btnWrapper.appendChild(cancelBtn);
+            btnWrapper.appendChild(deleteBtn);
+            box.appendChild(text);
+            box.appendChild(btnWrapper);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+        }
+        function sendDeleteSurvay(sv_idx) {
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "svidx": sv_idx
+            }
+            //현재 설문 아이디를 가져온다.
+            AJAX_AdmGetGame("deletesurveydata", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+
+
+                    var new_surveydatas = [];
+                    for (var i = 0; i < surveydatas.length; i++) {
+                        if (surveydatas[i].sv_idx != sv_idx) {
+                            new_surveydatas.push(surveydatas[i]);
+                        }
+                    }
+                    surveydatas = new_surveydatas;
+                    renderSurveys();
+
+                }
+
+            });
+        }
+
+        function sendUpdateSurvey(sv_idx) {
+
+            var edit_surveydata = null;
+            var edit_index = 0;
+            for (var i = 0; i < surveydatas.length; i++) {
+                if (surveydatas[i].sv_idx == sv_idx) {
+                    edit_surveydata = surveydatas[i];
+                    edit_index = i;
+                    break;
+                }
+            }
+            var input_sv_title = document.getElementById("input_sv_title"); //설문 제목
+            var input_item0 = document.getElementById("input_item0"); //보기 1
+            var input_item1 = document.getElementById("input_item1"); //보기 2
+            var input_item2 = document.getElementById("input_item2"); //보기 3
+            var input_item3 = document.getElementById("input_item3"); //보기 4
+
+            var input_sv_max = document.getElementById("input_sv_max"); // 최대 참여인원 
+            var input_startdate = document.getElementById("input_startdate"); // 시작일 
+            var input_enddate = document.getElementById("input_enddate"); //종료일
+            var select_isopen = document.getElementById("select_isopen"); // 결과공개여부
+            var input_isnow_idx = document.getElementById("input_isnow_idx"); // 화면에 바로표시
+            var radio_icon0 = document.getElementById("radio_icon0");
+            var iconid_value = radio_icon0.checked ? 0 : 1;
+
+
+            var svdata = edit_surveydata.sv_data ? JSON.parse(edit_surveydata.sv_data) : [];
+            svdata[0].name = input_item0.value;
+            svdata[1].name = input_item1.value;
+            if (svdata.length > 2) svdata[2].name = input_item2.value;
+            if (svdata.length > 3) svdata[3].name = input_item3.value;
+
+
+
+
+            var surveydata = {
+                "title": input_sv_title.value,
+                "svdata": svdata,
+                "startdate": input_startdate.value,
+                "enddate": input_enddate.value,
+                "max": parseInt(input_sv_max.value),
+                "resultopen": parseInt(select_isopen.value),
+                "iconid": iconid_value
+            }
+            edit_surveydata.sv_title = input_sv_title.value;
+            edit_surveydata.sv_data = JSON.stringify(svdata);
+            edit_surveydata.sv_startdate = input_startdate.value;
+            edit_surveydata.sv_enddate = input_enddate.value;
+            edit_surveydata.sv_max = input_sv_max.value;
+            edit_surveydata.sv_resultopen = parseInt(select_isopen.value);
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "surveydata": surveydata,
+                "svidx": sv_idx,
+
+            }
+            //현재 설문 아이디를 가져온다.
+            AJAX_AdmGetGame("updatesurveydata", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    //                    var insertdata = res.message;
+                    surveydatas[edit_index] = edit_surveydata;
+
+                    if (input_isnow_idx.checked) {
+
+                        var survey_idx = edit_surveydata.sv_idx; //데이타 idx  sv_idx
+                        var sindex = 0; //리스트 인덱스 0~ max
+                        for (var i = 0; i < surveydatas.length; i++) {
+                            if (surveydatas[i].sv_idx == survey_idx) {
+                                sindex = i;
+                                now_sv_idx = survey_idx;
+                                
+                                break;
+                            }
+                        }
+
+                        moveToTop(sindex);
+                    } else {
+                        renderSurveys();
+                    }
+                }
+
+            });
+        }
+
+        function sendInsertSurvey() {
+            console.log("설문조사 삽입한다.!!");
+            var input_sv_title = document.getElementById("input_sv_title"); //설문 제목
+            var input_item0 = document.getElementById("input_item0"); //보기 1
+            var input_item1 = document.getElementById("input_item1"); //보기 2
+            var input_item2 = document.getElementById("input_item2"); //보기 3
+            var input_item3 = document.getElementById("input_item3"); //보기 4
+
+            var input_sv_max = document.getElementById("input_sv_max"); // 최대 참여인원 
+            var input_startdate = document.getElementById("input_startdate"); // 시작일 
+            var input_enddate = document.getElementById("input_enddate"); //종료일
+            var select_isopen = document.getElementById("select_isopen"); // 결과공개여부
+            var input_isnow_idx = document.getElementById("input_isnow_idx"); // 화면에 바로표시
+            var radio_icon0 = document.getElementById("radio_icon0");
+            var iconid_value = radio_icon0.checked ? 0 : 1;
+            var svdata = [];
+            if (input_item0.value) svdata.push({
+                "name": input_item0.value
+            });
+            if (input_item1.value) svdata.push({
+                "name": input_item1.value
+            });
+            if (input_item2.value) svdata.push({
+                "name": input_item2.value
+            });
+            if (input_item3.value) svdata.push({
+                "name": input_item3.value
+            });
+
+            var surveydata = {
+                "title": input_sv_title.value,
+                "svdata": svdata,
+                "startdate": input_startdate.value,
+                "enddate": input_enddate.value,
+                "max": parseInt(input_sv_max.value),
+                "resultopen": parseInt(select_isopen.value),
+                "iconid": iconid_value
+            }
+
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "surveydata": surveydata
+            }
+            //현재 설문 아이디를 가져온다.
+            AJAX_AdmGetGame("insertsurveydata", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    var insertdata = res.message;
+                    surveydatas.push(insertdata);
+                    if (input_isnow_idx.checked) {
+
+                        var survey_idx = insertdata.sv_idx; //데이타 idx  sv_idx
+                        var sindex = 0; //리스트 인덱스 0~ max
+                        for (var i = 0; i < surveydatas.length; i++) {
+                            if (surveydatas[i].sv_idx == survey_idx) {
+                                sindex = i;
+                                now_sv_idx = survey_idx;
+                                
+                                break;
+                            }
+                        }
+
+                        moveToTop(sindex);
+                    } else {
+                        renderSurveys();
+                    }
+                }
+
+            });
+        }
+
+        
+
+        function renderSurveys() {
+            list.innerHTML = '';
+            surveydatas.forEach((s, index) => {
+                const svidx = s.sv_idx;
+                
+                var _enddate = s.sv_enddate.substr(0,10)+" 23:59:59";
+                const endDate = new Date(_enddate);
+                const isFinished = today > endDate;
+                console.log("index is " + index);
+                var bg_color = index == 0 ? "#e2faf9" : "#ffffff";
+                if(isFinished)bg_color = "#dddddd";
+                const wrapper = document.createElement('div');
+                wrapper.style.backgroundColor = bg_color;
+                wrapper.className = `bg-white p-6 rounded-lg shadow flex justify-between items-center ${index === 0 ? 'highlight' : ''} ${isFinished ? 'finished' : ''}`;
+                wrapper.innerHTML = `
+                    <div class="flex items-center space-x-3" >
+                        <div>
+                        <p class="text-xl font-semibold">📊 ${s.sv_title}</p><br>
+                        <p class="text-sm text-gray-500">기간: ${s.sv_startdate.substr(0,10)} ~ ${s.sv_enddate.substr(0,10)}</p>
+                        ${isFinished ? '<p class="text-sm text-red-600 font-semibold mt-1">✅ 설문이 종료되었습니다</p>' : '<p class="text-sm text-green-600 font-semibold mt-1">🟢 설문 진행 중</p>'}
+                        </div>
+                        </div>
+                        <div class="space-x-2">
+                        <button class="text-sm text-blue-600 border border-blue-600 rounded px-3 py-1 hover:bg-blue-100" onclick="moveToTop(${index})">상단 고정</button>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-green-100" onclick='showResult(${s.sv_idx})'>결과보기</button>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-red-100" onclick='insertSurvey(${s.sv_idx})'>수정</button>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-red-100" onclick='showDelete(${s.sv_idx})'>삭제</button>
+                    </div>
+                `;
+                list.appendChild(wrapper);
+            });
+        }
+         function moveToTopFirst(index) {
+            now_sv_idx = surveydatas[index].sv_idx;
+            const item = surveydatas.splice(index, 1)[0];
+            surveydatas.unshift(item);
+            renderSurveys();
+            console.log("111 surveydatas ", surveydatas);
+
+        }
+        function moveToTop(index) {
+            now_sv_idx = surveydatas[index].sv_idx;
+            
+
+
+            updateNowSurvay(function() {
+                const item = surveydatas.splice(index, 1)[0];
+                surveydatas.unshift(item);
+                renderSurveys();
+                console.log("111 surveydatas ", surveydatas);
+            });
+
+
+
+
+        }
+
+        function showResult(sv_idx) {
+            var json_svdatas = null;
+            for (var i = 0; i < surveydatas.length; i++) {
+                if (surveydatas[i].sv_idx == sv_idx) {
+
+                    json_svdatas = surveydatas[i].sv_data != "" ? JSON.parse(surveydatas[i].sv_data) : [];
+                    break;
+                }
+            }
+
+            var resultArr = [];
+            var labels = [];
+            for (var i = 0; i < json_svdatas.length; i++) {
+                labels.push(json_svdatas[i].name);
+                if (!json_svdatas[i].icons) json_svdatas[i].icons = [];
+                resultArr.push(json_svdatas[i].icons.length);
+            }
+
+            document.getElementById('resultOverlay').classList.remove('hidden');
+            document.getElementById('resultModal').classList.remove('hidden');
+
+            const content = document.getElementById('resultContent');
+            content.innerHTML = '';
+
+
+            const max = Math.max(...resultArr);
+
+
+            resultArr.forEach((count, i) => {
+                const percent = Math.round((count / max) * 100);
+                const li = document.createElement('li');
+                const barColor = ['bg-red-400', 'bg-green-400', 'bg-blue-400', 'bg-yellow-400'][i % 4];
+
+                li.innerHTML = `
+                  <div class="flex justify-between mb-1" >
+                    <span class="font-medium text-gray-700">${labels[i]}</span>
+                    <span class="text-gray-500">${count}표</span>
+                  </div>
+                  <div class="w-full h-5 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-5 ${barColor} rounded-full bar bar-animated" style="--bar-width:${percent}%; width:${percent}%"></div>
+                  </div>
+                `;
+                content.appendChild(li);
+            });
+        }
+
+        function closeResult() {
+            document.getElementById('resultOverlay').classList.add('hidden');
+            document.getElementById('resultModal').classList.add('hidden');
+        }
+
+    </script>
+</body>
+
+</html>

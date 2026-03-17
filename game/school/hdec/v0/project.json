@@ -1,0 +1,26 @@
+{
+    "debugMode"     : 0,
+    "frameRate"     : 60,
+    "showFPS"       : false,
+    "id"            : "gameCanvas",
+    "renderMode"    : 1,
+    "modules" : ["cocos2d"],
+    "jsList"        : [
+        "js/cmn_fnc.js",
+        "js/cmn_var.js",
+        "js/resource.js",
+        "js/NButton.js",
+        "js/DialogLayer.js",
+        "js/SelectLanguageDialogLayer.js",
+        "js/SpeakDialogLayer.js",
+        "js/ImageDialogLayer.js",
+        "js/WebViewDialogLayer.js",
+        "js/MapDialogLayer.js",
+        "js/MachineLayer.js",
+        "js/LogoScene.js",
+        "js/MenuScene.js",
+        "js/LyricsScene.js"
+        
+
+    ]
+}

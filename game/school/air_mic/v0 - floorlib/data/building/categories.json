@@ -1,0 +1,242 @@
+[
+  {
+    "id": "restroom",
+    "name": "화장실",
+    "icon": "🚻",
+    "color": "#0ea5e9",
+    "isDefault": true,
+    "order": 1
+  },
+  {
+    "id": "restroom-m",
+    "name": "남자화장실",
+    "icon": "🚹",
+    "color": "#3b82f6",
+    "isDefault": true,
+    "order": 2
+  },
+  {
+    "id": "restroom-f",
+    "name": "여자화장실",
+    "icon": "🚺",
+    "color": "#ec4899",
+    "isDefault": true,
+    "order": 3
+  },
+  {
+    "id": "restroom-disabled",
+    "name": "장애인화장실",
+    "icon": "♿",
+    "color": "#06b6d4",
+    "isDefault": true,
+    "order": 4
+  },
+  {
+    "id": "water",
+    "name": "정수기",
+    "icon": "💧",
+    "color": "#22d3ee",
+    "isDefault": true,
+    "order": 5
+  },
+  {
+    "id": "vending",
+    "name": "자판기",
+    "icon": "🥤",
+    "color": "#f97316",
+    "isDefault": true,
+    "order": 6
+  },
+  {
+    "id": "exit",
+    "name": "출구",
+    "icon": "🚪",
+    "color": "#22c55e",
+    "isDefault": true,
+    "order": 10
+  },
+  {
+    "id": "emergency-exit",
+    "name": "비상구",
+    "icon": "🚨",
+    "color": "#ef4444",
+    "isDefault": true,
+    "order": 11
+  },
+  {
+    "id": "fire-extinguisher",
+    "name": "소화기",
+    "icon": "🧯",
+    "color": "#dc2626",
+    "isDefault": true,
+    "order": 12
+  },
+  {
+    "id": "aed",
+    "name": "AED",
+    "icon": "💓",
+    "color": "#f43f5e",
+    "isDefault": true,
+    "order": 13
+  },
+  {
+    "id": "first-aid",
+    "name": "구급함",
+    "icon": "🩹",
+    "color": "#fb7185",
+    "isDefault": true,
+    "order": 14
+  },
+  {
+    "id": "elevator",
+    "name": "엘리베이터",
+    "icon": "🛗",
+    "color": "#8b5cf6",
+    "isDefault": true,
+    "order": 20
+  },
+  {
+    "id": "stairs",
+    "name": "계단",
+    "icon": "🪜",
+    "color": "#a855f7",
+    "isDefault": true,
+    "order": 21
+  },
+  {
+    "id": "escalator",
+    "name": "에스컬레이터",
+    "icon": "📶",
+    "color": "#7c3aed",
+    "isDefault": true,
+    "order": 22
+  },
+  {
+    "id": "information",
+    "name": "안내데스크",
+    "icon": "ℹ️",
+    "color": "#3b82f6",
+    "isDefault": true,
+    "order": 30
+  },
+  {
+    "id": "reception",
+    "name": "접수처",
+    "icon": "🛎️",
+    "color": "#6366f1",
+    "isDefault": true,
+    "order": 31
+  },
+  {
+    "id": "security",
+    "name": "보안실",
+    "icon": "🛡️",
+    "color": "#475569",
+    "isDefault": true,
+    "order": 32
+  },
+  {
+    "id": "locker",
+    "name": "물품보관함",
+    "icon": "🔐",
+    "color": "#64748b",
+    "isDefault": true,
+    "order": 33
+  },
+  {
+    "id": "meeting-room",
+    "name": "회의실",
+    "icon": "👥",
+    "color": "#8b5cf6",
+    "isDefault": true,
+    "order": 40
+  },
+  {
+    "id": "office",
+    "name": "사무실",
+    "icon": "🏢",
+    "color": "#6366f1",
+    "isDefault": true,
+    "order": 41
+  },
+  {
+    "id": "lounge",
+    "name": "휴게실",
+    "icon": "🛋️",
+    "color": "#f59e0b",
+    "isDefault": true,
+    "order": 42
+  },
+  {
+    "id": "cafeteria",
+    "name": "식당/카페",
+    "icon": "🍽️",
+    "color": "#f97316",
+    "isDefault": true,
+    "order": 43
+  },
+  {
+    "id": "parking",
+    "name": "주차장",
+    "icon": "🅿️",
+    "color": "#3b82f6",
+    "isDefault": true,
+    "order": 44
+  },
+  {
+    "id": "atm",
+    "name": "ATM",
+    "icon": "🏧",
+    "color": "#10b981",
+    "isDefault": true,
+    "order": 50
+  },
+  {
+    "id": "store",
+    "name": "매장",
+    "icon": "🛒",
+    "color": "#84cc16",
+    "isDefault": true,
+    "order": 51
+  },
+  {
+    "id": "pharmacy",
+    "name": "약국",
+    "icon": "💊",
+    "color": "#22c55e",
+    "isDefault": true,
+    "order": 52
+  },
+  {
+    "id": "hospital",
+    "name": "의무실",
+    "icon": "🏥",
+    "color": "#ef4444",
+    "isDefault": true,
+    "order": 53
+  },
+  {
+    "id": "charging",
+    "name": "충전소",
+    "icon": "🔌",
+    "color": "#eab308",
+    "isDefault": true,
+    "order": 54
+  },
+  {
+    "id": "wifi",
+    "name": "Wi-Fi",
+    "icon": "📶",
+    "color": "#06b6d4",
+    "isDefault": true,
+    "order": 55
+  },
+  {
+    "id": "custom",
+    "name": "사용자 지정",
+    "icon": "📍",
+    "color": "#f59e0b",
+    "isDefault": true,
+    "order": 99
+  }
+]

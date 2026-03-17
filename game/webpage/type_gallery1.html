@@ -1,0 +1,1388 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <link href="./libs/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <script src="./libs/swiper/swiper-bundle.min.js"></script>
+    
+    <title>카타로그</title>
+    <script src="./libs/tailwindcss.js"></script>
+    <script src="./libs/jquery/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+    <script src="./js/scripts.js"></script>
+
+   
+
+    <style>
+  #bottomBar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 210px; /* 원하는 높이 */
+    background-color: #fff;
+    color: white;
+    text-align: center;
+    line-height: 30px; /* 세로 정렬 */
+    z-index: 9999;
+  }
+    #div_charactor_bottom * {
+        -webkit-user-drag: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;삭제하기
+        -ms-user-select: none;
+        user-select: none;
+    }
+  
+</style>
+  <style>
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        #puzzle-container {
+            position: relative;
+            width: 880px;
+            height: 880px;
+            border: 2px solid #ccc;
+            display: flex;
+            flex-wrap: wrap;
+            overflow: hidden;
+        }
+        .tile {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            background-size: 880 880px;
+            transition: all 0.1s ease;
+            box-sizing: border-box;
+            border: 1px solid #fff;
+            cursor: pointer;
+        }
+
+        #clear-message {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            z-index: 10;
+        }
+        #timer {
+            position: absolute;
+            top: 10px;
+            left:50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 10px;
+        }
+       .fade {
+            transition: opacity 1s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .fade.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+      
+      @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.2);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    #btn_game {
+      float: right;
+      width: 50px;
+      height: 50px;
+      margin-top: -50px;
+      margin-right: 10px;
+      cursor: pointer;
+      display: none; /* 초기 숨김 유지 */
+      animation: pulse 2s infinite; /* 애니메이션 적용 및 반복 */
+    }
+
+    #btn_game:hover {
+      animation-play-state: paused; /* 마우스 오버 시 애니메이션 일시 정지 (선택 사항) */
+    }
+        </style>
+</head>
+
+<body style='background-color:#fff'>
+  <div id = 'swiper_container' align='center' style='text-align: middle;width:100%;height:100%;background-color:#fff;'>
+    <div id='div_edit_btns'style='display:none;width:100%;height:100px;'>
+         <button id='btn_rank' style="float:right;background-color:#f2faf9;width:140px;height:auto;padding:10px;border-radius:10px;border:1px solid #eeeeee;margin-left:20px" onclick="showPuzzleRanking()" title="등록한 순위을 봅니다.">랭킹보기</button>
+         <button id='btn_insert' onclick='addImage()' style='float:right;width:140px;border:0;border-radius:6px;background-color:brown;color:white;padding:10px;cursor:pointer'>+이미지추가</button>
+    </div>
+  
+<!--
+        <div class="swiper">
+            <div id="swiper_wrapper" class="swiper-wrapper"></div>
+        </div>
+-->
+        <label id='label_main_filename'style="font-size:26px;font-weight:bold;color:#313131;"></label>
+        <div id="div_main_bg" style="width:100%;">
+            <div id="swiper" class="swiper" style="width:100%;">  
+           <div id="swiper_wrapper" class="swiper-wrapper" style="overflow: none"></div>
+            </div>
+<!--            <img id ='main_image' src='' style="display:none" > -->
+            <div id="puzzle-container" style='width:880px;height:880px;display:none'>
+                
+            </div>
+            <div id="timer" style='display:none'>0.00</div>
+            <div id="clear-message"></div><!---->
+            <canvas id="cropped_canvas" width="720" height="720" style="display:none;"></canvas>
+        </div>
+        
+        <img id='btn_game' style='position:absolute;bottom:220px; right:20px;width:100px;height:100px;margin-top:-70px;margin-right:10px;cursor:pointer;display:none;z-index: 999999' src='./uiimg/ic_game.png' onclick="start_puzzlegame()" title='게임모드'>   
+        <div id='div_ranking' style="width:90%;padding:30px;display:none" >
+            <table style='width:100%'>
+                <tr>
+                    <td style='width:38%'>
+                       <div style='display:flex'>
+                            <img src='./uiimg/ic_rank1.png' style='position:relative;width:100px;height:100px;'>
+                            <label id='lbl_rank1' style='margin-left:10px;font-size:30px;font-weight:bold'>------</label>
+                        </div>
+                    </td>
+                    <td style='width:33%'>
+                       <div style='display:flex'>
+                        <img src='./uiimg/ic_rank2.png' style='position:relative;width:70px;height:70px;'>
+                        <label id='lbl_rank2'  style='margin-left:7px;font-size:20px;font-weight:bold'>------</label>
+                        </div>
+                    </td>
+                    <td style='width:29%'>
+                       <div style='display:flex'>
+                        <img src='./uiimg/ic_rank3.png' style='position:relative;width:50px;height:50px;'>    
+                        <label id='lbl_rank3' style='margin-left:5px;font-size:16px;font-weight:bold'>------</label>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+                
+     
+          
+            
+        </div>
+        <!-- 닉네임 입력 팝업 -->
+        <div id="ranking-popup" style="display:none; position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 100;">
+            <p id='txt_ranking'>축하합니다! 랭킹에 등록되었습니다.<br>닉네임을 입력해주세요:</p>
+            <input type="text" id="nickname-input" placeholder="닉네임 입력" style="padding: 5px; width: 200px;">
+            <br><br>
+            <button onclick="submitNickname()">랭킹등록</button>
+        </div>
+    </div>
+   
+    <!--하단 캐릭터 선택창-->
+    <div id="bottomBar">
+        <div  style="background-color:white;height:230px;margin-bottom: 1px;padding-top:10px;border:1px solid #e9e9e9;">
+            <div id="div_charactor_bottom" align="bottom" style="background-color:white;height:auto;margin-bottom: 1px;overflow:scroll;">
+                
+            </div>
+         </div> 
+        
+    </div> 
+    <div>
+    
+     </div>
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script>
+        var base64_btn_x = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAMAAAANf8AYAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAANVQTFRFAAAAIEBgK1lwLVtxLF1yLVxyLVxyLVxyLV1zHFVxKlxwLFxyLFxxIFBwLFxyLFxyAAAALVxyLF1yLFxxKVpuLF1yKlpyLFxyK1xyLFxyLFtxLFxyLVtxLFtyLVlsLVxyLFxyAFVVLFtxLFpyIlVmLFtyLVxxLVxyWHJ+5uzvZHuGSmh2////LFxxLFxxUWx5LF1yLFtxLFxyLFxxLFxyLFxyLFtxoq+1K1txHlppLFxyLFxxLFxyK1pxK1xyLVxyK1xyLFtyLVxyLFxyKltyLFxyKVpxeSCOHwAAAEd0Uk5TAAhCfqjO5fD/CVu19xCA6wJn7e4lyVXxd/6Mi3hXKPXKA2huD3n/6v//////VrL/s63Q0en58v+BEWlvy1h974Jct/hDf0QNSRh4AAAB9UlEQVR4nJ2W+UsCQRTH38vSwg4tiegiLK2ISsvooqC/vB8iin6IwsgOuw9MxDI7SFqn2XWxGeftts33h4V5+/2ws3O89xAUoS1mSzU0jNu4+VsMNHPq043pQPxSPxxgrOzEhBA/VMJUsMpeSCaCZdVdnwErEEwvlpwRgC6WV5g+fHZDAMIs18D0F90JUz0PEjNYcLb+KnIvMEPff0zMnp6RrzPD+OQF4QthFGwm1OKyyLL68KrGRB+9IgADFxYzVnTYfUrBcNZkYndSdPi2wSYHhs45g/EbMTaCeCkhUcauhWHglSH0voqO0arPkKAo8xlNF0IglkaYOROZ8YoPRIgjYPhPBcfEAWJQumI1Ux2SR5aaDWzyAzhCBAJQwc4KOEIkAn5MZhqZupVGYBLnjhXGNgONwBSmjlTGgkxRCFRxIU0wNkQiMIOtFAIw+84fwUPyndZ3dP5HZ9109kfnHOicN51zDYkTMeLp/sD0uch4u6fYKZUpT/kAlg4kzx95J7Fr5qrl0//kt/iOlUdX9r0z89v/ztephyv9ugCwlvVWfyLWxbHr3PqeF0aqc1r1VKtua/UHfLbtOcpsT+ON6kP4PnWX3mli8a5I9ztcHVMZqq9Kfu2IY6V/W8I96RKuMrbr2r/VsFXcRAyXup4Z28CtT8XwA88b8q6F7lHGAAAAAElFTkSuQmCC";
+        var base64_btn_edit = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAMAAAANf8AYAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAVlQTFRFAAAAIEBgK1lwLVtxLF1yLVxyLVxyLVxyLV1zHFVxKlxwLFxyLFxxIFBwLFxyLFxyAAAALVxyLF1yLFxxKVpuLF1yKlpyLFxyK1xyLFxyLFtxLFxyLVtxLFtyLVlsLVxyL191UXmLqb3G8fT2obfAPmp/MGB1TXaIyNTa+fv7////qLzFPWp+LFxyAFVVLFtxZIiY/Pz99/n5THWILFpyIlVmnrS+7/L0L150LFtybo+eztnffZuoLVxyjaezQGyAQ26Ct8jP8/X35+3v9vj5lq65OWZ7WX+RoLbALFxxLFxx/f39RnGEtsbO8/b3orfBNWN4LF1y6u/xT3eJ5evtcZKhNmR5P2t/LFtxWoCRLFxyLFxxLFxyLFxysMLKLFtxiqWxUnqMLl1z+/z8K1txHlppLFxyLFxxLFxyK1pxK1xyLVxyK1xyLFtyLVxyLFxyKltyLFxyKVpxVVcuIwAAAHN0Uk5TAAhCfqjO5fD/CVu19xCA6wJn7e4lyVXxd/6Mi3hXKPX/////////////////ygNo/////24P////ef///+r//////////////1ay////////s////////63/0NHp+f/y/////4ERaW/LWH3vgly3+EN/RCdb3HoAAALASURBVHicnZbBTxNBFMbnYWkLzbYlYlOaFgIBw8GIGkkgMRoPHtCYoByqCNFElGjiX+PBGAgHY7yggr3gwahp1IbQREOi0VgOCCqSRoRqaTdtx9nZYZndndmSfpfdeTO/7Pvmzc4MIJuACTPZB1jaDWRwiQ+4CLXtxCgARfuHPRjnZEwQIG8nNPkq+I+QaYacfbSRAc4KmBBsyhGEAnjdxoRhwwlBqAmvWZjIb2dC0/7vJiaalQ/dVfMqx8RKVRJj6ZXXDaYVfsmGhemSWGGtQDnLmGC9dJJbNYKspgxrd8GizvR8kWbTXWggC8Nb9H5kgUNpyvQuSapPdDhHk1f+Kh/0gK9jQWP630sRdIxVTalPs8jRFGHgxILES6Mf5vsAaClb3rKoZwsDCm1JEIAoQPKUqs0pbnu9Ez89B+jsSzGj2W8vu170KUuoE+D5TnxgBsBXEiKxfWSSUXe+kjynZg5+XjY6XGWoc4uRnk/02a6q8+g8JLguFfyqyEtjoY69eoKhZ+ZON1yaFSC0+kyRAzPm3kEYfmpn9Orr6gRPwtw7BCOPbYhuXxfm7euqwOi0DWH2aWKRQsLaHwevJcLZJ0j0R9KeuvU7Jvu4d02AxK1+nO1TVSzzdvKbo32qIXN9Yv1p411kn2qQXwfEPldKoX1Nbm69hT1V7VOp3Lq+nKpqXxNZ1+jCHGucycjsDz/iGuT/QQOvWONKyvBisW9itP8U/CyjDiN8PLWCZKL7ARp7aGYc7BONTGp71Y0neZ5xsE/kuzhB99GbDzhGVn2mq/dN+zVlpNXXde3dYvVzwazdcwGhW7N7O3+O0FqyMt6e2gtjOudqOk9rOrdruh+QbFu+ypGun6J7CKlT2+o/MXH9zbL4vkOkxKdF96rR4gTftt3fxmDKdLiMYzzpeH/TsXG4C9C0GdjA+A7c27YN+A/HauWePAVsMgAAAABJRU5ErkJggg==";
+        
+        
+        var swiper_wrapper =document.getElementById("swiper_wrapper");
+        var swiper = null;
+   
+        const IMAGE_FOLDER_NAME = "gallery";
+        var imagenum = 100;
+        var imagepercent = 100;
+        var now = new Date();
+        var now_page = 1;
+        var max_count = 20;
+//        var max_count = 7;//test
+
+        var projectid = getParam("projectid") ? getParam("projectid") : "sample"; 
+        var groupidx = getParam("groupidx") ? getParam("groupidx") : 0; 
+        var listid = getParam("listid") ? getParam("listid") : 0;  //게시판 아이디
+        var editmode = getParam("editmode") ? getParam("editmode") : 0;  //게시판 아이디
+        var gamemode = getParam("gamemode") ? getParam("gamemode") : 0;
+        var imgfoldername = getParam("imgfoldername") ? getParam("imgfoldername") : IMAGE_FOLDER_NAME;
+        var orientation = getParam("orientation") ? getParam("orientation") : "P";
+        var imgw = getParam("imgw") ? getParam("imgw") : "100%"; //세로화면일때 이미지를 가로로 꽉차게한다.
+        var imgh = getParam("imgh") ? getParam("imgh") : "700px"; //가로화면일때 이미지를 세로 높이로 맞춘다.
+        var isinfo = getParam("isinfo") ? getParam("isinfo") : 0; //메인이미지에 파일명을 표시할지 선택 1 :파일명표시 , 0
+        
+        var nowindex = 0; //
+        
+        var div_charactor_bottom = document.getElementById("div_charactor_bottom");
+        var div_main_bg = document.getElementById("div_main_bg");
+        var main_image = document.getElementById("main_image");
+        var btn_game = document.getElementById("btn_game");
+        var btn_rank = document.getElementById("btn_rank");
+        
+        div_charactor_bottom.style.width ="auto";
+        div_charactor_bottom.style.height ="auto";
+        var main_div_height = 0;
+       
+        if(gamemode == 1) {
+            btn_game.style.display = "block";
+        }
+        else {
+            btn_game.style.display = "none";
+        }
+        if(editmode == 1) {
+            btn_rank.style.display = "block";
+        }
+        else {
+            btn_rank.style.display = "none";
+        }
+        //큰이미지 : 가운데선택된 캐릭터이미지들을 그린다.
+        function initMainImage(){
+            console.log("initMainImage 000");
+            var maxnum = 1;
+            
+            if(!alldatas || alldatas.length == 0)return;
+            
+            var filename = alldatas[nowindex].filename;
+            
+            var stylewh  = alldatas[nowindex].orientation == "portrait" ? "height:"+(content_height*0.8)+"px" : "width:"+(content_height*0.8)+"px";
+            
+            
+            
+            console.log("stylewh "+stylewh);
+            hideGame();
+            //이미지를 그린다.
+
+            setBottomBGColor();
+        }
+        function calculateSwiperContainerHeight() {
+            var screenHeight = window.innerHeight;
+
+            
+            var bottomBar = document.getElementById('bottomBar');
+
+            
+            var bottomBarHeight = bottomBar ? bottomBar.offsetHeight : 0;
+
+            var swiperHeight = screenHeight - bottomBarHeight;
+
+            return swiperHeight;
+        }
+//        var before_nowindex = -1;
+        function setBottomBGColor(){
+//            var before_div = document.getElementById("div_bottom_rect_"+before_nowindex);
+            var before_divs = document.getElementsByClassName("div_bottom_rect");
+             for(var i = 0 ; i < before_divs.length; i++){
+                    
+                 before_divs[i].style.backgroundColor = "white";
+                 before_divs[i].style.width = "130px";
+                 before_divs[i].style.height = "130px";
+            }
+            
+            var now_div = document.getElementById("div_bottom_rect_"+nowindex);
+             if(now_div){
+                 now_div.style.backgroundColor = "#ffff99";
+                 now_div.style.width = "150px";
+                 now_div.style.height = "150px";
+             }
+            if(isinfo == 1)document.getElementById("label_main_filename").innerText = alldatas[nowindex].filename;
+            
+        }
+       
+        var screen_width = $(window).width();
+        
+        var swiper_container = document.getElementById("swiper_container");
+        
+        var content_height = 0;
+        
+        var alldatas = [];
+        var puzzlelist = [];
+        $(document).ready(function() {
+             
+            content_height = calculateSwiperContainerHeight();
+            swiper_container.style.height = content_height;
+            
+           
+//            var mainbg_width  = parseInt(content_height * 0.8);
+//            console.log("mainbg_width " + mainbg_width);
+
+            // 수정된 부분
+//            div_main_bg.style.width = mainbg_width + "px";
+//            div_main_bg.style.height = mainbg_width + "px";
+            
+            var screenWidth = window.innerWidth;
+            var screenHeight = window.innerHeight;
+            console.log(editmode+" screenWidth "+screenWidth+" screenHeight "+screenHeight);
+            if(editmode == 0){
+                if(screenWidth < screenHeight){
+                    console.log("000");
+                    div_main_bg.style.width = "100%";
+                    div_main_bg.style.height = "auto";
+                }else{
+                    console.log("111");
+                      div_main_bg.style.width = "70%";
+                    div_main_bg.style.height = "auto";
+//                  
+                    
+                }
+            }else{
+                console.log("222");
+                div_main_bg.style.width = "100%";
+                div_main_bg.style.height = "auto";
+                
+            }
+
+            
+            loadImages(now_page,max_count);
+            if(editmode == 1){
+                document.getElementById("div_edit_btns").style.display = "block";
+                div_main_bg.style.width ="500px";
+                div_main_bg.style.height ="500px";
+                main_image.style.width ="500px";
+                main_image.style.height ="500px";
+            }else {
+                 document.getElementById("div_edit_btns").style.display = "none";
+            }
+           
+            
+        });
+        
+        
+        
+        var swiper = null;
+        var isLoadingImages = false;
+        var isSwiperInitialized = false;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('div_charactor_bottom');
+
+            container.addEventListener('scroll', function () {
+                const scrollLeft = container.scrollLeft;
+                const scrollWidth = container.scrollWidth;
+                const clientWidth = container.clientWidth;
+
+                if (scrollLeft + clientWidth >= scrollWidth - 1) {
+                    loadNextImages();
+                }
+            });
+
+            var _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "type": "puzzle"
+            };
+
+            AJAX_AdmGetGame("getrankinglist", _data, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+                    puzzlelist = res.message;
+                    console.log("puzzlelist is ", puzzlelist);
+                }
+            });
+        });
+
+        function loadNextImages() {
+            if (isLoadingImages) return;   // 중복 호출 방지
+            console.log("다음이미지들 로드한다.");
+            loadImages(now_page, max_count);
+        }
+
+        function loadImages(page, max) {
+            if (isLoadingImages) return;
+            isLoadingImages = true;
+
+            var _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "page": page,
+                "imgfoldername": imgfoldername,
+                "maxcount": max
+            };
+
+            AJAX_AdmGetGame("getgallerydata", _data, function(res) {
+                console.log("------------- " + imgfoldername);
+                console.log("이미지로드했다. is ", res);
+
+                var code = parseInt(res.code);
+
+                 if (code == 100) {
+                    var getdatas = res.message || [];
+
+                    if (getdatas.length === 0) {
+                        isLoadingImages = false;
+                        return;
+                    }
+
+                    // 추가 전 기존 개수 저장
+                    var oldCount = alldatas.length;
+
+                    for (var i = 0; i < getdatas.length; i++) {
+                        alldatas.push(getdatas[i]);
+                    }
+
+                    if (!isSwiperInitialized) {
+                        // 최초에는 DOM에 직접 넣고 init
+                        appendSlidesToDom(getdatas, oldCount);
+
+                        init();
+                        isSwiperInitialized = true;
+
+                        // 최초 한 번만
+                        initMainImage();
+                    } else {
+                        // 이후에는 swiper API로 추가
+                        appendSlidesToSwiper(getdatas, oldCount);
+
+                        refreshSwiperAfterAppend(oldCount);
+                    }
+
+                    addBottomImages(getdatas);
+                    now_page++;
+                }
+
+                isLoadingImages = false;
+            });
+        }
+        function refreshSwiperAfterAppend(firstNewIndex) {
+            if (!swiper) return;
+
+            if (swiper.params.loop) {
+                swiper.loopDestroy();
+                swiper.update();
+                swiper.loopCreate();
+                swiper.update();
+
+                // 새로 추가된 첫 번째 이미지로 이동
+                swiper.slideToLoop(firstNewIndex, 0, false);
+            } else {
+                swiper.update();
+                swiper.slideTo(firstNewIndex, 0, false);
+            }
+
+            if (swiper.autoplay && !swiper.autoplay.running) {
+                swiper.autoplay.start();
+            }
+        }
+        function appendSlidesToDom(getdatas, startIndex) {
+            for (var i = 0; i < getdatas.length; i++) {
+                var data = getdatas[i];
+                var path = "../school/" + projectid + "/v" + groupidx + "/contentdata/" + imgfoldername + "/" + data.filename;
+
+                var div = document.createElement("div");
+                div.className = "swiper-slide";
+
+                var img = document.createElement("img");
+                img.src = path;
+
+                if (orientation == "P") {
+                    img.style.width = imgw;
+                } else {
+                    img.style.height = imgh;
+                }
+
+                img.style.objectFit = "cover";
+                img.id = "img_swiper_" + (startIndex + i);
+                img.setAttribute("alt", "Image " + (startIndex + i));
+
+                div.appendChild(img);
+                swiper_wrapper.appendChild(div);
+            }
+        }
+
+        function appendSlidesToSwiper(getdatas, startIndex) {
+            if (!swiper) return;
+
+            var slides = [];
+
+            for (var i = 0; i < getdatas.length; i++) {
+                var data = getdatas[i];
+                var path = "../school/" + projectid + "/v" + groupidx + "/contentdata/" + imgfoldername + "/" + data.filename;
+                slides.push(makeSlideHtml(path, startIndex + i));
+            }
+
+            swiper.appendSlide(slides);
+        }
+        function makeSlideHtml(path, idx) {
+            var styleText = "";
+
+            if (orientation == "P") {
+                styleText += "width:" + imgw + ";";
+            } else {
+                styleText += "height:" + imgh + ";";
+            }
+
+            styleText += "object-fit:cover;";
+
+            return (
+                "<div class='swiper-slide'>" +
+                    "<img " +
+                        "src='" + path + "' " +
+                        "id='img_swiper_" + idx + "' " +
+                        "alt='Image " + idx + "' " +
+                        "style='" + styleText + "'" +
+                    ">" +
+                "</div>"
+            );
+        }
+        function appendSlides(getdatas) {
+            for (var i = 0; i < getdatas.length; i++) {
+                var data = getdatas[i];
+                var path = "../school/" + projectid + "/v" + groupidx + "/contentdata/" + imgfoldername + "/" + data.filename;
+
+                var div = document.createElement("div");
+                div.className = "swiper-slide";
+
+                var img = document.createElement("img");
+                img.src = path;
+                
+                console.log("orientation "+orientation);
+                //세로일때
+                if(orientation == "P")
+                    img.style.width = imgw;
+                //가로일때
+                else 
+                    img.style.height = imgh;       // 필요 시 고정
+                img.style.objectFit = "cover";    // 필요 시 contain으로 변경
+                img.id = "img_swiper_" + (swiper_wrapper.children.length + i);
+                img.setAttribute("alt", "Image " + (swiper_wrapper.children.length + i));
+
+                div.appendChild(img);
+                swiper_wrapper.appendChild(div);
+            }
+        }
+
+        function init() {
+            if (swiper) return;   // 이미 있으면 다시 만들지 않음
+
+            swiper = new Swiper('.swiper', {
+                speed: 500,
+                loop: true,
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                }
+            });
+
+            swiper.on('slideChange', function () {
+                console.log('현재 인덱스:', swiper.realIndex);
+                nowindex = swiper.realIndex;
+                setBottomBGColor();
+            });
+        }
+
+        function refreshSwiper() {
+            if (!swiper) return;
+
+            var currentRealIndex = swiper.realIndex;
+
+            if (swiper.params.loop) {
+                swiper.loopDestroy();
+                swiper.update();
+                swiper.loopCreate();
+                swiper.update();
+                swiper.slideToLoop(currentRealIndex, 0, false);
+            } else {
+                swiper.update();
+                swiper.slideTo(currentRealIndex, 0, false);
+            }
+
+            if (swiper.autoplay && !swiper.autoplay.running) {
+                swiper.autoplay.start();
+            }
+        }
+        //하단 이미지들 그린다.
+      function addBottomImages(getdatas) {
+            var container = document.getElementById('div_charactor_bottom');
+
+            for (var i = 0; i < getdatas.length; i++) {
+                var num = i;
+                var data = getdatas[i];
+                var bgcolor = "white";
+
+                // 외부 wrapper
+                var bgdiv = document.createElement("div");
+                bgdiv.align = "center";
+                bgdiv.setAttribute('draggable', 'false');
+                bgdiv.style.display = "flex";
+                bgdiv.style.flexDirection = "column";
+                bgdiv.style.alignItems = "center";
+                bgdiv.style.marginLeft = '10px';
+                bgdiv.style.marginRight = '10px';
+                bgdiv.style.marginTop = '10px';
+
+                // 드래그로 인한 선택 방지
+                bgdiv.onmousedown = function(e) {
+                    e.preventDefault();
+                };
+
+                // 이미지 박스
+                var div = document.createElement('div');
+                div.style.position = 'relative'; // 중요!
+                div.style.flex = '0 0 auto';
+                div.style.width = '130px';
+                div.style.height = '130px';
+                div.style.borderRadius = '15px';
+                div.style.border = '3px solid #e9e9e9';
+                div.style.backgroundColor = bgcolor;
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.justifyContent = 'center';
+                div.style.overflow = 'hidden';
+
+                // 이미지
+                var img = document.createElement('img');
+//                img.id = "img_"+random_staring();
+                img.src = "../school/"+projectid+"/v"+groupidx+"/contentdata/"+imgfoldername+"/" + data.filename;
+                img.setAttribute('draggable', 'false');
+                img.style.userSelect = 'none';
+                img.style.display = 'block';
+
+                if (data.orientation == "portrait") {
+                    img.style.height = '120px';
+                    img.style.width = 'auto';
+                } else {
+                    img.style.width = '120px';
+                    img.style.height = 'auto';
+                }
+
+                div.appendChild(img);
+
+               
+
+                // 텍스트 라벨
+                var label = document.createElement("div");
+                label.innerHTML = removeFileExtension(data.filename);
+                label.style.color = "black";
+                label.style.fontSize = "13px";
+                label.style.marginTop = "5px";
+                label.style.padding = "0";
+                label.style.lineHeight = "1";
+                label.style.textAlign = "center";
+
+                bgdiv.appendChild(div);
+                bgdiv.appendChild(label);
+                container.appendChild(bgdiv);
+
+                const _index = container.children.length - 1;
+                div.className = "div_bottom_rect";
+                div.id = 'div_bottom_rect_' + _index;
+                const imgid = "img_"+_index;
+                img.id = imgid;
+                
+                 // 수정 , 삭제 버튼 (X)
+                if (editmode == 1) {
+                    var x_btn = document.createElement("img");
+                    x_btn.src = base64_btn_x;
+                    x_btn.style.position = "absolute"; // 우측 상단 고정
+                    x_btn.style.top = "0px";
+                    x_btn.style.right = "0px";
+                    x_btn.style.width = "20px";
+                    x_btn.style.height = "20px";
+                    x_btn.style.cursor = "pointer";
+                    x_btn.setAttribute('draggable', 'false');
+
+                    const _data = data;
+                    console.log("_data ",_data);
+                    x_btn.onclick = function() {
+                        deleteImage(_data);
+                    };
+                    div.appendChild(x_btn);
+                    
+                    var edit_btn = document.createElement("img");
+                    edit_btn.src = base64_btn_edit;
+                    edit_btn.style.position = "absolute"; // 우측 상단 고정
+                    edit_btn.style.top = "0px";
+                    edit_btn.style.right = "25px";
+                    edit_btn.style.width = "20px";
+                    edit_btn.style.height = "20px";
+                    edit_btn.style.cursor = "pointer";
+                    edit_btn.setAttribute('draggable', 'false');
+
+                    
+                    console.log("_data ",_data);
+                    edit_btn.onclick = function() {
+                        updateImage(_data,imgid);
+                    };
+                    div.appendChild(edit_btn);
+                }
+                
+                img.onclick = (function () {
+                    
+                    galleryImageClick(_index);
+                    hideGame();
+                });
+            }
+
+            // container 스타일 설정
+            container.style.display = 'flex';
+            container.style.flexDirection = 'row';
+            container.style.overflowX = 'auto';
+            container.style.overflowY = 'hidden';
+            container.style.whiteSpace = 'nowrap';
+//            container.style.scrollbarWidth = 'none';
+            container.style.msOverflowStyle = 'none';
+        }
+
+        function addImage() {
+            let input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+
+            input.onchange = function () {
+                let file = input.files[0];
+                if (!file) return;
+
+                const _data = {
+                    "projectid": projectid,
+                     "groupidx": groupidx,
+                    "imgfoldername":imgfoldername,
+                    "listnameid": listid                    
+                };
+                uploadFormProcess("../../ssapi/adm_game.php","insertgalleryimage",_data,null,null,input,function(res){
+                    console.log("res",res);
+                    if (res == "success") {
+                        console.log("갤러리이미지 추가 성공!!");
+                        reloadPage();
+                    }
+                }); 
+            };
+
+            document.body.appendChild(input);
+            input.click();
+            document.body.removeChild(input);
+        }
+        
+        function updateImage(imagedata, imgid) {
+            let input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+
+            input.onchange = function () {
+                let file = input.files[0];
+                if (!file) return;
+
+                const _data = {
+                    "projectid": projectid,
+                    "groupidx": groupidx,
+                    "listnameid": listid,
+                    "filename" : imagedata.filename
+                };
+                uploadFormProcess("../../ssapi/adm_game.php","updategalleryimage",_data,null,null,input,function(res){
+                    console.log("res",res);
+                    if (res == "success") {
+                        console.log("갤러리이미지 업데이트 성공!!");
+                        
+                        
+                        //////////////////////////////////////////
+                        // 이미지 새로고침
+                        //////////////////////////////////////////
+                        const el = document.getElementById(imgid);
+                        if (!el){
+                          return;  
+                        } 
+
+                        // 공통: 기존 src에서 쿼리스트링 제거하고 타임스탬프를 붙여 유니크하게 변경
+                        const base = el.getAttribute('src').split('?')[0];
+                        const newSrc = `${base}?_=${Date.now()}`;
+                        el.src = newSrc;
+                        
+                        reloadPage();
+                        
+                    }
+                }); 
+            };
+
+            document.body.appendChild(input);
+            input.click();
+            document.body.removeChild(input);
+        }
+        function deleteImage(imagedata){
+            console.log("deleteImage ");
+            C_showConfirmPopup({
+                message: `"${imagedata.filename}" 를 삭제하시겠습니까?`,
+                onConfirm: () => deleteImageData(imagedata, "delete")
+            });
+        }
+        function deleteImageData(imagedata , type){
+            const _data = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                "listnameid": listid,
+                 "imgfoldername" : imgfoldername,
+                "imagedata": imagedata,
+                "type": type
+            };
+            AJAX_AdmGetGame("deletegalleryimage", _data, function (res) {
+                console.log("getgallerydata res is ", res);
+                const code = parseInt(res.code);
+                if (code === 100) {
+                    reloadPage();
+                    
+                } else {
+                    alert("데이터를 불러오지 못했습니다.");
+                }
+            });
+        }
+        
+
+        
+        function UrlExists(url)
+        {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            return http.status!=404;
+        }
+        function galleryImageClick(index){
+            console.log("index is "+index);
+            nowindex = index;
+//            before_nowindex = nowindex;
+            
+//            swiper.realIndex = index;//
+            swiper.slideToLoop(index);
+           initMainImage();
+            
+        }
+        
+        
+         function getRankingTag(){
+             var ranking_tag  ="";
+              
+             console.log("puzzlelist is ",puzzlelist);
+            for(var i = 0 ;i < puzzlelist.length;i++){
+                var rank = puzzlelist[i];
+                var rank_date = rank.date ? rank.date : "";
+                ranking_tag += `
+                <div class="bg-white p-6 rounded-lg shadow flex justify-between items-center highlight" style="background-color:white">
+                    <div class="flex items-center space-x-3"  >
+                        <p class="text-xl font-semibold">${i+1}등 ${rank.nickname}</p><br>
+                        <p class="text-sm text-gray-500"  style="margin-left:40px">${rank_date}</p>
+                    </div>
+                    <div class="space-x-2" style="margin-left:40px">
+                        <p class="text-sm text-gray-500"  style="margin-left:40px">${rank.score}점</p>
+                        <button class="text-sm text-green-600 border border-green-600 rounded px-3 py-1 hover:bg-red-100" onclick="removeRank('${rank.nickname}','${rank.score}')">삭제</button>
+                    </div>
+                    
+                </div>
+                <br>
+                
+                `;
+            }
+             if(!ranking_tag)ranking_tag = "<div style='height:150px;padding-top:60px'>목록이 없습니다.</div>";
+            return ranking_tag;
+        }
+        
+        function showPuzzleRanking(){
+                
+    
+            var message_tag = `<div id='div_puzzlelist' style='min-width:600px'>
+                                     <h1 class="text-3xl font-bold mb-6">📊 순위</h1>
+                                    <button id='add_mp3' style="float:right;background-color:#f2faf9;width:140px;height:auto;padding:10px;border-radius:10px;border:1px solid #eeeeee;margin-top:-60px;margin-right:2px;" onclick="removeRank()" title="모든순위를 삭제합니다.">순위 전부삭제</button>
+                                    ${getRankingTag()}
+                                </div>`;
+            //<button class="w-full bg-blue-600 text-white text-xl font-semibold p-4 rounded-lg">교가 저장</button>
+            
+            C_showConfirmPopup({
+                message: message_tag,
+                onConfirm: () => null
+            });
+           
+        }
+       
+        //파라메터가 없다면 전체 삭제
+         function removeRank(nickname, score) {
+            var rankdata = null;
+            for (var i = 0; i < puzzlelist.length; i++) {
+                if (puzzlelist[i].nickname == nickname) {
+                    rankdata = puzzlelist[i];
+                    break;
+                }
+            }
+            C_showConfirmPopup({
+                message:nickname &&  score ? "<span style='color:blue'>[" + rankdata.nickname + "]</span><br> 을 삭제하시겠습니까?" : "전체 순위를 삭제하시겠습니까?",
+                onConfirm: () => sendDeleteRank(rankdata),
+            });
+           
+             
+            
+
+        } 
+        function sendDeleteRank(rankdata) {
+            
+            var _cdata = {
+                "projectid": projectid,
+                "groupidx": groupidx,
+                
+                "rankdata": rankdata
+                
+                
+            }
+            //현재 교가 아이디를 가져온다.
+            AJAX_AdmGetGame("deleterank", _cdata, function(res) {
+                var code = parseInt(res.code);
+                if (code == 100) {
+
+
+                    var new_puzzlelist = [];
+                    if(rankdata)
+                    for (var i = 0; i < puzzlelist.length; i++) {
+                        if (puzzlelist[i].nickname != rankdata.nickname || puzzlelist[i].score != rankdata.score) {
+                            new_puzzlelist.push(puzzlelist[i]);
+                        }
+                    }
+                    puzzlelist = new_puzzlelist;
+                    console.log("delete puzzlelist ",puzzlelist);
+                    if(document.getElementById("div_puzzlelist"))document.getElementById("div_puzzlelist").innerHTML = getRankingTag();
+                    if(rankdata)
+                        alertMsg(rankdata.nickname+" 삭제 성공!");
+                    else 
+                        alertMsg("전체 순위 삭제 성공!");
+                }
+
+            });
+        }
+        
+        ////////////////////////////////////////////////////////////
+        // 퍼즐게임 START
+        ////////////////////////////////////////////////////////////
+        
+        
+        
+        
+        
+        
+        
+        
+        const TILE_SIZE = 220;
+        const ROWS = 4;
+        const COLS = 4;
+        let tiles = [];
+        let blankIndex = 15;
+        let startTime = null;
+        let timerInterval = null;
+        let MAX_MIX_COUNT = 150;
+        var isgame = false;
+        var rankingData = {};
+        
+        function updateTimer() {
+            const now = Date.now();
+            const elapsed = (now - startTime) / 1000;
+            document.getElementById('timer').textContent = "시간: "+elapsed.toFixed(2);
+            
+            if(elapsed > 600){
+                clearInterval(timerInterval);
+                const msg = document.getElementById('clear-message');     
+                msg.style.display = "block";
+                msg.innerHTML = "시간초과! 연습좀 더하고 오도록~~";
+                setTimeout(function(){
+                    hideGame();
+                },3000);
+            }
+        }
+        
+            
+         function hideGame(){
+            isgame = false;
+            const container = document.getElementById('puzzle-container');
+            const img = document.getElementById('swiper');
+            var clearmessage = document.getElementById("clear-message");
+            const timer = document.getElementById("timer");
+            const div_ranking = document.getElementById("div_ranking");
+            
+            
+            img.style.display = "block";
+            clearmessage.innerHTML = "";
+            clearmessage.style.display = "none";
+            container.style.display = "none";
+            timer.style.display = "none";
+            
+            div_ranking.style.display = "none";
+            clearInterval(timerInterval);
+        }
+        function showGame(){
+            const container = document.getElementById('puzzle-container');
+            const img = document.getElementById('swiper');
+            const timer = document.getElementById("timer");
+            const div_ranking = document.getElementById("div_ranking");
+            
+            container.style.display = "block";
+            img.style.display = "none";
+            timer.style.display = "block";
+            div_ranking.style.display = "block";
+            
+            timer.innerHTML = "시간 : 0.00";
+        }
+        function createTile(x, y, index, imgSrc) {
+            const tile = document.createElement('div');
+            tile.classList.add('tile');
+            tile.style.left = `${x * TILE_SIZE}px`;
+            tile.style.top = `${y * TILE_SIZE}px`;
+            tile.style.backgroundImage = `url(${imgSrc})`;
+            tile.style.backgroundPosition = `-${(index % COLS) * TILE_SIZE}px -${Math.floor(index / COLS) * TILE_SIZE}px`;
+            tile.dataset.index = index;
+
+            tile.addEventListener('click', () => moveTile(tile));
+
+            return tile;
+        }
+        function moveTile(tile) {
+            console.log("isgame is "+isgame);
+            if(!isgame)return;
+            const tilePos = tiles.findIndex(t => t && t.element === tile);
+            const tileX = tilePos % COLS;
+            const tileY = Math.floor(tilePos / COLS);
+            const blankX = blankIndex % COLS;
+            const blankY = Math.floor(blankIndex / COLS);
+
+            const dx = Math.abs(tileX - blankX);
+            const dy = Math.abs(tileY - blankY);
+
+            if ((dx + dy) === 1) {
+                tile.style.left = `${blankX * TILE_SIZE}px`;
+                tile.style.top = `${blankY * TILE_SIZE}px`;
+                tiles[blankIndex] = tiles[tilePos];
+                tiles[tilePos] = undefined;
+                blankIndex = tilePos;
+
+                checkIfSolved();
+            }
+        }
+        //게임종료인지 체크
+        function checkIfSolved() {
+            for (let i = 0; i < 15; i++) {
+                if (!tiles[i] || parseInt(tiles[i].element.dataset.index) !== i) {
+                    return;
+                }
+            }
+
+            
+            const time = ((Date.now() - startTime) / 1000).toFixed(2);
+            const rank_str = ["["+time+"초]<br> 너는 세계최고 퍼즐게이머!", "["+time+"초]<br>최고다음~~잘했어~", "["+time+"초]<br>이정도면 선방했어~"];
+            const msg = document.getElementById('clear-message');
+            const rank = updateRankingData(time);
+            
+            msg.innerHTML = rank >= 0 && rank <3 ? rank_str[rank] : "분발해봐!<br>"+time+"초";
+            msg.style.display = 'block';
+            clearInterval(timerInterval);
+            if(rank < 0 || rank >= 3){
+                
+                setTimeout(function(){
+                    hideGame();
+                },3000);
+            }
+                
+        }
+        function updateRankingData(time) {
+            let rank = -1;
+
+            for (let i = 0; i < rankingData.puzzle.length; i++) {
+                if (time <= rankingData.puzzle[i].score) {
+                    rank = i;
+                    break;
+                }
+            }
+
+            if (rankingData.puzzle.length < 3) {
+                if (rank === -1) {
+                    rank = rankingData.puzzle.length;
+                }
+            } else if (rank === -1 || rank >= 3) {
+                // 3등 안에 못 들어감
+                return -1;
+            }
+
+            showInputRankingPopup(time, rank);
+            return rank;
+        }
+        //1,2,3 등안에 들었을때
+        function showInputRankingPopup(score, rank) {
+            const popup = document.getElementById('ranking-popup');
+            const input = document.getElementById('nickname-input');
+            var txt_ranking = document.getElementById("txt_ranking");
+            input.value = '';
+            
+            popup.style.display = 'block';
+            txt_ranking.innerHTML = "순위 : "+(rank+1)+"등<br>축하합니다. 랭킹에 등록되었습니다. 닉네임을 입력해 주세요";
+
+            // 저장 이벤트를 위한 전역 상태 저장
+            window._pendingRanking = { score, rank };
+        }
+
+        function submitNickname() {
+            const input = document.getElementById('nickname-input');
+            const nickname = input.value.trim();
+            if (!nickname) return;
+
+            const popup = document.getElementById('ranking-popup');
+            popup.style.display = 'none';
+
+            if (window._pendingRanking) {
+                const { score, rank } = window._pendingRanking;
+                saveRanking(nickname, score, rank);
+                window._pendingRanking = null;
+            }
+        }
+                                      
+        //이미지 정사각형으로 잘라서 준비
+        function cropImageToSquare(callback) {
+//            const img = document.getElementById('main_image');//aaaaa
+            
+            const img = document.querySelectorAll('.swiper-slide')[swiper.realIndex].querySelector('img');
+            console.log("cropImageToSquare ",img);
+            const canvas = document.getElementById('cropped_canvas');
+            const ctx = canvas.getContext('2d');
+
+            //img.onload = () => {
+                const sw = img.naturalWidth;
+                const sh = img.naturalHeight;
+                const side = Math.min(sw, sh);
+                const sx = (sw - side) / 2;
+                const sy = (sh - side) / 2;
+
+                canvas.width = TILE_SIZE*4;
+                canvas.height = TILE_SIZE*4;
+
+                // Draw square cropped image into canvas
+                ctx.drawImage(img, sx, sy, side, side, 0, 0, TILE_SIZE*4, TILE_SIZE*4);
+
+                const croppedDataUrl = canvas.toDataURL();
+                callback(croppedDataUrl);
+            
+        }
+      
+        function start_puzzlegame(){
+            console.log("start_puzzlegame!!");
+            if(!isgame)
+            cropImageToSquare((croppedImg) => {
+                
+                start_puzzle(croppedImg);
+                startMessage()
+                loadRanking();
+            });
+        }
+        //랭킹세팅
+        function loadRanking(){
+            
+            var _data = {
+                "projectid":projectid,
+                "groupidx":groupidx,
+                "type":"puzzle"
+            };
+            AJAX_AdmGetGame("getrankinglist", _data, function (res) {
+                console.log("getgallerydata res is ", res);
+                const code = parseInt(res.code);
+                if (code === 100) {
+                   
+                    rankingData = res.message && res.message.length > 5 ? JSON.parse(res.message) : {};
+                    
+                    if(!rankingData.puzzle)
+                        rankingData.puzzle = [];
+                    updateRankingUI();
+                     
+                } 
+            });
+        }
+        function saveRanking(nickname, score, rank){
+            var new_rank = [];
+            var brank = rankingData.puzzle;
+            brank.push({"nickname":nickname,"score":score});
+            // score 기준으로 오름차순 정렬
+            brank.sort((a, b) => a.score - b.score);
+
+            // 상위 3개만 유지 (필요한 경우)
+            if (brank.length > 3) {
+                brank = brank.slice(0, 3);
+            }
+            // 다시 rankingData 에 반영
+            rankingData.puzzle = brank;
+            
+            
+            var _data = {
+                "projectid":projectid,
+                "groupidx":groupidx,
+                "ranking":rankingData
+            };
+            if(rank >= 0 && rank < 3)
+            AJAX_AdmGetGame("setranking", _data, function (res) {
+                console.log("getgallerydata res is ", res);
+                const code = parseInt(res.code);
+                if (code === 100) {
+                    updateRankingUI();
+                    setTimeout(function(){
+                        hideGame();
+                    },5000);
+                } 
+            });
+        }                    
+        function updateRankingUI(){
+            var div_ranking = document.getElementById("div_ranking");
+            var lbl_rank1 = document.getElementById("lbl_rank1");
+            var lbl_rank2 = document.getElementById("lbl_rank2");
+            var lbl_rank3 = document.getElementById("lbl_rank3");
+            
+            console.log("updateRankingUI ",rankingData.puzzle);
+            for(var i = 0 ; i < rankingData.puzzle.length;i++){
+                if(i==0){
+                    lbl_rank1.innerHTML = rankingData.puzzle[i]["nickname"]+"<br><span style='color:blue;font-weight:400'>"+rankingData.puzzle[i]["score"]+"초</span>";
+                }else if(i==1){
+                    lbl_rank2.innerHTML = rankingData.puzzle[i]["nickname"]+"<br><span style='color:blue;font-weight:400'>"+rankingData.puzzle[i]["score"]+"초</span>";
+                }else 
+                    lbl_rank3.innerHTML = rankingData.puzzle[i]["nickname"]+"<br><span style='color:blue;font-weight:400'>"+rankingData.puzzle[i]["score"]+"초</span>";
+            }
+        }
+       function startMessage(){
+            const msg = document.getElementById('clear-message');
+            msg.innerText = "자 긴장하시고!!";
+            msg.style.display = 'block';
+            setTimeout(function(){
+                msg.innerText = "너의 실력을보여줘봐!";
+                setTimeout(function(){
+                
+                    msg.innerText = "시작!";
+                    setTimeout(function(){
+                        msg.style.display = "none";
+                        startTime = Date.now();
+                        timerInterval = setInterval(updateTimer, 100);
+                        isgame = true;
+                    },500);
+                },1500);
+            },2000);
+        }
+        function start_puzzle(imgSrc) {
+            
+            const container = document.getElementById('puzzle-container');
+            
+            showGame();
+//            const imgSrc = img.src;
+
+            // 초기화
+            container.innerHTML = '';
+            tiles = [];
+            blankIndex = 15;
+
+            let index = 0;
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    const realIndex = y * COLS + x;
+                    if (realIndex !== 15) { // 마지막 타일은 빈칸
+                        const tile = createTile(x, y, realIndex, imgSrc);
+                        container.appendChild(tile);
+                        tiles[realIndex] = { element: tile, x, y };
+                    }
+                }
+            }
+           
+            // 애니메이션으로 섞기 시작
+            shuffleAnimated(MAX_MIX_COUNT); //섞는횟수
+        }
+        //섞는 애니메이션
+       function shuffleAnimated(moves) {
+            let moveCount = 0;
+            let lastBlankIndex = -1; // 이전 빈칸 위치 저장
+            const directions = [
+                { dx: 0, dy: -1 }, // 위
+                { dx: 0, dy: 1 },  // 아래
+                { dx: -1, dy: 0 }, // 왼쪽
+                { dx: 1, dy: 0 }   // 오른쪽
+            ];
+
+//            const interval = setInterval(() => {
+           for(var i = 0 ; i < moves;i++){
+                const blankX = blankIndex % COLS;
+                const blankY = Math.floor(blankIndex / COLS);
+
+                const neighbors = [];
+
+                directions.forEach(({ dx, dy }) => {
+                    const nx = blankX + dx;
+                    const ny = blankY + dy;
+                    if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS) {
+                        const nIndex = ny * COLS + nx;
+                        if (tiles[nIndex]) {
+                            if (nIndex !== lastBlankIndex) {
+                                neighbors.push(nIndex);
+                            }
+                        }
+                    }
+                });
+
+                if (neighbors.length === 0) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                const randIdx = Math.floor(Math.random() * neighbors.length);
+                const tileIndex = neighbors[randIdx];
+                const tile = tiles[tileIndex];
+
+                // 이전 빈칸 기억
+                lastBlankIndex = blankIndex;
+
+                // 위치 교환
+                const tempX = tile.x;
+                const tempY = tile.y;
+
+                tile.x = blankIndex % COLS;
+                tile.y = Math.floor(blankIndex / COLS);
+                tile.element.style.left = `${tile.x * TILE_SIZE}px`;
+                tile.element.style.top = `${tile.y * TILE_SIZE}px`;
+
+                tiles[blankIndex] = tile;
+                tiles[tileIndex] = undefined;
+                blankIndex = tileIndex;
+
+                moveCount++;
+//                if (moveCount >= moves) {
+//                    clearInterval(interval);
+//                }
+           }
+//            }, 0);
+        }
+        
+        document.addEventListener("click", () => {
+          window.parent.postMessage("iframe_clicked", "*");
+        });
+        // ✅ 스크롤 이벤트
+        window.addEventListener("scroll", () => {
+          window.parent.postMessage("iframe_scrolled", "*");
+        });
+
+    </script>
+    
+    
+    
+
+</body>
+
+</html>
