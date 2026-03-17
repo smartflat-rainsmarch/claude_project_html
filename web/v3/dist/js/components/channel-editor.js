@@ -6,7 +6,9 @@
 
 'use strict';
 
-const channelEditor = {
+// Use var to allow re-declaration when page is reloaded via jQuery .load()
+// eslint-disable-next-line no-var
+var channelEditor = {
     // State
     homeData: null,       // Full tb_home row
     homedatas: [],        // hm_home_data parsed
