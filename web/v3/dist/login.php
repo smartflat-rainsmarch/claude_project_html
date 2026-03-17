@@ -245,11 +245,11 @@ $version = time();
             <form id="login-form" onsubmit="return handleLogin(event)">
                 <input type="hidden" id="csrf_token" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
                 <div class="form-group">
-                    <label class="form-label">아이디</label>
+                    <label class="form-label">이메일</label>
                     <div class="input-group">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" class="form-control" id="login-id" name="id"
-                               placeholder="아이디를 입력하세요" required autofocus>
+                        <i class="fas fa-envelope input-icon"></i>
+                        <input type="text" class="form-control" id="login-email" name="email"
+                               placeholder="이메일을 입력하세요" required autofocus>
                     </div>
                 </div>
 
@@ -283,14 +283,14 @@ $version = time();
         function handleLogin(event) {
             event.preventDefault();
 
-            const id = document.getElementById('login-id').value.trim();
+            const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
             const csrfToken = document.getElementById('csrf_token').value;
             const btn = document.getElementById('btn-login');
             const errorDiv = document.getElementById('error-message');
 
-            if (!id || !password) {
-                showError('아이디와 비밀번호를 입력해주세요.');
+            if (!email || !password) {
+                showError('이메일과 비밀번호를 입력해주세요.');
                 return false;
             }
 
@@ -299,15 +299,14 @@ $version = time();
             btn.disabled = true;
             errorDiv.style.display = 'none';
 
-            // Make login request with CSRF token
+            // Make login request to v3 login API
             $.ajax({
                 type: 'POST',
-                url: '../../../ssapi/login_web.php',
-                data: { id: id, password: password, csrf_token: csrfToken },
+                url: './api/login.php',
+                data: { email: email, password: password, csrf_token: csrfToken },
                 dataType: 'json',
                 success: function(response) {
                     if (response.code === 200 || response.code === '200') {
-                        // Login successful
                         window.location.href = 'main.php';
                     } else {
                         showError(response.message || '로그인에 실패했습니다.');
