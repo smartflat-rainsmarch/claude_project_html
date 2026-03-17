@@ -131,9 +131,8 @@ const channelEditor = {
         container.querySelector('.card-body').style.width = displayW + 'px';
         container.querySelector('.card-body').style.height = displayH + 'px';
 
-        // Build preview URL
-        const basePath = `../../../game/school/${d.hm_projectid}/v${d.hm_gr_idx || 0}/`;
-        iframe.src = basePath + 'index.html?t=' + Date.now();
+        // Build preview URL via game-preview proxy (injects data from smartflat_claude_html)
+        iframe.src = `./api/game-preview.php?hm_idx=${this.hmIdx}&t=${Date.now()}`;
     },
 
     /**
