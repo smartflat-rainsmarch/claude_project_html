@@ -60,7 +60,7 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $basePath = '/web/v3/dist/api/v3/router.php';
 $altPath = '/api/v3/';
 
-if (strpos($uri, $basePath) === 0) {
+if (strpos($uri, $basePath) !== false) {
     // Direct router.php access with query string routing
     $uri = $_GET['route'] ?? '';
 } elseif (strpos($uri, $altPath) !== false) {
@@ -96,7 +96,8 @@ $resources = [
     'device-groups' => 'device_group.php',
     'assets' => 'asset.php',
     'audit-logs' => 'audit.php',
-    'common-codes' => 'common_code.php'
+    'common-codes' => 'common_code.php',
+    'homes' => 'home.php'
 ];
 
 // Check resource exists

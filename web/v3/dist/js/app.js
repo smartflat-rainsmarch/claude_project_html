@@ -25,7 +25,8 @@ const V3App = {
         monitoring: { path: 'pages/monitoring/index.php', title: '모니터링' },
         version: { path: 'pages/version/index.php', title: '버전관리' },
         audit: { path: 'pages/audit/index.php', title: '감사로그' },
-        settings: { path: 'pages/settings/index.php', title: '설정' }
+        settings: { path: 'pages/settings/index.php', title: '설정' },
+        channel: { path: 'pages/channel/index.php', title: '화면 수정' }
     },
 
     // Sub-pages

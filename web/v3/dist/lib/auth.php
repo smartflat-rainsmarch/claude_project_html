@@ -36,7 +36,25 @@ class Auth {
             session_start();
         }
 
-        return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
+        // v3 native session
+        if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            return true;
+        }
+
+        // v1 compatible session (key_dev or key_real)
+        $devReal = (strpos($_SERVER["REQUEST_URI"] ?? '', "real") !== false) ? "_real" : "_dev";
+        if (isset($_SESSION['key' . $devReal]) && isset($_SESSION['authgroup' . $devReal])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Detect dev/real suffix for v1 session keys
+     */
+    private static function getDevReal() {
+        return (strpos($_SERVER["REQUEST_URI"] ?? '', "real") !== false) ? "_real" : "_dev";
     }
 
     /**
@@ -51,13 +69,29 @@ class Auth {
             return self::$currentUser;
         }
 
-        self::$currentUser = [
-            'id' => $_SESSION['user_id'] ?? null,
-            'username' => $_SESSION['username'] ?? null,
-            'name' => $_SESSION['user_name'] ?? null,
-            'role' => $_SESSION['user_role'] ?? self::ROLE_VIEWER,
-            'group_id' => $_SESSION['group_id'] ?? null
-        ];
+        // Try v3 native session first
+        if (isset($_SESSION['user_id'])) {
+            self::$currentUser = [
+                'id' => $_SESSION['user_id'] ?? null,
+                'username' => $_SESSION['username'] ?? null,
+                'name' => $_SESSION['user_name'] ?? null,
+                'role' => $_SESSION['user_role'] ?? self::ROLE_VIEWER,
+                'group_id' => $_SESSION['group_id'] ?? null
+            ];
+        } else {
+            // v1 compatible session
+            $dr = self::getDevReal();
+            $userinfo = $_SESSION['data' . $dr]['userinfo'] ?? [];
+            self::$currentUser = [
+                'id' => $userinfo['id'] ?? null,
+                'username' => $userinfo['id'] ?? null,
+                'name' => $userinfo['name'] ?? null,
+                'role' => self::mapAuthGroupToRole($_SESSION['authgroup' . $dr] ?? 0),
+                'group_id' => $userinfo['groupidx'] ?? null,
+                'auth_group' => $_SESSION['authgroup' . $dr] ?? 0,
+                'userinfo' => $userinfo
+            ];
+        }
 
         return self::$currentUser;
     }
@@ -66,14 +100,40 @@ class Auth {
      * Get current user ID
      */
     public static function id() {
-        return self::check() ? $_SESSION['user_id'] : null;
+        if (!self::check()) return null;
+
+        if (isset($_SESSION['user_id'])) {
+            return $_SESSION['user_id'];
+        }
+
+        $dr = self::getDevReal();
+        return $_SESSION['data' . $dr]['userinfo']['id'] ?? null;
+    }
+
+    /**
+     * Map v1 auth_group integer to v3 role constant
+     */
+    private static function mapAuthGroupToRole($authGroup) {
+        $authGroup = (int)$authGroup;
+        if ($authGroup >= 5) return self::ROLE_SYSTEM_ADMIN;
+        if ($authGroup >= 4) return self::ROLE_ADMIN;
+        if ($authGroup >= 3) return self::ROLE_OPERATOR;
+        if ($authGroup >= 2) return self::ROLE_CONTENT_MANAGER;
+        return self::ROLE_VIEWER;
     }
 
     /**
      * Get current user role
      */
     public static function role() {
-        return self::check() ? ($_SESSION['user_role'] ?? self::ROLE_VIEWER) : 0;
+        if (!self::check()) return 0;
+
+        if (isset($_SESSION['user_role'])) {
+            return $_SESSION['user_role'] ?? self::ROLE_VIEWER;
+        }
+
+        $dr = self::getDevReal();
+        return self::mapAuthGroupToRole($_SESSION['authgroup' . $dr] ?? 0);
     }
 
     /**

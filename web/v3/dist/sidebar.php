@@ -38,7 +38,15 @@
         <div class="menu-section">
             <div class="menu-section-title">콘텐츠</div>
 
-            <!-- Content Editor -->
+            <!-- Screen Editor (화면 수정) -->
+            <div class="menu-item">
+                <a class="menu-link" href="#" data-page="channel">
+                    <span class="menu-icon"><i class="fas fa-desktop"></i></span>
+                    <span class="menu-text">화면 수정</span>
+                </a>
+            </div>
+
+            <!-- Content Management -->
             <div class="menu-item">
                 <a class="menu-link has-submenu" href="#">
                     <span class="menu-icon"><i class="fas fa-edit"></i></span>
@@ -48,7 +56,7 @@
                 <div class="menu-submenu">
                     <a class="submenu-link" href="#" data-page="content">
                         <span class="submenu-bullet"></span>
-                        <span>화면 편집</span>
+                        <span>콘텐츠 목록</span>
                     </a>
                     <a class="submenu-link" href="#" data-page="content/templates">
                         <span class="submenu-bullet"></span>
