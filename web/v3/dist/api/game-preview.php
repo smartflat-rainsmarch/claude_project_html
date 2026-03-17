@@ -75,11 +75,13 @@ $region = htmlspecialchars($home['hm_region'] ?? '', ENT_QUOTES);
 $safetyOnoff = (int)($home['hm_safety_onoff'] ?? 0);
 $safetyClosetime = (int)($home['hm_safety_closetime'] ?? 0);
 $language = htmlspecialchars($home['hm_language'] ?? 'KO', ENT_QUOTES);
+$gameBaseUrl = "/claude_project/html/game/school/{$projectId}/v{$grIdx}/";
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
+    <base href="<?php echo $gameBaseUrl; ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preview - <?php echo htmlspecialchars($projectId); ?></title>
     <style>
@@ -159,10 +161,9 @@ $language = htmlspecialchars($home['hm_language'] ?? 'KO', ENT_QUOTES);
 // Extract script src tags
 preg_match_all('/<script[^>]+src="([^"]+)"[^>]*>/i', $indexHtml, $scriptMatches);
 
-$basePath = "/claude_project/html/game/school/{$projectId}/v{$grIdx}/";
-
+// With <base> tag set to game directory, use relative src paths
 foreach ($scriptMatches[1] as $idx => $src) {
-    $fullSrc = $basePath . $src;
+    $fullSrc = $src; // relative to <base>
 
     // Before main.js loads, inject the AJAX override
     if (strpos($src, 'main.js') !== false) {
