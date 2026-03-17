@@ -20,8 +20,8 @@ const V3Api = {
         upload: '../../../ssapi/adm_get.php'
     },
 
-    // v3 REST API base URL
-    baseUrl: './api/v3',
+    // v3 REST API base URL (routed through router.php)
+    baseUrl: './api/v3/router.php',
 
     // Default timeout (ms)
     timeout: 30000,
@@ -52,13 +52,23 @@ const V3Api = {
      * @param {Object} params - Query parameters
      * @returns {Promise<Object>}
      */
-    async get(path, params = {}) {
-        const url = new URL(this.baseUrl + path, window.location.origin + window.location.pathname);
+    /**
+     * Build URL with route parameter for router.php
+     */
+    buildUrl(path, params = {}) {
+        const route = path.startsWith('/') ? path.substring(1) : path;
+        const url = new URL(this.baseUrl, window.location.origin + window.location.pathname);
+        url.searchParams.set('route', route);
         Object.keys(params).forEach(key => {
             if (params[key] !== undefined && params[key] !== null) {
                 url.searchParams.append(key, params[key]);
             }
         });
+        return url;
+    },
+
+    async get(path, params = {}) {
+        const url = this.buildUrl(path, params);
 
         const requestId = ++this.requestCounter;
         clog(`[V3Api ${requestId}] GET:`, url.toString());
@@ -89,11 +99,12 @@ const V3Api = {
      * @returns {Promise<Object>}
      */
     async post(path, body = {}) {
+        const url = this.buildUrl(path);
         const requestId = ++this.requestCounter;
-        clog(`[V3Api ${requestId}] POST:`, this.baseUrl + path, body);
+        clog(`[V3Api ${requestId}] POST:`, url.toString(), body);
 
         try {
-            const response = await fetch(this.baseUrl + path, {
+            const response = await fetch(url.toString(), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -121,11 +132,12 @@ const V3Api = {
      * @returns {Promise<Object>}
      */
     async put(path, body = {}) {
+        const url = this.buildUrl(path);
         const requestId = ++this.requestCounter;
-        clog(`[V3Api ${requestId}] PUT:`, this.baseUrl + path, body);
+        clog(`[V3Api ${requestId}] PUT:`, url.toString(), body);
 
         try {
-            const response = await fetch(this.baseUrl + path, {
+            const response = await fetch(url.toString(), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -152,11 +164,12 @@ const V3Api = {
      * @returns {Promise<Object>}
      */
     async delete(path) {
+        const url = this.buildUrl(path);
         const requestId = ++this.requestCounter;
-        clog(`[V3Api ${requestId}] DELETE:`, this.baseUrl + path);
+        clog(`[V3Api ${requestId}] DELETE:`, url.toString());
 
         try {
-            const response = await fetch(this.baseUrl + path, {
+            const response = await fetch(url.toString(), {
                 method: 'DELETE',
                 headers: {
                     'Accept': 'application/json',
