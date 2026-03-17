@@ -65,45 +65,34 @@ renderPageHeader('프로젝트 관리', [
     <div class="card-header">
         <h3 class="card-title">프로젝트 목록</h3>
         <div class="card-toolbar">
-            <button class="btn btn-light btn-sm" onclick="projectTable?.refresh()">
+            <span id="project-count" class="badge badge-secondary" style="margin-right: 8px;">0</span>
+            <button class="btn btn-light btn-sm" onclick="loadProjectList()">
                 <i class="fas fa-sync"></i> 새로고침
             </button>
         </div>
     </div>
     <div class="card-body" style="padding: 0;">
-        <div class="data-table-wrapper" id="project-table_wrapper">
-            <div class="table-container">
-                <table class="table" id="project-table">
-                    <thead>
-                        <tr>
-                            <th class="sortable" onclick="projectTable?.sort('name')">
-                                프로젝트명 <i class="fas fa-sort sort-icon"></i>
-                            </th>
-                            <th>카테고리</th>
-                            <th>지역</th>
-                            <th>기기</th>
-                            <th>상태</th>
-                            <th>최근 배포</th>
-                            <th style="width: 120px;">관리</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="7" class="table-loading">
-                                <div class="spinner"></div>
-                                <div class="loading-text">데이터 로딩 중...</div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="data-table-footer">
-                <div class="table-info" id="project-table_info">
-                    총 <span class="total-count">0</span>건
-                </div>
-                <div class="table-pagination" id="project-table_pagination"></div>
-            </div>
-        </div>
+        <table class="table" id="project-table">
+            <thead>
+                <tr>
+                    <th>프로젝트명</th>
+                    <th style="width:100px;">방향</th>
+                    <th style="width:120px;">해상도</th>
+                    <th style="width:80px;">언어</th>
+                    <th style="width:100px;">지역</th>
+                    <th style="width:130px;">수정일</th>
+                    <th style="width:120px;">관리</th>
+                </tr>
+            </thead>
+            <tbody id="project-tbody">
+                <tr>
+                    <td colspan="7" class="table-loading">
+                        <div class="spinner"></div>
+                        <div class="loading-text">데이터 로딩 중...</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -191,344 +180,157 @@ renderPageHeader('프로젝트 관리', [
 
 <script>
 /**
- * Project List Page
+ * Project List Page — tb_home 기반
  */
 
-let projectTable = null;
-let commonCodes = {};
+let allProjects = [];
 let searchDebounceTimer = null;
 
-// Initialize on load
 (function() {
-    clog('Project page loaded');
-    loadCommonCodes();
-    initProjectTable();
+    loadProjectList();
 })();
 
 /**
- * Load common codes for dropdowns
+ * Load projects from /homes API (tb_home)
  */
-async function loadCommonCodes() {
+async function loadProjectList() {
     try {
-        const response = await fetch('/web/v3/dist/api/v3/router.php?route=common-codes', {
-            credentials: 'same-origin'
-        });
-        const result = await response.json();
-
-        if (result.code === 100) {
-            commonCodes = result.data;
-            populateDropdowns();
+        const res = await V3Api.get('/homes');
+        if (res.code === 100 && res.data) {
+            allProjects = res.data;
+            renderProjectTable(allProjects);
         }
-    } catch (error) {
-        cerror('Failed to load common codes:', error);
+    } catch (err) {
+        cerror('Failed to load projects:', err);
+        document.getElementById('project-tbody').innerHTML =
+            '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">프로젝트를 불러오는데 실패했습니다.</td></tr>';
     }
 }
 
 /**
- * Populate dropdown options
+ * Render project table from tb_home data
  */
-function populateDropdowns() {
-    // Regions
-    const regionSelects = document.querySelectorAll('#filter-region, #project-region');
-    regionSelects.forEach(select => {
-        (commonCodes.region || []).forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.code_value;
-            option.textContent = item.code_label;
-            select.appendChild(option);
-        });
-    });
+function renderProjectTable(projects) {
+    const tbody = document.getElementById('project-tbody');
+    document.getElementById('project-count').textContent = projects.length;
 
-    // Categories
-    const categorySelects = document.querySelectorAll('#filter-category, #project-category');
-    categorySelects.forEach(select => {
-        (commonCodes.project_category || []).forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.code_value;
-            option.textContent = item.code_label;
-            select.appendChild(option);
-        });
+    if (projects.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);"><i class="fas fa-folder-open" style="font-size:24px;display:block;margin-bottom:8px;"></i>등록된 프로젝트가 없습니다</td></tr>';
+        return;
+    }
+
+    const langMap = { KO: '한국어', EN: 'English', ZH: '中文', VI: 'Tiếng Việt', MS: 'Bahasa' };
+
+    tbody.innerHTML = projects.map(p => {
+        const name = p.hm_projectname || p.hm_projectid;
+        const orient = p.hm_orientation === 'L'
+            ? '<span class="badge badge-info">가로</span>'
+            : '<span class="badge badge-primary">세로</span>';
+        const w = p.hm_width || (p.hm_orientation === 'L' ? 1920 : 1080);
+        const h = p.hm_height || (p.hm_orientation === 'L' ? 1080 : 1920);
+        const lang = langMap[p.hm_language] || p.hm_language || 'KO';
+        const region = p.hm_region || '-';
+        const date = p.hm_date ? new Date(p.hm_date).toLocaleDateString('ko-KR') : '-';
+
+        return `<tr>
+            <td>
+                <strong>${escapeHtml(name)}</strong><br>
+                <small style="color:var(--text-muted);">${escapeHtml(p.hm_projectid)}</small>
+            </td>
+            <td>${orient}</td>
+            <td>${w} × ${h}</td>
+            <td>${escapeHtml(lang)}</td>
+            <td>${escapeHtml(region)}</td>
+            <td>${escapeHtml(date)}</td>
+            <td>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-primary" onclick="goToChannelEditor(${p.hm_idx})" title="화면 수정">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light" onclick="showProjectInfo(${p.hm_idx})" title="상세정보">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+/**
+ * Navigate to channel editor with project selected
+ */
+function goToChannelEditor(hmIdx) {
+    loadPage('channel', {}, function() {
+        setTimeout(function() {
+            const sel = document.getElementById('channel-project-select');
+            if (sel) {
+                sel.value = hmIdx;
+                channelEditor.onProjectChange(hmIdx);
+            }
+        }, 300);
     });
 }
 
 /**
- * Initialize project data table
+ * Show project info modal
  */
-function initProjectTable() {
-    projectTable = new SFDataTable('project-table', {
-        apiUrl: '/web/v3/dist/api/v3/router.php?route=projects',
-        pageSize: 20,
-        columns: [
-            { key: 'name', label: '프로젝트명', sortable: true },
-            { key: 'category', label: '카테고리' },
-            { key: 'region', label: '지역' },
-            { key: 'device_count', label: '기기' },
-            { key: 'status', label: '상태' },
-            { key: 'last_deploy_at', label: '최근 배포' },
-            { key: 'actions', label: '관리' }
-        ],
-        onRowClick: (row) => {
-            loadPage('project/detail', { id: row.id });
+async function showProjectInfo(hmIdx) {
+    C_ShowLoadingProgress();
+    try {
+        const res = await V3Api.get('/homes/' + hmIdx);
+        C_HideLoadingProgress();
+        if (res.code === 100 && res.data) {
+            const d = res.data;
+            const w = d.hm_width || (d.hm_orientation === 'L' ? 1920 : 1080);
+            const h = d.hm_height || (d.hm_orientation === 'L' ? 1080 : 1920);
+            const html = `<table class="table" style="font-size:14px;">
+                <tr><td style="font-weight:500;width:120px;">프로젝트 ID</td><td>${escapeHtml(d.hm_projectid)}</td></tr>
+                <tr><td style="font-weight:500;">프로젝트명</td><td>${escapeHtml(d.hm_projectname || '-')}</td></tr>
+                <tr><td style="font-weight:500;">방향</td><td>${d.hm_orientation === 'L' ? '가로 (Landscape)' : '세로 (Portrait)'}</td></tr>
+                <tr><td style="font-weight:500;">해상도</td><td>${w} × ${h}</td></tr>
+                <tr><td style="font-weight:500;">언어</td><td>${escapeHtml(d.hm_language || 'KO')}</td></tr>
+                <tr><td style="font-weight:500;">지역</td><td>${escapeHtml(d.hm_region || '-')}</td></tr>
+                <tr><td style="font-weight:500;">홈화면 요소</td><td>${(d.home_data || []).length}개</td></tr>
+                <tr><td style="font-weight:500;">메인화면 요소</td><td>${(d.main_data || []).length}개</td></tr>
+                <tr><td style="font-weight:500;">콘텐츠</td><td>${(d.content_data || []).length}개</td></tr>
+                <tr><td style="font-weight:500;">수정일</td><td>${escapeHtml(d.hm_date || '-')}</td></tr>
+            </table>`;
+            showModalDialog(document.body, d.hm_projectname || d.hm_projectid, html, '화면 수정', '닫기',
+                function() { hideModalDialog(); goToChannelEditor(hmIdx); },
+                function() { hideModalDialog(); },
+                { size: { width: '500px' }, allowHtml: true }
+            );
         }
-    });
-
-    // Override renderRow for custom rendering
-    projectTable.renderRow = function(row) {
-        const statusBadge = getStatusBadgeHtml(row.status, 'project');
-        const lastDeploy = row.last_deploy_at ? formatRelativeTime(row.last_deploy_at) : '-';
-        const categoryLabel = getCategoryLabel(row.category);
-        const regionLabel = getRegionLabel(row.region);
-
-        return `
-            <tr data-id="${escapeHtml(String(row.id))}">
-                <td>
-                    <div class="project-name">
-                        <strong>${escapeHtml(row.name)}</strong>
-                        <small class="text-muted d-block">${escapeHtml(row.project_key)}</small>
-                    </div>
-                </td>
-                <td>${escapeHtml(categoryLabel)}</td>
-                <td>${escapeHtml(regionLabel)}</td>
-                <td>
-                    <span class="badge badge-light">${row.device_count || 0}대</span>
-                </td>
-                <td>${statusBadge}</td>
-                <td>${escapeHtml(lastDeploy)}</td>
-                <td class="no-row-click">
-                    <div class="btn-group">
-                        <button class="btn btn-sm btn-light" onclick="editProject(${row.id})" title="수정">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-light" onclick="viewProjectDetail(${row.id})" title="상세">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-light text-danger" onclick="deleteProject(${row.id}, '${escapeHtml(row.name)}')" title="삭제">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    };
+    } catch (err) {
+        C_HideLoadingProgress();
+        cerror('Failed to load project info:', err);
+    }
 }
 
 /**
- * Apply filters to table
+ * Filter projects by search text
  */
 function applyProjectFilters() {
-    const filters = {
-        status: document.getElementById('filter-status').value,
-        region: document.getElementById('filter-region').value,
-        category: document.getElementById('filter-category').value,
-        search: document.getElementById('filter-search').value
-    };
+    const search = (document.getElementById('filter-search')?.value || '').toLowerCase();
+    const region = document.getElementById('filter-region')?.value || '';
 
-    projectTable?.setFilters(filters);
+    const filtered = allProjects.filter(p => {
+        const name = (p.hm_projectname || p.hm_projectid || '').toLowerCase();
+        const pid = (p.hm_projectid || '').toLowerCase();
+        const matchSearch = !search || name.includes(search) || pid.includes(search);
+        const matchRegion = !region || p.hm_region === region;
+        return matchSearch && matchRegion;
+    });
+
+    renderProjectTable(filtered);
 }
 
-/**
- * Debounced search
- */
 function debounceSearch(value) {
     clearTimeout(searchDebounceTimer);
-    searchDebounceTimer = setTimeout(() => {
-        applyProjectFilters();
-    }, 300);
+    searchDebounceTimer = setTimeout(() => applyProjectFilters(), 300);
 }
 
-/**
- * Show project form modal
- */
-function showProjectForm(projectId = null) {
-    const isEdit = !!projectId;
-    const title = isEdit ? '프로젝트 수정' : '새 프로젝트';
-
-    // Reset form
-    document.getElementById('project-form').reset();
-    document.getElementById('project-id').value = '';
-    document.getElementById('project-key').disabled = false;
-
-    if (isEdit) {
-        loadProjectForEdit(projectId);
-    }
-
-    const formHtml = document.getElementById('project-form-template').innerHTML;
-
-    showModalDialog(document.body, title, formHtml, '저장', '취소',
-        function() {
-            document.getElementById('project-form').dispatchEvent(new Event('submit'));
-        },
-        function() {
-            hideModalDialog();
-        },
-        { size: { width: 700 }, allowHtml: true }
-    );
-
-    // Re-populate dropdowns in modal
-    setTimeout(() => populateDropdowns(), 100);
-}
-
-/**
- * Load project data for editing
- */
-async function loadProjectForEdit(projectId) {
-    try {
-        const response = await fetch(`/web/v3/dist/api/v3/router.php?route=projects/${projectId}`, {
-            credentials: 'same-origin'
-        });
-        const result = await response.json();
-
-        if (result.code === 100) {
-            const project = result.data;
-            document.getElementById('project-id').value = project.id;
-            document.getElementById('project-key').value = project.project_key;
-            document.getElementById('project-key').disabled = true;
-            document.getElementById('project-name').value = project.name;
-            document.getElementById('project-description').value = project.description || '';
-            document.getElementById('project-category').value = project.category || '';
-            document.getElementById('project-region').value = project.region || '';
-            document.getElementById('project-status').value = project.status;
-            document.getElementById('project-orientation').value = project.orientation;
-            document.getElementById('project-width').value = project.width;
-            document.getElementById('project-height').value = project.height;
-        }
-    } catch (error) {
-        cerror('Failed to load project:', error);
-        toastError('프로젝트 정보를 불러오는데 실패했습니다.');
-    }
-}
-
-/**
- * Edit project
- */
-function editProject(projectId) {
-    showProjectForm(projectId);
-}
-
-/**
- * View project detail
- */
-function viewProjectDetail(projectId) {
-    loadPage('project/detail', { id: projectId });
-}
-
-/**
- * Save project
- */
-async function saveProject(event) {
-    event.preventDefault();
-
-    const form = document.getElementById('project-form');
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    const isEdit = !!data.id;
-
-    C_ShowLoadingProgress();
-
-    try {
-        const url = isEdit
-            ? `/web/v3/dist/api/v3/router.php?route=projects/${data.id}`
-            : '/web/v3/dist/api/v3/router.php?route=projects';
-
-        const response = await fetch(url, {
-            method: isEdit ? 'PUT' : 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': '<?php echo $_SESSION['csrf_token'] ?? ''; ?>'
-            },
-            body: JSON.stringify(data),
-            credentials: 'same-origin'
-        });
-
-        const result = await response.json();
-
-        if (result.code === 100) {
-            hideModalDialog();
-            toastSuccess(isEdit ? '프로젝트가 수정되었습니다.' : '프로젝트가 생성되었습니다.');
-            projectTable?.refresh();
-        } else {
-            toastError(result.message || '저장에 실패했습니다.');
-        }
-    } catch (error) {
-        cerror('Failed to save project:', error);
-        toastError('저장 중 오류가 발생했습니다.');
-    } finally {
-        C_HideLoadingProgress();
-    }
-
-    return false;
-}
-
-/**
- * Delete project
- */
-function deleteProject(projectId, projectName) {
-    confirmMsg(`"${projectName}" 프로젝트를 삭제하시겠습니까?\n\n연결된 콘텐츠와 배포 이력이 모두 삭제됩니다.`, async function() {
-        C_ShowLoadingProgress();
-
-        try {
-            const response = await fetch(`/web/v3/dist/api/v3/router.php?route=projects/${projectId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-Token': '<?php echo $_SESSION['csrf_token'] ?? ''; ?>'
-                },
-                credentials: 'same-origin'
-            });
-
-            const result = await response.json();
-
-            if (result.code === 100) {
-                toastSuccess('프로젝트가 삭제되었습니다.');
-                projectTable?.refresh();
-            } else {
-                toastError(result.message || '삭제에 실패했습니다.');
-            }
-        } catch (error) {
-            cerror('Failed to delete project:', error);
-            toastError('삭제 중 오류가 발생했습니다.');
-        } finally {
-            C_HideLoadingProgress();
-        }
-    });
-}
-
-// Helper functions
-function getStatusBadgeHtml(status, type) {
-    const configs = {
-        project: {
-            active: { class: 'badge-success', label: '운영중' },
-            paused: { class: 'badge-warning', label: '일시정지' },
-            archived: { class: 'badge-secondary', label: '보관' }
-        }
-    };
-
-    const config = configs[type]?.[status] || { class: 'badge-secondary', label: status };
-    return `<span class="badge ${config.class}">${escapeHtml(config.label)}</span>`;
-}
-
-function getCategoryLabel(code) {
-    const item = (commonCodes.project_category || []).find(c => c.code_value === code);
-    return item?.code_label || code || '-';
-}
-
-function getRegionLabel(code) {
-    const item = (commonCodes.region || []).find(c => c.code_value === code);
-    return item?.code_label || code || '-';
-}
-
-function formatRelativeTime(dateStr) {
-    if (!dateStr) return '-';
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return '방금 전';
-    if (diffMins < 60) return `${diffMins}분 전`;
-    if (diffHours < 24) return `${diffHours}시간 전`;
-    if (diffDays < 7) return `${diffDays}일 전`;
-    return date.toLocaleDateString('ko-KR');
+function showProjectForm() {
+    toastWarning('새 프로젝트 생성은 준비 중입니다.');
 }
 </script>
