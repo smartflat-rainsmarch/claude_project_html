@@ -124,13 +124,17 @@ $gameBaseUrl = "/claude_project/html/game/school/{$projectId}/v{$grIdx}/";
     var param_groupidx = <?php echo (int)$grIdx; ?>;
     var param_sw = <?php echo (int)$sw; ?>;
     var param_sh = <?php echo (int)$sh; ?>;
+    var param_au = 0;
     var param_today_first = true;
     var param_subtitle = "";
     var param_lyrics = [];
     var param_level = 1;
     var param_isword = false;
+    var param_bgmurl = "game_bgm";
+    var param_issoundon = true;
     var app_fcmtoken = "";
     var global_app_datalist = [];
+    var isPlaySound = true;
 
     function AndroidCallback(key, value) {}
     function IOSCallback(key, value) {}
