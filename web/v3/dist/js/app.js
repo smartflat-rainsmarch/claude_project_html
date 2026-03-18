@@ -31,6 +31,7 @@ const V3App = {
 
     // Sub-pages
     subPages: {
+        'channel/editor': { path: 'pages/channel/editor.php', title: '비주얼 에디터' },
         'content/editor': { path: 'pages/content/editor.php', title: '화면 편집' },
         'content/templates': { path: 'pages/content/templates.php', title: '템플릿' },
         'content/media': { path: 'pages/content/media.php', title: '미디어' },
@@ -275,7 +276,7 @@ function setupEventListeners() {
 
     // Menu item clicks
     document.addEventListener('click', (e) => {
-        const menuLink = e.target.closest('.menu-link[data-page]');
+        const menuLink = e.target.closest('.menu-link[data-page]') || e.target.closest('.submenu-link[data-page]');
         if (menuLink) {
             e.preventDefault();
             const page = menuLink.dataset.page;
@@ -371,7 +372,7 @@ function openQuickSearch() {
  * Perform quick search
  * @param {string} query
  */
-function performQuickSearch(query) {
+async function performQuickSearch(query) {
     const resultsContainer = document.getElementById('quick-search-results');
     if (!resultsContainer) return;
 
@@ -380,28 +381,67 @@ function performQuickSearch(query) {
         return;
     }
 
+    const lowerQuery = query.toLowerCase();
+
     // Search pages
-    const pageResults = Object.entries(V3App.pages)
-        .filter(([key, page]) => page.title.toLowerCase().includes(query.toLowerCase()))
+    const pageResults = Object.entries({...V3App.pages, ...V3App.subPages})
+        .filter(([key, page]) => page.title.toLowerCase().includes(lowerQuery) || key.toLowerCase().includes(lowerQuery))
         .map(([key, page]) => ({
             type: 'page',
             key,
             title: page.title,
-            icon: 'fa-file'
+            icon: 'fa-file',
+            subtitle: '페이지'
         }));
 
-    // Display results
-    if (pageResults.length === 0) {
+    // Search projects from API
+    let projectResults = [];
+    try {
+        const res = await V3Api.get('/homes');
+        if (res.code === 100 && res.data) {
+            projectResults = res.data
+                .filter(h => {
+                    const name = (h.hm_projectname || '').toLowerCase();
+                    const id = (h.hm_projectid || '').toLowerCase();
+                    return name.includes(lowerQuery) || id.includes(lowerQuery);
+                })
+                .slice(0, 5)
+                .map(h => ({
+                    type: 'project',
+                    key: 'channel',
+                    title: h.hm_projectname || h.hm_projectid,
+                    icon: 'fa-folder-open',
+                    subtitle: h.hm_projectid
+                }));
+        }
+    } catch (err) {
+        // Ignore API errors in search
+    }
+
+    const allResults = [...pageResults, ...projectResults];
+
+    if (allResults.length === 0) {
         resultsContainer.innerHTML = '<p class="text-muted" style="padding: 16px;">검색 결과가 없습니다.</p>';
         return;
     }
 
-    resultsContainer.innerHTML = pageResults.map(result => `
-        <div class="dropdown-item" onclick="loadPage('${result.key}'); hideModalDialog();">
-            <i class="fas ${result.icon}"></i>
-            <span>${escapeHtml(result.title)}</span>
+    resultsContainer.innerHTML = allResults.map(result => `
+        <div class="dropdown-item" data-page="${escapeHtml(result.key)}" style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <i class="fas ${escapeHtml(result.icon)}" style="width:16px;text-align:center;color:var(--text-muted);"></i>
+            <div style="flex:1;">
+                <div>${escapeHtml(result.title)}</div>
+                <div style="font-size:11px;color:var(--text-muted);">${escapeHtml(result.subtitle || '')}</div>
+            </div>
         </div>
     `).join('');
+
+    // Attach click handlers via event delegation
+    resultsContainer.querySelectorAll('[data-page]').forEach(el => {
+        el.addEventListener('click', () => {
+            loadPage(el.dataset.page);
+            hideModalDialog();
+        });
+    });
 }
 
 // ============================================

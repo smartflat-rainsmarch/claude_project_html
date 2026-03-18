@@ -1,0 +1,365 @@
+/**
+ * SmartFlat CMS v3 - Visual Editor Styles
+ */
+
+/* Editor Layout */
+.editor-container {
+    display: flex;
+    height: calc(100vh - 140px);
+    min-height: 700px;
+    gap: 0;
+    background: var(--bg-main);
+    overflow: hidden;
+}
+
+/* Toolbar */
+.editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.editor-toolbar .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    border-right: 1px solid var(--border-color);
+}
+
+.editor-toolbar .toolbar-group:last-child {
+    border-right: none;
+}
+
+.editor-toolbar .tool-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-gray);
+    transition: all 0.15s;
+}
+
+.editor-toolbar .tool-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-dark);
+}
+
+.editor-toolbar .tool-btn.active {
+    background: var(--color-primary-light, #e3f2fd);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.editor-toolbar .toolbar-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.editor-toolbar .toolbar-select {
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-dark);
+}
+
+/* Canvas Area - 넓은 작업 영역 */
+.editor-canvas-area {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #2d2d3d;
+    position: relative;
+    min-width: 0;
+}
+
+.editor-canvas-wrapper {
+    position: relative;
+    background: #1a1a2e;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    overflow: hidden;
+}
+
+.editor-canvas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-origin: 0 0;
+}
+
+/* Canvas Grid */
+.editor-canvas.show-grid {
+    background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* Canvas Elements */
+.canvas-element {
+    position: absolute;
+    cursor: pointer;
+    user-select: none;
+    box-sizing: border-box;
+    transition: box-shadow 0.1s;
+}
+
+.canvas-element:hover {
+    outline: 1px dashed rgba(0, 158, 247, 0.5);
+}
+
+.canvas-element.selected {
+    outline: 2px solid var(--color-primary);
+    z-index: 100;
+}
+
+.canvas-element.dragging {
+    opacity: 0.8;
+    cursor: grabbing;
+}
+
+/* Element type visuals */
+.canvas-element .element-label {
+    position: absolute;
+    top: -18px;
+    left: 0;
+    font-size: 10px;
+    color: var(--color-primary);
+    background: rgba(0,158,247,0.1);
+    padding: 1px 6px;
+    border-radius: 2px;
+    white-space: nowrap;
+    pointer-events: none;
+    display: none;
+}
+
+.canvas-element.selected .element-label,
+.canvas-element:hover .element-label {
+    display: block;
+}
+
+.canvas-element img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.canvas-element-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.canvas-element-video {
+    background: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 24px;
+}
+
+.canvas-element-bgcolor {
+    opacity: 0.8;
+}
+
+/* Resize Handles */
+.resize-handle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--color-primary);
+    border: 1px solid white;
+    border-radius: 2px;
+    z-index: 101;
+}
+
+.resize-handle.nw { top: -4px; left: -4px; cursor: nw-resize; }
+.resize-handle.n  { top: -4px; left: 50%; margin-left: -4px; cursor: n-resize; }
+.resize-handle.ne { top: -4px; right: -4px; cursor: ne-resize; }
+.resize-handle.e  { top: 50%; margin-top: -4px; right: -4px; cursor: e-resize; }
+.resize-handle.se { bottom: -4px; right: -4px; cursor: se-resize; }
+.resize-handle.s  { bottom: -4px; left: 50%; margin-left: -4px; cursor: s-resize; }
+.resize-handle.sw { bottom: -4px; left: -4px; cursor: sw-resize; }
+.resize-handle.w  { top: 50%; margin-top: -4px; left: -4px; cursor: w-resize; }
+
+/* Property Panel */
+.editor-panel {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    border-left: 1px solid var(--border-color);
+    overflow-y: auto;
+    font-size: 13px;
+}
+
+.panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.panel-section {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.panel-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.panel-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.panel-row:last-child {
+    margin-bottom: 0;
+}
+
+.panel-label {
+    width: 40px;
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--text-gray);
+    font-weight: 500;
+}
+
+.panel-input {
+    flex: 1;
+    padding: 4px 8px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-input);
+    color: var(--text-dark);
+    min-width: 0;
+}
+
+.panel-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.panel-input-sm {
+    width: 60px;
+    flex: none;
+}
+
+.panel-color-input {
+    width: 32px;
+    height: 28px;
+    padding: 2px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    background: var(--bg-input);
+}
+
+.panel-select {
+    flex: 1;
+    padding: 4px 8px;
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-input);
+    color: var(--text-dark);
+    min-width: 0;
+}
+
+/* Empty panel state */
+.panel-empty {
+    padding: 40px 16px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.panel-empty i {
+    font-size: 32px;
+    margin-bottom: 12px;
+    display: block;
+}
+
+/* Zoom controls */
+.editor-zoom-controls {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0,0,0,0.6);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    z-index: 50;
+}
+
+.editor-zoom-controls .tool-btn {
+    color: #ccc;
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+}
+
+.editor-zoom-controls .tool-btn:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+}
+
+.editor-zoom-controls .zoom-text {
+    color: #ccc;
+    font-size: 12px;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* Save indicator */
+.save-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 4px 8px;
+}
+
+.save-indicator.saving {
+    color: var(--color-warning);
+}
+
+.save-indicator.saved {
+    color: var(--color-success);
+}
+
+.save-indicator.error {
+    color: var(--color-danger);
+}

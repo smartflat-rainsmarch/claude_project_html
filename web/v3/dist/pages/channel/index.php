@@ -9,6 +9,23 @@
         <h2 class="page-title">화면 수정하기</h2>
     </div>
     <div class="page-header-right">
+        <!-- Safety Data Toggle -->
+        <div id="channel-safety-toggle" style="display:none; align-items:center; gap:8px; padding:6px 12px; border-radius:8px; background:rgba(220,53,69,0.08); margin-right:8px;">
+            <i class="fas fa-exclamation-triangle" style="color:var(--color-danger);"></i>
+            <span style="font-size:13px; color:var(--color-danger); font-weight:500;">재난안전문자</span>
+            <label class="toggle-switch" style="margin-left:4px;">
+                <input type="checkbox" id="channel-safety-checkbox" onchange="channelEditor.toggleSafety(this.checked)">
+                <span class="toggle-slider"></span>
+            </label>
+            <button class="btn btn-sm btn-light" onclick="channelEditor.showSafetySettings()" title="재난안전문자 설정" style="margin-left:4px; padding:2px 8px;">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+        <!-- ShortURL -->
+        <div id="channel-shorturl-box" style="display:none; align-items:center; gap:6px; padding:4px 12px; border-radius:6px; background:var(--bg-input); border:1px solid var(--border-color); margin-right:8px; font-size:12px;">
+            <span style="color:var(--color-danger); font-weight:500;">숏URL:</span>
+            <span id="channel-shorturl-text" style="color:var(--text-dark); text-decoration:underline; cursor:pointer;" onclick="channelEditor.copyShortUrl()" title="클릭하여 복사"></span>
+        </div>
         <button class="btn btn-light" onclick="channelEditor.copyPreviewUrl()" title="미리보기 주소 복사">
             <i class="fas fa-copy"></i> 주소 복사
         </button>
@@ -59,10 +76,10 @@
         <!-- Right: Data Tables -->
         <div style="flex: 1; min-width: 0;">
 
-            <!-- Tabs -->
+            <!-- Tabs + Add Button -->
             <div class="card">
                 <div class="card-header" style="padding: 0; border-bottom: none;">
-                    <div style="display: flex;">
+                    <div style="display: flex; align-items: center;">
                         <button class="tab-btn active" data-tab="content" onclick="channelEditor.switchTab('content')">
                             <i class="fas fa-th-large"></i> 콘텐츠 데이터
                             <span id="tab-count-content" class="badge badge-secondary" style="margin-left: 4px;">0</span>
@@ -75,6 +92,11 @@
                             <i class="fas fa-bars"></i> 메인화면
                             <span id="tab-count-main" class="badge badge-secondary" style="margin-left: 4px;">0</span>
                         </button>
+                        <div style="margin-left: auto; padding-right: 12px;">
+                            <button class="btn btn-sm btn-primary" onclick="channelEditor.addNewItem()" title="새 항목 추가">
+                                <i class="fas fa-plus"></i> 추가
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -84,7 +106,8 @@
                         <table class="data-table" id="content-data-table">
                             <thead>
                                 <tr>
-                                    <th style="width:50px">#</th>
+                                    <th style="width:30px" title="드래그하여 순서 변경"></th>
+                                    <th style="width:40px">#</th>
                                     <th>이름</th>
                                     <th style="width:120px">타입</th>
                                     <th style="width:200px">미리보기</th>
@@ -100,6 +123,7 @@
                         <table class="data-table" id="home-data-table">
                             <thead>
                                 <tr>
+                                    <th style="width:30px"></th>
                                     <th style="width:40px">#</th>
                                     <th>이름</th>
                                     <th style="width:80px">타입</th>
@@ -119,6 +143,7 @@
                         <table class="data-table" id="main-data-table">
                             <thead>
                                 <tr>
+                                    <th style="width:30px"></th>
                                     <th style="width:40px">#</th>
                                     <th>이름</th>
                                     <th style="width:80px">타입</th>
@@ -229,6 +254,54 @@
 }
 .btn-icon:hover { background: var(--bg-hover); color: var(--text-dark); }
 .btn-icon.danger:hover { background: var(--color-danger-light); color: var(--color-danger); }
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    margin: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #ccc;
+    border-radius: 20px;
+    transition: 0.2s;
+}
+.toggle-slider:before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 2px;
+    bottom: 2px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.2s;
+}
+.toggle-switch input:checked + .toggle-slider { background: var(--color-danger); }
+.toggle-switch input:checked + .toggle-slider:before { transform: translateX(16px); }
+
+/* Drag handle */
+.drag-handle {
+    cursor: grab;
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 4px;
+    user-select: none;
+}
+.drag-handle:hover { color: var(--text-gray); }
+.data-table tbody tr.dragging {
+    opacity: 0.4;
+    background: var(--bg-input);
+}
+.data-table tbody tr.drag-over {
+    border-top: 2px solid var(--color-primary);
+}
 </style>
 
 <script src="./js/components/channel-editor.js?v=<?php echo time(); ?>"></script>

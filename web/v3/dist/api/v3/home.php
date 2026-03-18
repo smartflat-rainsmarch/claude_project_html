@@ -14,7 +14,7 @@
 switch ($request['method']) {
     case 'GET':
         if ($request['id']) {
-            getHome($request['id']);
+            getHome((int)$request['id']);
         } else {
             listHomes($request['query']);
         }
@@ -23,9 +23,9 @@ switch ($request['method']) {
     case 'PUT':
         Auth::requireRole(Auth::ROLE_CONTENT_MANAGER);
         if ($request['action']) {
-            updateHomeField($request['id'], $request['action'], $request['input']);
+            updateHomeField((int)$request['id'], $request['action'], $request['input']);
         } else {
-            updateHome($request['id'], $request['input']);
+            updateHome((int)$request['id'], $request['input']);
         }
         break;
 
@@ -124,7 +124,7 @@ function updateHome($id, $input) {
     $data = [];
     $allowedFields = [
         'hm_projectname', 'hm_orientation', 'hm_width', 'hm_height',
-        'hm_language', 'hm_region', 'hm_safety_onoff', 'hm_autoupdate'
+        'hm_language', 'hm_region', 'hm_safety_onoff', 'hm_safety_closetime', 'hm_autoupdate'
     ];
 
     foreach ($allowedFields as $field) {

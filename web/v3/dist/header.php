@@ -17,6 +17,13 @@
 
     <!-- Right Section -->
     <div class="header-right">
+        <!-- Add Project -->
+        <div class="header-toolbar-item">
+            <button class="toolbar-btn" onclick="showAddProjectModal()" title="새 프로젝트 추가">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+
         <!-- Search -->
         <div class="header-toolbar-item d-none d-md-block">
             <button class="toolbar-btn" onclick="openQuickSearch()" title="검색 (Ctrl+K)">
@@ -115,6 +122,63 @@ function showProfile() {
     showModalDialog(document.body, '프로필', profileHtml, '닫기', null, function() {
         hideModalDialog();
     }, null, { allowHtml: true });
+}
+
+/**
+ * Show add project modal
+ */
+function showAddProjectModal() {
+    var html = '<div style="display:grid;gap:12px;">' +
+        '<div class="form-group"><label class="form-label">프로젝트 ID</label>' +
+        '<input class="form-control" id="new-project-id" placeholder="영문/숫자 (예: sample_port)"></div>' +
+        '<div class="form-group"><label class="form-label">프로젝트 이름</label>' +
+        '<input class="form-control" id="new-project-name" placeholder="프로젝트 표시 이름"></div>' +
+        '<div style="display:flex;gap:8px;">' +
+        '<div class="form-group" style="flex:1"><label class="form-label">화면 방향</label>' +
+        '<select class="form-control" id="new-project-orientation">' +
+        '<option value="P">세로 (Portrait)</option>' +
+        '<option value="L">가로 (Landscape)</option></select></div>' +
+        '<div class="form-group" style="flex:1"><label class="form-label">언어</label>' +
+        '<select class="form-control" id="new-project-language">' +
+        '<option value="KO">한국어</option><option value="EN">English</option>' +
+        '<option value="ZH">中文</option><option value="VI">Tiếng Việt</option></select></div>' +
+        '</div>' +
+        '<div style="display:flex;gap:8px;">' +
+        '<div class="form-group" style="flex:1"><label class="form-label">너비</label>' +
+        '<input class="form-control" id="new-project-width" type="number" value="1080"></div>' +
+        '<div class="form-group" style="flex:1"><label class="form-label">높이</label>' +
+        '<input class="form-control" id="new-project-height" type="number" value="1920"></div>' +
+        '</div></div>';
+
+    showModalDialog(document.body, '새 프로젝트 추가', html, '생성', '취소',
+        async function() {
+            var projectId = document.getElementById('new-project-id').value.trim();
+            var projectName = document.getElementById('new-project-name').value.trim();
+            if (!projectId || !projectName) { toastError('프로젝트 ID와 이름을 입력하세요.'); return; }
+
+            try {
+                var res = await V3Api.post('/projects', {
+                    project_id: projectId,
+                    name: projectName,
+                    orientation: document.getElementById('new-project-orientation').value,
+                    language: document.getElementById('new-project-language').value,
+                    width: parseInt(document.getElementById('new-project-width').value) || 1080,
+                    height: parseInt(document.getElementById('new-project-height').value) || 1920
+                });
+                if (res.code === 100) {
+                    toastSuccess('프로젝트가 생성되었습니다.');
+                    hideModalDialog();
+                    loadPage('project');
+                } else {
+                    toastError(res.message || '생성 실패');
+                }
+            } catch (err) {
+                toastError('프로젝트 생성에 실패했습니다.');
+            }
+        },
+        function() { hideModalDialog(); },
+        { size: { width: '500px' }, allowHtml: true }
+    );
 }
 
 /**
