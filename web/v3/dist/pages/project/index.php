@@ -183,8 +183,9 @@ renderPageHeader('프로젝트 관리', [
  * Project List Page — tb_home 기반
  */
 
-let allProjects = [];
-let searchDebounceTimer = null;
+// Use var to allow re-declaration when page is reloaded via jQuery .load()
+var allProjects = [];
+var searchDebounceTimer = null;
 
 (function() {
     loadProjectList();

@@ -222,11 +222,11 @@ renderPageHeader('기기 관리', [
  * Device List Page
  */
 
-let deviceTable = null;
-let projects = [];
-let deviceGroups = [];
-let searchDebounceTimer = null;
-const initialProjectId = <?php echo $projectId ?: 'null'; ?>;
+var deviceTable = null;
+var projects = [];
+var deviceGroups = [];
+var searchDebounceTimer = null;
+var initialProjectId = <?php echo $projectId ?: 'null'; ?>;
 
 // Initialize on load
 (function() {

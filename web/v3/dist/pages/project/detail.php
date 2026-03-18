@@ -190,8 +190,8 @@ $projectId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
  * Project Detail Page
  */
 
-let currentProjectId = <?php echo $projectId; ?>;
-let currentProject = null;
+var currentProjectId = <?php echo $projectId; ?>;
+var currentProject = null;
 
 // Initialize on load
 (function() {

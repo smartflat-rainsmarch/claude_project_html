@@ -171,11 +171,11 @@ renderPageHeader('콘텐츠 관리', [
  * Content List Page
  */
 
-let contentTable = null;
-let commonCodes = {};
-let projects = [];
-let searchDebounceTimer = null;
-const initialProjectId = <?php echo $projectId ?: 'null'; ?>;
+var contentTable = null;
+var commonCodes = {};
+var projects = [];
+var searchDebounceTimer = null;
+var initialProjectId = <?php echo $projectId ?: 'null'; ?>;
 
 // Initialize on load
 (function() {
