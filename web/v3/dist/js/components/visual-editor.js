@@ -230,7 +230,7 @@ var visualEditor = {
                     el.innerHTML += '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#999;font-size:12px;">' +
                         '<i class="fas fa-image"></i></div>';
                 }
-                // text overlay on img/button
+                // text overlay on img/button (with style properties)
                 if (item.text && typeof item.text === 'object') {
                     var langCode = (this.homeData && this.homeData.hm_language) || 'KO';
                     var textObj = item.text[langCode];
@@ -238,6 +238,21 @@ var visualEditor = {
                         var overlay = document.createElement('div');
                         overlay.className = 'canvas-text-overlay';
                         overlay.textContent = textObj.message.replace(/\|/g, ' ');
+                        // Apply text style properties
+                        if (textObj.fontsize) overlay.style.fontSize = textObj.fontsize + 'px';
+                        if (textObj.fontweight) overlay.style.fontWeight = textObj.fontweight;
+                        if (textObj.color) overlay.style.color = textObj.color;
+                        if (textObj.textalign) overlay.style.textAlign = textObj.textalign;
+                        // If text has x,y, position absolutely within element
+                        if (textObj.x !== undefined || textObj.y !== undefined) {
+                            overlay.style.position = 'absolute';
+                            overlay.style.bottom = 'auto';
+                            overlay.style.left = (parseInt(textObj.x) || 0) + 'px';
+                            overlay.style.top = (parseInt(textObj.y) || 0) + 'px';
+                            overlay.style.right = 'auto';
+                            overlay.style.background = 'transparent';
+                            overlay.style.padding = '0';
+                        }
                         el.appendChild(overlay);
                     }
                 }
@@ -634,6 +649,39 @@ var visualEditor = {
             '</div>';
 
         if (hasText) {
+            // Text style properties (shared across languages, read from first language with data)
+            var firstLang = null;
+            for (var k in item.text) { if (item.text[k]) { firstLang = item.text[k]; break; } }
+            var ts = firstLang || {};
+
+            html += '<div style="margin-bottom:8px;">' +
+                '<div class="panel-row">' +
+                '<span class="panel-label" style="width:28px;font-size:10px;">X</span>' +
+                '<input class="panel-input panel-input-sm" type="number" id="ve-prop-text-x" value="' + (ts.x || 0) + '" onchange="visualEditor.onTextStyleChange(\'x\',this.value)" style="width:50px;">' +
+                '<span class="panel-label" style="width:28px;font-size:10px;">Y</span>' +
+                '<input class="panel-input panel-input-sm" type="number" id="ve-prop-text-y" value="' + (ts.y || 0) + '" onchange="visualEditor.onTextStyleChange(\'y\',this.value)" style="width:50px;">' +
+                '<span class="panel-label" style="width:35px;font-size:10px;">크기</span>' +
+                '<input class="panel-input panel-input-sm" type="number" id="ve-prop-text-fontsize" value="' + (ts.fontsize || 16) + '" onchange="visualEditor.onTextStyleChange(\'fontsize\',this.value)" style="width:45px;">' +
+                '</div>' +
+                '<div class="panel-row">' +
+                '<span class="panel-label" style="width:28px;font-size:10px;">색상</span>' +
+                '<input type="color" id="ve-prop-text-color" value="' + escapeHtml(ts.color || '#ffffff') + '" onchange="visualEditor.onTextStyleChange(\'color\',this.value)" style="width:32px;height:24px;padding:1px;border:1px solid var(--border-color);border-radius:3px;cursor:pointer;">' +
+                '<span class="panel-label" style="width:28px;font-size:10px;">굵기</span>' +
+                '<select class="panel-select" id="ve-prop-text-fontweight" onchange="visualEditor.onTextStyleChange(\'fontweight\',this.value)" style="width:70px;font-size:11px;">' +
+                '<option value="normal" ' + ((ts.fontweight || 'normal') === 'normal' ? 'selected' : '') + '>Normal</option>' +
+                '<option value="bold" ' + (ts.fontweight === 'bold' ? 'selected' : '') + '>Bold</option>' +
+                '<option value="300" ' + (ts.fontweight === '300' ? 'selected' : '') + '>Light</option>' +
+                '<option value="700" ' + (ts.fontweight === '700' ? 'selected' : '') + '>700</option>' +
+                '</select>' +
+                '<span class="panel-label" style="width:28px;font-size:10px;">정렬</span>' +
+                '<select class="panel-select" id="ve-prop-text-textalign" onchange="visualEditor.onTextStyleChange(\'textalign\',this.value)" style="width:50px;font-size:11px;">' +
+                '<option value="left" ' + (ts.textalign === 'left' ? 'selected' : '') + '>좌</option>' +
+                '<option value="center" ' + ((ts.textalign || 'center') === 'center' ? 'selected' : '') + '>중</option>' +
+                '<option value="right" ' + (ts.textalign === 'right' ? 'selected' : '') + '>우</option>' +
+                '</select>' +
+                '</div></div>';
+
+            // Language-specific message inputs
             languages.forEach(function(lang) {
                 var msg = (item.text[lang.code] && item.text[lang.code].message) ? item.text[lang.code].message.replace(/\|/g, '\n') : '';
                 html += '<div class="panel-row">' +
@@ -686,7 +734,15 @@ var visualEditor = {
         var languages = this.getSupportedLanguages();
         item.text = {};
         languages.forEach(function(lang) {
-            item.text[lang.code] = { message: '' };
+            item.text[lang.code] = {
+                message: '',
+                x: 0,
+                y: 0,
+                fontsize: 20,
+                fontweight: 'bold',
+                color: '#ffffff',
+                textalign: 'center'
+            };
         });
         this.showPropertyPanel(this.selectedIdx);
         this.renderCanvas();
@@ -712,7 +768,7 @@ var visualEditor = {
     },
 
     /**
-     * Handle text data change for a specific language
+     * Handle text data change for a specific language (message)
      */
     onTextDataChange: function(langCode, value) {
         var items = this.getCurrentItems();
@@ -723,6 +779,30 @@ var visualEditor = {
         if (!item.text[langCode]) item.text[langCode] = {};
         // Replace newlines with pipe for storage
         item.text[langCode].message = value.replace(/\n/g, '|');
+        this.renderCanvas();
+        this.markDirty();
+    },
+
+    /**
+     * Handle text style change (x, y, fontsize, fontweight, color, textalign)
+     * Applies to ALL languages in the text object
+     */
+    onTextStyleChange: function(prop, value) {
+        var items = this.getCurrentItems();
+        var item = items[this.selectedIdx];
+        if (!item || !item.text || typeof item.text !== 'object') return;
+
+        this.pushUndo();
+        // Numeric props
+        var numericProps = ['x', 'y', 'fontsize'];
+        var val = numericProps.indexOf(prop) >= 0 ? parseInt(value) || 0 : value;
+
+        // Apply to all languages
+        for (var lang in item.text) {
+            if (item.text.hasOwnProperty(lang) && item.text[lang]) {
+                item.text[lang][prop] = val;
+            }
+        }
         this.renderCanvas();
         this.markDirty();
     },
