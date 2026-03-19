@@ -649,6 +649,14 @@ var visualEditor = {
             '</div>';
 
         if (hasText) {
+            // Merge: supported languages + any existing keys in item.text
+            var labels = this.langLabels;
+            var langCodes = languages.map(function(l) { return l.code; });
+            for (var k in item.text) {
+                if (item.text.hasOwnProperty(k) && langCodes.indexOf(k) === -1) {
+                    languages.push({ code: k, label: labels[k] || k });
+                }
+            }
             // Each language has its own style: {message, x, y, fontsize, fontweight, color, textalign}
             languages.forEach(function(lang) {
                 var td = item.text[lang.code] || {};
@@ -702,26 +710,33 @@ var visualEditor = {
     },
 
     /**
-     * Get supported languages based on homeData or defaults
+     * Language code → label map
+     */
+    langLabels: { KO: '한국어', EN: 'English', ZH: '中文', VI: 'Tiếng Việt', MS: 'Bahasa' },
+
+    /**
+     * Get supported languages from homeData.hm_all_language or hm_language
+     * hm_all_language: "KO,EN" → [{code:'KO',...},{code:'EN',...}]
+     * hm_language: "KO" → [{code:'KO',...}]
      */
     getSupportedLanguages: function() {
-        var all = [
-            { code: 'KO', label: '한국어' },
-            { code: 'EN', label: 'English' },
-            { code: 'ZH', label: '中文' },
-            { code: 'VI', label: 'Tiếng Việt' },
-            { code: 'MS', label: 'Bahasa' }
-        ];
-        // If homeData has hm_language, put it first
-        if (this.homeData && this.homeData.hm_language) {
-            var primary = this.homeData.hm_language;
-            all.sort(function(a, b) {
-                if (a.code === primary) return -1;
-                if (b.code === primary) return 1;
-                return 0;
-            });
+        var labels = this.langLabels;
+        var codes = [];
+
+        if (this.homeData) {
+            if (this.homeData.hm_all_language) {
+                // "KO,EN,ZH" → ['KO','EN','ZH']
+                codes = this.homeData.hm_all_language.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+            } else if (this.homeData.hm_language) {
+                codes = [this.homeData.hm_language];
+            }
         }
-        return all;
+
+        if (codes.length === 0) codes = ['KO'];
+
+        return codes.map(function(c) {
+            return { code: c, label: labels[c] || c };
+        });
     },
 
     /**
