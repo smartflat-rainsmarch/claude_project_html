@@ -596,10 +596,12 @@ var visualEditor = {
                 '<select class="panel-select" id="ve-prop-texttype" onchange="visualEditor.onPropChange(\'texttype\',this.value)">' + ttOpts + '</select></div>' +
                 '<div class="panel-row"><span class="panel-label">크기</span>' +
                 '<input class="panel-input panel-input-sm" id="ve-prop-fontsize" value="' + escapeHtml(item.fontsize || '16px') + '" onchange="visualEditor.onPropChange(\'fontsize\',this.value)">' +
-                '<span class="panel-label">정렬</span><select class="panel-select" id="ve-prop-textalign" onchange="visualEditor.onPropChange(\'textalign\',this.value)" style="width:70px;">' +
-                '<option value="left" ' + (item.textalign === 'left' ? 'selected' : '') + '>좌</option>' +
-                '<option value="center" ' + (item.textalign === 'center' ? 'selected' : '') + '>중</option>' +
-                '<option value="right" ' + (item.textalign === 'right' ? 'selected' : '') + '>우</option></select></div>' +
+                '<span class="panel-label">정렬</span>' +
+                '<div class="align-btn-group">' +
+                '<button type="button" class="' + ((item.textalign === 'left' || !item.textalign) ? 'active' : '') + '" onclick="visualEditor.onPropChange(\'textalign\',\'left\');visualEditor.showPropertyPanel(visualEditor.selectedIdx)" title="왼쪽 정렬"><i class="fas fa-align-left"></i></button>' +
+                '<button type="button" class="' + (item.textalign === 'center' ? 'active' : '') + '" onclick="visualEditor.onPropChange(\'textalign\',\'center\');visualEditor.showPropertyPanel(visualEditor.selectedIdx)" title="가운데 정렬"><i class="fas fa-align-center"></i></button>' +
+                '<button type="button" class="' + (item.textalign === 'right' ? 'active' : '') + '" onclick="visualEditor.onPropChange(\'textalign\',\'right\');visualEditor.showPropertyPanel(visualEditor.selectedIdx)" title="오른쪽 정렬"><i class="fas fa-align-right"></i></button>' +
+                '</div></div>' +
                 '<div class="panel-row"><span class="panel-label">색상</span>' +
                 '<input class="panel-color-input" type="color" id="ve-prop-fontcolor" value="' + escapeHtml(item.fontcolor || '#ffffff') + '" onchange="visualEditor.onPropChange(\'fontcolor\',this.value)">' +
                 '<input class="panel-input" id="ve-prop-fontcolor-text" value="' + escapeHtml(item.fontcolor || '#ffffff') + '" onchange="visualEditor.onPropChange(\'fontcolor\',this.value)" style="flex:1;"></div>' +
