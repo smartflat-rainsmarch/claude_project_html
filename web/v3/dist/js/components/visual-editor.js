@@ -694,11 +694,11 @@ var visualEditor = {
                     '<option value="300" ' + (td.fontweight === '300' ? 'selected' : '') + '>300</option>' +
                     '<option value="700" ' + (td.fontweight === '700' ? 'selected' : '') + '>700</option>' +
                     '</select>' +
-                    '<select class="panel-select" onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'textalign\',this.value)" style="width:45px;font-size:10px;">' +
-                    '<option value="left" ' + (td.textalign === 'left' ? 'selected' : '') + '>좌</option>' +
-                    '<option value="center" ' + ((td.textalign || 'center') === 'center' ? 'selected' : '') + '>중</option>' +
-                    '<option value="right" ' + (td.textalign === 'right' ? 'selected' : '') + '>우</option>' +
-                    '</select>' +
+                    '<div class="align-btn-group">' +
+                    '<button type="button" class="' + (td.textalign === 'left' ? 'active' : '') + '" onclick="visualEditor.onTextLangChange(\'' + lc + '\',\'textalign\',\'left\');visualEditor.showPropertyPanel(visualEditor.selectedIdx)" title="왼쪽 정렬"><i class="fas fa-align-left"></i></button>' +
+                    '<button type="button" class="' + ((td.textalign || 'center') === 'center' ? 'active' : '') + '" onclick="visualEditor.onTextLangChange(\'' + lc + '\',\'textalign\',\'center\');visualEditor.showPropertyPanel(visualEditor.selectedIdx)" title="가운데 정렬"><i class="fas fa-align-center"></i></button>' +
+                    '<button type="button" class="' + (td.textalign === 'right' ? 'active' : '') + '" onclick="visualEditor.onTextLangChange(\'' + lc + '\',\'textalign\',\'right\');visualEditor.showPropertyPanel(visualEditor.selectedIdx)" title="오른쪽 정렬"><i class="fas fa-align-right"></i></button>' +
+                    '</div>' +
                     '</div></div>';
             });
         } else {
