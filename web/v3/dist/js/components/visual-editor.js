@@ -675,13 +675,13 @@ var visualEditor = {
                     '<div class="panel-row">' +
                     '<span class="panel-label" style="width:15px;font-size:10px;">X</span>' +
                     '<input class="panel-input panel-input-sm" type="number" value="' + (td.x || 0) + '" ' +
-                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'x\',parseInt(this.value)||0)" style="width:42px;font-size:11px;">' +
+                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'x\',parseInt(this.value)||0)" style="width:60px;font-size:11px;">' +
                     '<span class="panel-label" style="width:15px;font-size:10px;">Y</span>' +
                     '<input class="panel-input panel-input-sm" type="number" value="' + (td.y || 0) + '" ' +
-                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'y\',parseInt(this.value)||0)" style="width:42px;font-size:11px;">' +
+                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'y\',parseInt(this.value)||0)" style="width:60px;font-size:11px;">' +
                     '<span class="panel-label" style="width:20px;font-size:10px;">px</span>' +
                     '<input class="panel-input panel-input-sm" type="number" value="' + (td.fontsize || 20) + '" ' +
-                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'fontsize\',parseInt(this.value)||20)" style="width:38px;font-size:11px;">' +
+                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'fontsize\',parseInt(this.value)||20)" style="width:55px;font-size:11px;">' +
                     '</div>' +
                     // color, fontweight, textalign
                     '<div class="panel-row">' +
