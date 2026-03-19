@@ -649,47 +649,49 @@ var visualEditor = {
             '</div>';
 
         if (hasText) {
-            // Text style properties (shared across languages, read from first language with data)
-            var firstLang = null;
-            for (var k in item.text) { if (item.text[k]) { firstLang = item.text[k]; break; } }
-            var ts = firstLang || {};
-
-            html += '<div style="margin-bottom:8px;">' +
-                '<div class="panel-row">' +
-                '<span class="panel-label" style="width:28px;font-size:10px;">X</span>' +
-                '<input class="panel-input panel-input-sm" type="number" id="ve-prop-text-x" value="' + (ts.x || 0) + '" onchange="visualEditor.onTextStyleChange(\'x\',this.value)" style="width:50px;">' +
-                '<span class="panel-label" style="width:28px;font-size:10px;">Y</span>' +
-                '<input class="panel-input panel-input-sm" type="number" id="ve-prop-text-y" value="' + (ts.y || 0) + '" onchange="visualEditor.onTextStyleChange(\'y\',this.value)" style="width:50px;">' +
-                '<span class="panel-label" style="width:35px;font-size:10px;">크기</span>' +
-                '<input class="panel-input panel-input-sm" type="number" id="ve-prop-text-fontsize" value="' + (ts.fontsize || 16) + '" onchange="visualEditor.onTextStyleChange(\'fontsize\',this.value)" style="width:45px;">' +
-                '</div>' +
-                '<div class="panel-row">' +
-                '<span class="panel-label" style="width:28px;font-size:10px;">색상</span>' +
-                '<input type="color" id="ve-prop-text-color" value="' + escapeHtml(ts.color || '#ffffff') + '" onchange="visualEditor.onTextStyleChange(\'color\',this.value)" style="width:32px;height:24px;padding:1px;border:1px solid var(--border-color);border-radius:3px;cursor:pointer;">' +
-                '<span class="panel-label" style="width:28px;font-size:10px;">굵기</span>' +
-                '<select class="panel-select" id="ve-prop-text-fontweight" onchange="visualEditor.onTextStyleChange(\'fontweight\',this.value)" style="width:70px;font-size:11px;">' +
-                '<option value="normal" ' + ((ts.fontweight || 'normal') === 'normal' ? 'selected' : '') + '>Normal</option>' +
-                '<option value="bold" ' + (ts.fontweight === 'bold' ? 'selected' : '') + '>Bold</option>' +
-                '<option value="300" ' + (ts.fontweight === '300' ? 'selected' : '') + '>Light</option>' +
-                '<option value="700" ' + (ts.fontweight === '700' ? 'selected' : '') + '>700</option>' +
-                '</select>' +
-                '<span class="panel-label" style="width:28px;font-size:10px;">정렬</span>' +
-                '<select class="panel-select" id="ve-prop-text-textalign" onchange="visualEditor.onTextStyleChange(\'textalign\',this.value)" style="width:50px;font-size:11px;">' +
-                '<option value="left" ' + (ts.textalign === 'left' ? 'selected' : '') + '>좌</option>' +
-                '<option value="center" ' + ((ts.textalign || 'center') === 'center' ? 'selected' : '') + '>중</option>' +
-                '<option value="right" ' + (ts.textalign === 'right' ? 'selected' : '') + '>우</option>' +
-                '</select>' +
-                '</div></div>';
-
-            // Language-specific message inputs
+            // Each language has its own style: {message, x, y, fontsize, fontweight, color, textalign}
             languages.forEach(function(lang) {
-                var msg = (item.text[lang.code] && item.text[lang.code].message) ? item.text[lang.code].message.replace(/\|/g, '\n') : '';
-                html += '<div class="panel-row">' +
-                    '<span class="panel-label" style="width:28px;font-size:11px;font-weight:600;color:var(--color-primary);">' + escapeHtml(lang.code) + '</span>' +
-                    '<textarea class="panel-input" id="ve-prop-text-' + lang.code + '" rows="1" ' +
-                    'style="font-size:11px;resize:vertical;min-height:28px;" ' +
-                    'onchange="visualEditor.onTextDataChange(\'' + lang.code + '\',this.value)" ' +
-                    'placeholder="' + escapeHtml(lang.label) + '">' + escapeHtml(msg) + '</textarea></div>';
+                var td = item.text[lang.code] || {};
+                var msg = td.message ? td.message.replace(/\|/g, '\n') : '';
+                var lc = lang.code;
+
+                html += '<div class="text-lang-block" style="margin-bottom:10px;padding:6px 0;border-bottom:1px solid var(--border-color);">' +
+                    '<div style="font-size:11px;font-weight:600;color:var(--color-primary);margin-bottom:4px;">' + escapeHtml(lc) + ' - ' + escapeHtml(lang.label) + '</div>' +
+                    // Message
+                    '<div class="panel-row"><span class="panel-label" style="width:35px;font-size:10px;">텍스트</span>' +
+                    '<textarea class="panel-input" id="ve-prop-text-msg-' + lc + '" rows="1" ' +
+                    'style="font-size:11px;resize:vertical;min-height:26px;" ' +
+                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'message\',this.value.replace(/\\n/g,\'|\'))" ' +
+                    'placeholder="텍스트">' + escapeHtml(msg) + '</textarea></div>' +
+                    // X, Y, fontsize
+                    '<div class="panel-row">' +
+                    '<span class="panel-label" style="width:15px;font-size:10px;">X</span>' +
+                    '<input class="panel-input panel-input-sm" type="number" value="' + (td.x || 0) + '" ' +
+                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'x\',parseInt(this.value)||0)" style="width:42px;font-size:11px;">' +
+                    '<span class="panel-label" style="width:15px;font-size:10px;">Y</span>' +
+                    '<input class="panel-input panel-input-sm" type="number" value="' + (td.y || 0) + '" ' +
+                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'y\',parseInt(this.value)||0)" style="width:42px;font-size:11px;">' +
+                    '<span class="panel-label" style="width:20px;font-size:10px;">px</span>' +
+                    '<input class="panel-input panel-input-sm" type="number" value="' + (td.fontsize || 20) + '" ' +
+                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'fontsize\',parseInt(this.value)||20)" style="width:38px;font-size:11px;">' +
+                    '</div>' +
+                    // color, fontweight, textalign
+                    '<div class="panel-row">' +
+                    '<input type="color" value="' + escapeHtml(td.color || '#ffffff') + '" ' +
+                    'onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'color\',this.value)" ' +
+                    'style="width:28px;height:22px;padding:1px;border:1px solid var(--border-color);border-radius:3px;cursor:pointer;">' +
+                    '<select class="panel-select" onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'fontweight\',this.value)" style="width:65px;font-size:10px;">' +
+                    '<option value="normal" ' + ((td.fontweight || 'normal') === 'normal' ? 'selected' : '') + '>Normal</option>' +
+                    '<option value="bold" ' + (td.fontweight === 'bold' ? 'selected' : '') + '>Bold</option>' +
+                    '<option value="300" ' + (td.fontweight === '300' ? 'selected' : '') + '>300</option>' +
+                    '<option value="700" ' + (td.fontweight === '700' ? 'selected' : '') + '>700</option>' +
+                    '</select>' +
+                    '<select class="panel-select" onchange="visualEditor.onTextLangChange(\'' + lc + '\',\'textalign\',this.value)" style="width:45px;font-size:10px;">' +
+                    '<option value="left" ' + (td.textalign === 'left' ? 'selected' : '') + '>좌</option>' +
+                    '<option value="center" ' + ((td.textalign || 'center') === 'center' ? 'selected' : '') + '>중</option>' +
+                    '<option value="right" ' + (td.textalign === 'right' ? 'selected' : '') + '>우</option>' +
+                    '</select>' +
+                    '</div></div>';
             });
         } else {
             html += '<div style="padding:4px 0;font-size:11px;color:var(--text-muted);">텍스트 없음 (+ 버튼으로 추가)</div>';
@@ -768,41 +770,17 @@ var visualEditor = {
     },
 
     /**
-     * Handle text data change for a specific language (message)
+     * Handle text data change for a specific language and property
+     * Each language has independent style: {message, x, y, fontsize, fontweight, color, textalign}
      */
-    onTextDataChange: function(langCode, value) {
+    onTextLangChange: function(langCode, prop, value) {
         var items = this.getCurrentItems();
         var item = items[this.selectedIdx];
         if (!item || !item.text) return;
 
         this.pushUndo();
         if (!item.text[langCode]) item.text[langCode] = {};
-        // Replace newlines with pipe for storage
-        item.text[langCode].message = value.replace(/\n/g, '|');
-        this.renderCanvas();
-        this.markDirty();
-    },
-
-    /**
-     * Handle text style change (x, y, fontsize, fontweight, color, textalign)
-     * Applies to ALL languages in the text object
-     */
-    onTextStyleChange: function(prop, value) {
-        var items = this.getCurrentItems();
-        var item = items[this.selectedIdx];
-        if (!item || !item.text || typeof item.text !== 'object') return;
-
-        this.pushUndo();
-        // Numeric props
-        var numericProps = ['x', 'y', 'fontsize'];
-        var val = numericProps.indexOf(prop) >= 0 ? parseInt(value) || 0 : value;
-
-        // Apply to all languages
-        for (var lang in item.text) {
-            if (item.text.hasOwnProperty(lang) && item.text[lang]) {
-                item.text[lang][prop] = val;
-            }
-        }
+        item.text[langCode][prop] = value;
         this.renderCanvas();
         this.markDirty();
     },
