@@ -242,18 +242,14 @@ var visualEditor = {
                         if (textObj.fontsize) overlay.style.fontSize = textObj.fontsize + 'px';
                         if (textObj.fontweight) overlay.style.fontWeight = textObj.fontweight;
                         if (textObj.color) overlay.style.color = textObj.color;
-                        if (textObj.textalign) overlay.style.textAlign = textObj.textalign;
-                        // x,y: text position within parent element
-                        var textX = parseInt(textObj.x) || 0;
-                        var textY = parseInt(textObj.y) || 0;
-                        if (textX || textY) {
-                            overlay.style.top = textY + 'px';
-                            overlay.style.bottom = 'auto';
-                            overlay.style.left = '0';
-                            overlay.style.right = '0';
-                            overlay.style.paddingLeft = textX + 'px';
-                            overlay.style.background = 'transparent';
-                        }
+                        // x,y = 부모 내부 텍스트 위치 (cocos2d anchor center 기준)
+                        // CSS: left:0, right:0, width:100% 유지하여 textAlign 동작
+                        overlay.style.top = (parseInt(textObj.y) || 0) + 'px';
+                        overlay.style.bottom = 'auto';
+                        overlay.style.left = '0';
+                        overlay.style.right = '0';
+                        overlay.style.background = 'transparent';
+                        overlay.style.textAlign = textObj.textalign || 'center';
                         el.appendChild(overlay);
                     }
                 }
