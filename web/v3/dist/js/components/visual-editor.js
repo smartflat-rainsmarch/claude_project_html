@@ -806,7 +806,7 @@ var visualEditor = {
         var evt = item.event || {};
         return '<div class="panel-section"><div class="panel-section-title">이벤트</div>' +
             '<div class="panel-row"><span class="panel-label">page</span>' +
-            '<input class="panel-input panel-input-sm" id="ve-prop-evt-page" value="' + escapeHtml(evt.page || '') + '" onchange="visualEditor.onEventChange()"></div>' +
+            '<input class="panel-input" id="ve-prop-evt-page" value="' + escapeHtml(evt.page || '') + '" onchange="visualEditor.onEventChange()" style="flex:1;"></div>' +
             '<div class="panel-row"><span class="panel-label">tab</span>' +
             '<input class="panel-input panel-input-sm" id="ve-prop-evt-tab" value="' + escapeHtml(evt.tab || '') + '" onchange="visualEditor.onEventChange()"></div>' +
             '<div class="panel-row"><span class="panel-label">sub</span>' +
