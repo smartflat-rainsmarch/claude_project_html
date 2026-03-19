@@ -261,12 +261,16 @@ var visualEditor = {
 
             case 'text':
                 el.className += ' canvas-element-text';
+                var textAlign = item.textalign || 'left';
                 el.style.color = item.fontcolor || '#ffffff';
                 el.style.fontSize = (item.fontsize || 16) + (String(item.fontsize).includes('px') ? '' : 'px');
                 el.style.fontWeight = item.fontweight || 'normal';
-                el.style.textAlign = item.textalign || 'left';
                 el.style.display = 'flex';
                 el.style.alignItems = 'center';
+                // flex에서 수평 정렬: justify-content 사용
+                var justifyMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
+                el.style.justifyContent = justifyMap[textAlign] || 'flex-start';
+                el.style.textAlign = textAlign;
                 var textMap = {
                     'text_notice': '공지사항 텍스트',
                     'm/d': '03/19',
@@ -279,7 +283,7 @@ var visualEditor = {
                 var displayText = item.text || textMap[item.texttype] || item.name || 'Text';
                 if (typeof displayText === 'object') displayText = displayText.KO ? displayText.KO.message : item.name || 'Text';
                 var span = document.createElement('span');
-                span.style.width = '100%';
+                span.style.textAlign = textAlign;
                 span.textContent = displayText;
                 el.appendChild(span);
                 break;
