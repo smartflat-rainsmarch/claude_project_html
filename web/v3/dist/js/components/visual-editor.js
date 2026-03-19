@@ -242,9 +242,13 @@ var visualEditor = {
                         if (textObj.fontsize) overlay.style.fontSize = textObj.fontsize + 'px';
                         if (textObj.fontweight) overlay.style.fontWeight = textObj.fontweight;
                         if (textObj.color) overlay.style.color = textObj.color;
-                        // x,y = 부모 내부 텍스트 위치 (cocos2d anchor center 기준)
-                        // CSS: left:0, right:0, width:100% 유지하여 textAlign 동작
-                        overlay.style.top = (parseInt(textObj.y) || 0) + 'px';
+                        // cocos2d y좌표는 하단=0, 상단=height (CSS와 반대)
+                        // CSS top = 부모높이 - y - 텍스트높이
+                        var parentH = parseInt(el.style.height) || h;
+                        var textFontSize = parseInt(textObj.fontsize) || 12;
+                        var cocosY = parseInt(textObj.y) || 0;
+                        var cssTop = parentH - cocosY - textFontSize;
+                        overlay.style.top = Math.max(0, cssTop) + 'px';
                         overlay.style.bottom = 'auto';
                         overlay.style.left = '0';
                         overlay.style.right = '0';
