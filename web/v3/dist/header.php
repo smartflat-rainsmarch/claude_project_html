@@ -169,7 +169,13 @@ function updateGlobalProjectInfo(hmIdx) {
     }
 
     var select = document.getElementById('global-project-select');
-    var opt = select ? select.querySelector('option[value="' + hmIdx + '"]') : null;
+    // Safe option lookup without querySelector selector injection
+    var opt = null;
+    if (select) {
+        for (var i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === String(hmIdx)) { opt = select.options[i]; break; }
+        }
+    }
     if (!opt) { info.style.display = 'none'; return; }
 
     var orient = opt.dataset.orientation;
@@ -193,7 +199,13 @@ function getGlobalProjectHmIdx() {
 }
 
 // Load projects on init
-setTimeout(function() { loadGlobalProjects(); }, 100);
+// Load projects after V3Api is ready, then dispatch event for auto-load
+setTimeout(function() {
+    loadGlobalProjects().then(function() {
+        // Notify pages that projects are loaded and selected project is ready
+        document.dispatchEvent(new CustomEvent('globalProjectsLoaded'));
+    });
+}, 100);
 
 /**
  * Show user profile modal

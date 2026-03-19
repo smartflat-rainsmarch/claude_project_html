@@ -977,8 +977,11 @@ var visualEditor = {
             if (rect.bottom > window.innerHeight) menu.style.top = (e.clientY - rect.height) + 'px';
         });
 
-        // Close context menu on click elsewhere
-        document.addEventListener('click', function() { self.hideContextMenu(); });
+        // Close context menu on click elsewhere (guard against multiple registrations)
+        if (!this._contextClickBound) {
+            this._contextClickBound = true;
+            document.addEventListener('click', function() { self.hideContextMenu(); });
+        }
 
         // Handle context menu actions
         var menu = document.getElementById('ve-context-menu');
@@ -1247,11 +1250,17 @@ var visualEditor = {
         var preview = document.getElementById('fp-preview');
         if (!preview) return;
 
-        var fontsize = document.getElementById('fp-fontsize').value || '24';
-        var fontcolor = document.getElementById('fp-fontcolor').value || '#ffffff';
-        var fontweight = document.getElementById('fp-fontweight').value || 'normal';
-        var texttype = document.getElementById('fp-texttype').value;
-        var text = document.getElementById('fp-text').value;
+        var fsEl = document.getElementById('fp-fontsize');
+        var fcEl = document.getElementById('fp-fontcolor');
+        var fwEl = document.getElementById('fp-fontweight');
+        var ttEl = document.getElementById('fp-texttype');
+        var txEl = document.getElementById('fp-text');
+
+        var fontsize = fsEl ? fsEl.value : '24';
+        var fontcolor = fcEl ? fcEl.value : '#ffffff';
+        var fontweight = fwEl ? fwEl.value : 'normal';
+        var texttype = ttEl ? ttEl.value : '';
+        var text = txEl ? txEl.value : '';
 
         preview.style.fontSize = fontsize + 'px';
         preview.style.color = fontcolor;

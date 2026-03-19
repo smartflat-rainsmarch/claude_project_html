@@ -113,7 +113,13 @@
         visualEditor.onProjectChange(e.detail.hmIdx);
     });
 
-    // Auto-load if global project already selected
+    // Auto-load after global projects are loaded
+    document.addEventListener('globalProjectsLoaded', function() {
+        var hmIdx = getGlobalProjectHmIdx();
+        if (hmIdx) visualEditor.onProjectChange(hmIdx);
+    });
+
+    // Also try immediately (in case projects already loaded)
     (function() {
         var hmIdx = getGlobalProjectHmIdx();
         if (hmIdx) visualEditor.onProjectChange(hmIdx);
