@@ -202,7 +202,7 @@
 
 /* Property Panel */
 .editor-panel {
-    width: 280px;
+    width: 340px;
     flex-shrink: 0;
     background: var(--bg-card);
     border-left: 1px solid var(--border-color);
