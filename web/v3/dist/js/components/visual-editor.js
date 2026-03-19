@@ -243,15 +243,16 @@ var visualEditor = {
                         if (textObj.fontweight) overlay.style.fontWeight = textObj.fontweight;
                         if (textObj.color) overlay.style.color = textObj.color;
                         if (textObj.textalign) overlay.style.textAlign = textObj.textalign;
-                        // If text has x,y, position absolutely within element
-                        if (textObj.x !== undefined || textObj.y !== undefined) {
-                            overlay.style.position = 'absolute';
+                        // x,y: text position within parent element
+                        var textX = parseInt(textObj.x) || 0;
+                        var textY = parseInt(textObj.y) || 0;
+                        if (textX || textY) {
+                            overlay.style.top = textY + 'px';
                             overlay.style.bottom = 'auto';
-                            overlay.style.left = (parseInt(textObj.x) || 0) + 'px';
-                            overlay.style.top = (parseInt(textObj.y) || 0) + 'px';
-                            overlay.style.right = 'auto';
+                            overlay.style.left = '0';
+                            overlay.style.right = '0';
+                            overlay.style.paddingLeft = textX + 'px';
                             overlay.style.background = 'transparent';
-                            overlay.style.padding = '0';
                         }
                         el.appendChild(overlay);
                     }
