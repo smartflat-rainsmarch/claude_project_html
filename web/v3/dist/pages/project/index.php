@@ -261,15 +261,13 @@ function renderProjectTable(projects) {
  * Navigate to channel editor with project selected
  */
 function goToChannelEditor(hmIdx) {
-    loadPage('channel', {}, function() {
-        setTimeout(function() {
-            const sel = document.getElementById('channel-project-select');
-            if (sel) {
-                sel.value = hmIdx;
-                channelEditor.onProjectChange(hmIdx);
-            }
-        }, 300);
-    });
+    // Set global project selector and navigate
+    var globalSel = document.getElementById('global-project-select');
+    if (globalSel) {
+        globalSel.value = hmIdx;
+        onGlobalProjectChange(hmIdx);
+    }
+    loadPage('channel');
 }
 
 /**

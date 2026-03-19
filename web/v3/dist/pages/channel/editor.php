@@ -13,12 +13,6 @@
         <h2 class="page-title">비주얼 에디터</h2>
     </div>
     <div class="page-header-right">
-        <div style="display:flex; align-items:center; gap:8px;">
-            <label style="font-weight:500; font-size:13px;">프로젝트:</label>
-            <select id="ve-project-select" class="form-control" style="width:220px; font-size:13px;" onchange="visualEditor.onProjectChange(this.value)">
-                <option value="">선택하세요</option>
-            </select>
-        </div>
         <span id="ve-save-indicator" class="save-indicator saved"><i class="fas fa-check-circle"></i> 저장됨</span>
         <button class="btn btn-light" onclick="visualEditor.undo()" title="되돌리기 (Ctrl+Z)"><i class="fas fa-undo"></i></button>
         <button class="btn btn-light" onclick="visualEditor.redo()" title="다시 실행 (Ctrl+Y)"><i class="fas fa-redo"></i></button>
@@ -37,6 +31,12 @@
         <span class="toolbar-label">도구:</span>
         <button class="tool-btn active" id="ve-tool-select" onclick="visualEditor.setTool('select')" title="선택 (V)"><i class="fas fa-mouse-pointer"></i></button>
         <button class="tool-btn" id="ve-tool-move" onclick="visualEditor.setTool('move')" title="이동 (M)"><i class="fas fa-arrows-alt"></i></button>
+    </div>
+    <div class="toolbar-group">
+        <span class="toolbar-label">추가:</span>
+        <button class="tool-btn" onclick="visualEditor.showAddImageDialog()" title="이미지 추가"><i class="fas fa-image"></i></button>
+        <button class="tool-btn" onclick="visualEditor.showAddButtonDialog()" title="버튼 추가"><i class="fas fa-hand-pointer"></i></button>
+        <button class="tool-btn" onclick="visualEditor.showAddTextDialog()" title="텍스트 추가"><i class="fas fa-font"></i></button>
     </div>
     <div class="toolbar-group">
         <button class="tool-btn" onclick="visualEditor.toggleGrid()" id="ve-grid-btn" title="그리드 표시"><i class="fas fa-th"></i></button>
@@ -91,7 +91,31 @@
     </div>
 </div>
 
+<!-- Context Menu -->
+<div id="ve-context-menu" class="context-menu" style="display:none;">
+    <div class="context-menu-item" data-action="edit"><i class="fas fa-edit"></i> 속성 편집</div>
+    <div class="context-menu-item" data-action="font" id="ve-ctx-font" style="display:none;"><i class="fas fa-font"></i> 폰트 속성</div>
+    <div class="context-menu-item" data-action="add-text" id="ve-ctx-addtext" style="display:none;"><i class="fas fa-plus"></i> 텍스트 추가</div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item" data-action="duplicate"><i class="fas fa-copy"></i> 복제</div>
+    <div class="context-menu-item" data-action="bring-front"><i class="fas fa-arrow-up"></i> 맨 앞으로</div>
+    <div class="context-menu-item" data-action="send-back"><i class="fas fa-arrow-down"></i> 맨 뒤로</div>
+    <div class="context-menu-divider"></div>
+    <div class="context-menu-item danger" data-action="delete"><i class="fas fa-trash"></i> 삭제</div>
+</div>
+
 <script src="./js/components/visual-editor.js?v=<?php echo time(); ?>"></script>
 <script>
     visualEditor.init();
+
+    // Listen for global project changes
+    document.addEventListener('globalProjectChanged', function(e) {
+        visualEditor.onProjectChange(e.detail.hmIdx);
+    });
+
+    // Auto-load if global project already selected
+    (function() {
+        var hmIdx = getGlobalProjectHmIdx();
+        if (hmIdx) visualEditor.onProjectChange(hmIdx);
+    })();
 </script>

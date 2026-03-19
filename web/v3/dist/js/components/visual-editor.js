@@ -50,33 +50,12 @@ var visualEditor = {
 
     /**
      * Initialize
+     * Project selection is handled by the global header selector
      */
     init: function() {
-        this.loadProjects();
         this.bindKeyboard();
         this.bindCanvasEvents();
-    },
-
-    /**
-     * Load project list
-     */
-    loadProjects: async function() {
-        try {
-            var res = await V3Api.get('/homes');
-            if (res.code === 100 && res.data) {
-                var select = document.getElementById('ve-project-select');
-                res.data.forEach(function(home) {
-                    var opt = document.createElement('option');
-                    opt.value = home.hm_idx;
-                    opt.textContent = home.hm_projectname
-                        ? home.hm_projectname + ' (' + home.hm_projectid + ')'
-                        : home.hm_projectid;
-                    select.appendChild(opt);
-                });
-            }
-        } catch (err) {
-            cerror('Failed to load projects:', err);
-        }
+        this.initContextMenu();
     },
 
     /**
@@ -256,22 +235,25 @@ var visualEditor = {
             case 'text':
                 el.className += ' canvas-element-text';
                 el.style.color = item.fontcolor || '#ffffff';
-                el.style.fontSize = item.fontsize || '16px';
+                el.style.fontSize = (item.fontsize || 16) + (String(item.fontsize).includes('px') ? '' : 'px');
+                el.style.fontWeight = item.fontweight || 'normal';
                 el.style.textAlign = item.textalign || 'left';
                 el.style.display = 'flex';
                 el.style.alignItems = 'center';
                 var textMap = {
                     'text_notice': '공지사항 텍스트',
-                    'm/d': '03/18',
+                    'm/d': '03/19',
                     'hh:mm': '14:30',
-                    'weekday': '수요일',
+                    'weekday': '(수)',
                     'yyyy': '2026',
                     'hh:mm:ss': '14:30:00',
-                    'yyyymmdd': '2026.03.18'
+                    'yyyymmdd': '2026.03.19'
                 };
+                var displayText = item.text || textMap[item.texttype] || item.name || 'Text';
+                if (typeof displayText === 'object') displayText = displayText.KO ? displayText.KO.message : item.name || 'Text';
                 var span = document.createElement('span');
                 span.style.width = '100%';
-                span.textContent = textMap[item.texttype] || item.name || 'Text';
+                span.textContent = displayText;
                 el.appendChild(span);
                 break;
 
@@ -585,7 +567,16 @@ var visualEditor = {
                 '<option value="right" ' + (item.textalign === 'right' ? 'selected' : '') + '>우</option></select></div>' +
                 '<div class="panel-row"><span class="panel-label">색상</span>' +
                 '<input class="panel-color-input" type="color" id="ve-prop-fontcolor" value="' + escapeHtml(item.fontcolor || '#ffffff') + '" onchange="visualEditor.onPropChange(\'fontcolor\',this.value)">' +
-                '<input class="panel-input" id="ve-prop-fontcolor-text" value="' + escapeHtml(item.fontcolor || '#ffffff') + '" onchange="visualEditor.onPropChange(\'fontcolor\',this.value)" style="flex:1;"></div></div>';
+                '<input class="panel-input" id="ve-prop-fontcolor-text" value="' + escapeHtml(item.fontcolor || '#ffffff') + '" onchange="visualEditor.onPropChange(\'fontcolor\',this.value)" style="flex:1;"></div>' +
+                '<div class="panel-row"><span class="panel-label">굵기</span>' +
+                '<select class="panel-select" id="ve-prop-fontweight" onchange="visualEditor.onPropChange(\'fontweight\',this.value)">' +
+                '<option value="normal" ' + ((item.fontweight || 'normal') === 'normal' ? 'selected' : '') + '>Normal</option>' +
+                '<option value="bold" ' + (item.fontweight === 'bold' ? 'selected' : '') + '>Bold</option>' +
+                '<option value="300" ' + (item.fontweight === '300' ? 'selected' : '') + '>Light</option>' +
+                '<option value="500" ' + (item.fontweight === '500' ? 'selected' : '') + '>Medium</option>' +
+                '<option value="700" ' + (item.fontweight === '700' ? 'selected' : '') + '>700</option>' +
+                '<option value="900" ' + (item.fontweight === '900' ? 'selected' : '') + '>Black</option>' +
+                '</select></div></div>';
         }
         if (item.type === 'video') {
             html += '<div class="panel-section"><div class="panel-section-title">동영상</div>' +
@@ -745,9 +736,28 @@ var visualEditor = {
         this.updateZoom();
     },
 
+    /**
+     * Ensure canvas area is square-ish so both landscape and portrait fit well
+     */
+    ensureSquareArea: function() {
+        var area = document.getElementById('ve-canvas-area');
+        if (!area) return;
+        // 부모 컨테이너의 가용 크기
+        var container = area.parentElement;
+        var panelWidth = 280; // editor-panel width
+        var availW = container.clientWidth - panelWidth;
+        var availH = container.clientHeight;
+        // 정사각형: 가로/세로 중 작은 쪽에 맞춤
+        var squareSize = Math.max(Math.min(availW, availH), 500);
+        area.style.width = squareSize + 'px';
+        area.style.minHeight = squareSize + 'px';
+    },
+
     zoomFit: function() {
         var area = document.getElementById('ve-canvas-area');
         if (!area) return;
+
+        this.ensureSquareArea();
 
         var padding = 24;
         var areaW = area.clientWidth - padding * 2;
@@ -757,7 +767,7 @@ var visualEditor = {
         var scaleH = this.canvasHeight > 0 ? areaH / this.canvasHeight : 1;
         // 영역에 맞추되 최대 1배까지
         this.scale = Math.min(scaleW, scaleH, 1);
-        // 최소 0.15배 보장 (너무 작게 보이지 않도록)
+        // 최소 0.15배 보장
         this.scale = Math.max(this.scale, 0.15);
         this.updateZoom();
     },
@@ -923,5 +933,486 @@ var visualEditor = {
                 self.setTool('move');
             }
         });
+    },
+
+    // =========================================
+    // Context Menu (우클릭)
+    // =========================================
+
+    initContextMenu: function() {
+        var self = this;
+        var canvas = document.getElementById('ve-canvas');
+        if (!canvas) return;
+
+        canvas.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            var target = e.target.closest('.canvas-element');
+            if (!target) {
+                self.hideContextMenu();
+                return;
+            }
+
+            var idx = parseInt(target.dataset.idx);
+            self.selectElement(idx);
+
+            var items = self.getCurrentItems();
+            var item = items[idx];
+            if (!item) return;
+
+            // Show/hide type-specific menu items
+            var fontItem = document.getElementById('ve-ctx-font');
+            var addTextItem = document.getElementById('ve-ctx-addtext');
+            if (fontItem) fontItem.style.display = item.type === 'text' ? 'flex' : 'none';
+            if (addTextItem) addTextItem.style.display = (item.type === 'img' || item.type === 'button') ? 'flex' : 'none';
+
+            var menu = document.getElementById('ve-context-menu');
+            if (!menu) return;
+            menu.style.display = 'block';
+            menu.style.left = e.clientX + 'px';
+            menu.style.top = e.clientY + 'px';
+
+            // Ensure menu stays within viewport
+            var rect = menu.getBoundingClientRect();
+            if (rect.right > window.innerWidth) menu.style.left = (e.clientX - rect.width) + 'px';
+            if (rect.bottom > window.innerHeight) menu.style.top = (e.clientY - rect.height) + 'px';
+        });
+
+        // Close context menu on click elsewhere
+        document.addEventListener('click', function() { self.hideContextMenu(); });
+
+        // Handle context menu actions
+        var menu = document.getElementById('ve-context-menu');
+        if (menu) {
+            menu.addEventListener('click', function(e) {
+                var item = e.target.closest('.context-menu-item');
+                if (!item) return;
+                var action = item.dataset.action;
+                self.hideContextMenu();
+                self.handleContextAction(action);
+            });
+        }
+    },
+
+    hideContextMenu: function() {
+        var menu = document.getElementById('ve-context-menu');
+        if (menu) menu.style.display = 'none';
+    },
+
+    handleContextAction: function(action) {
+        switch (action) {
+            case 'edit':
+                this.showPropertyPanel(this.selectedIdx);
+                break;
+            case 'font':
+                this.showFontPropertiesDialog();
+                break;
+            case 'add-text':
+                this.addTextOverlay();
+                break;
+            case 'duplicate':
+                this.duplicateSelected();
+                break;
+            case 'bring-front':
+                this.bringToFront();
+                break;
+            case 'send-back':
+                this.sendToBack();
+                break;
+            case 'delete':
+                this.deleteSelected();
+                break;
+        }
+    },
+
+    // =========================================
+    // Element Add Dialogs
+    // =========================================
+
+    showAddImageDialog: function() {
+        if (!this.hmIdx) { toastError('프로젝트를 먼저 선택하세요.'); return; }
+        var html = '<div style="display:grid;gap:12px;">' +
+            '<div class="form-group"><label class="form-label">ID</label>' +
+            '<input class="form-control" id="ve-add-id" placeholder="home_img_1"></div>' +
+            '<div class="form-group"><label class="form-label">이름</label>' +
+            '<input class="form-control" id="ve-add-name" placeholder="이미지 이름"></div>' +
+            '<div class="form-group"><label class="form-label">이미지 URL</label>' +
+            '<input class="form-control" id="ve-add-imgurl" placeholder="../../../game/school/.../res/...png"></div>' +
+            '</div>';
+
+        var self = this;
+        showModalDialog(document.body, '이미지 추가', html, '추가', '취소',
+            function() {
+                var id = document.getElementById('ve-add-id').value.trim();
+                var name = document.getElementById('ve-add-name').value.trim();
+                var imgurl = document.getElementById('ve-add-imgurl').value.trim();
+                if (!id || !name) { toastError('ID와 이름을 입력하세요.'); return; }
+                self.pushUndo();
+                self.getCurrentItems().push({
+                    id: id, name: name, type: 'img',
+                    imgurl: imgurl,
+                    x: String(Math.round(self.canvasWidth / 2)),
+                    y: String(Math.round(self.canvasHeight / 2))
+                });
+                self.renderCanvas();
+                self.markDirty();
+                hideModalDialog();
+            },
+            function() { hideModalDialog(); },
+            { size: { width: '450px' }, allowHtml: true }
+        );
+    },
+
+    showAddButtonDialog: function() {
+        if (!this.hmIdx) { toastError('프로젝트를 먼저 선택하세요.'); return; }
+        var html = '<div style="display:grid;gap:12px;">' +
+            '<div class="form-group"><label class="form-label">ID</label>' +
+            '<input class="form-control" id="ve-add-id" placeholder="home_btn_1"></div>' +
+            '<div class="form-group"><label class="form-label">이름</label>' +
+            '<input class="form-control" id="ve-add-name" placeholder="버튼 이름"></div>' +
+            '<div class="form-group"><label class="form-label">이미지 URL (기본)</label>' +
+            '<input class="form-control" id="ve-add-imgurl" placeholder="버튼 이미지"></div>' +
+            '<div class="form-group"><label class="form-label">클릭 이미지 URL</label>' +
+            '<input class="form-control" id="ve-add-clickurl" placeholder="클릭 시 이미지"></div>' +
+            '<div style="display:flex;gap:8px;">' +
+            '<div class="form-group" style="flex:1"><label class="form-label">이벤트 page</label>' +
+            '<select class="form-control" id="ve-add-evt-page">' +
+            '<option value="main">main</option><option value="home">home</option>' +
+            '<option value="popup">popup</option><option value="popup_board">popup_board</option>' +
+            '<option value="map">map</option><option value="speak">speak</option>' +
+            '<option value="lyrics">lyrics</option><option value="language_popup">language_popup</option>' +
+            '</select></div>' +
+            '<div class="form-group" style="flex:1"><label class="form-label">tab</label>' +
+            '<input class="form-control" id="ve-add-evt-tab" value="0"></div>' +
+            '<div class="form-group" style="flex:1"><label class="form-label">sub</label>' +
+            '<input class="form-control" id="ve-add-evt-sub" value="0"></div>' +
+            '</div></div>';
+
+        var self = this;
+        showModalDialog(document.body, '버튼 추가', html, '추가', '취소',
+            function() {
+                var id = document.getElementById('ve-add-id').value.trim();
+                var name = document.getElementById('ve-add-name').value.trim();
+                if (!id || !name) { toastError('ID와 이름을 입력하세요.'); return; }
+                self.pushUndo();
+                self.getCurrentItems().push({
+                    id: id, name: name, type: 'button',
+                    imgurl: document.getElementById('ve-add-imgurl').value.trim(),
+                    clickurl: document.getElementById('ve-add-clickurl').value.trim(),
+                    x: String(Math.round(self.canvasWidth / 2)),
+                    y: String(Math.round(self.canvasHeight / 2)),
+                    event: {
+                        page: document.getElementById('ve-add-evt-page').value,
+                        tab: document.getElementById('ve-add-evt-tab').value || '0',
+                        sub: document.getElementById('ve-add-evt-sub').value || '0'
+                    }
+                });
+                self.renderCanvas();
+                self.markDirty();
+                hideModalDialog();
+            },
+            function() { hideModalDialog(); },
+            { size: { width: '500px' }, allowHtml: true }
+        );
+    },
+
+    showAddTextDialog: function() {
+        if (!this.hmIdx) { toastError('프로젝트를 먼저 선택하세요.'); return; }
+        var html = '<div style="display:grid;gap:12px;">' +
+            '<div class="form-group"><label class="form-label">ID</label>' +
+            '<input class="form-control" id="ve-add-id" placeholder="home_text_1"></div>' +
+            '<div class="form-group"><label class="form-label">이름</label>' +
+            '<input class="form-control" id="ve-add-name" placeholder="텍스트 이름"></div>' +
+            '<div class="form-group"><label class="form-label">텍스트 타입</label>' +
+            '<select class="form-control" id="ve-add-texttype">' +
+            '<option value="">기본 (정적 텍스트)</option>' +
+            '<option value="m/d">날짜 (03/19)</option>' +
+            '<option value="weekday">요일 ((수))</option>' +
+            '<option value="hh:mm">시간 (14:30)</option>' +
+            '<option value="hh:mm:ss">시:분:초 (14:30:00)</option>' +
+            '<option value="yyyy">연도 (2026)</option>' +
+            '<option value="yyyymmdd">전체 날짜 (2026.03.19)</option>' +
+            '<option value="text_notice">공지사항</option>' +
+            '</select></div>' +
+            '<div class="form-group" id="ve-add-text-wrap"><label class="form-label">텍스트 내용</label>' +
+            '<input class="form-control" id="ve-add-text" placeholder="표시할 텍스트"></div>' +
+            '<div style="display:flex;gap:8px;">' +
+            '<div class="form-group" style="flex:1"><label class="form-label">크기 (px)</label>' +
+            '<input class="form-control" id="ve-add-fontsize" type="number" value="24"></div>' +
+            '<div class="form-group" style="flex:1"><label class="form-label">색상</label>' +
+            '<input class="form-control" id="ve-add-fontcolor" type="color" value="#ffffff"></div>' +
+            '<div class="form-group" style="flex:1"><label class="form-label">굵기</label>' +
+            '<select class="form-control" id="ve-add-fontweight">' +
+            '<option value="normal">Normal</option><option value="bold">Bold</option>' +
+            '<option value="300">Light</option><option value="500">Medium</option>' +
+            '<option value="700">Bold 700</option><option value="900">Black</option>' +
+            '</select></div></div></div>';
+
+        var self = this;
+        showModalDialog(document.body, '텍스트 추가', html, '추가', '취소',
+            function() {
+                var id = document.getElementById('ve-add-id').value.trim();
+                var name = document.getElementById('ve-add-name').value.trim();
+                if (!id || !name) { toastError('ID와 이름을 입력하세요.'); return; }
+                var item = {
+                    id: id, name: name, type: 'text',
+                    x: String(Math.round(self.canvasWidth / 2)),
+                    y: String(Math.round(self.canvasHeight / 2)),
+                    fontsize: parseInt(document.getElementById('ve-add-fontsize').value) || 24,
+                    fontcolor: document.getElementById('ve-add-fontcolor').value || '#ffffff',
+                    fontweight: document.getElementById('ve-add-fontweight').value || 'normal',
+                    textalign: 'center',
+                    texttype: document.getElementById('ve-add-texttype').value || undefined
+                };
+                var textVal = document.getElementById('ve-add-text').value.trim();
+                if (textVal && !item.texttype) item.text = textVal;
+                if (!item.texttype) delete item.texttype;
+                // Default w/h for text
+                item.w = '300';
+                item.h = String((parseInt(item.fontsize) || 24) + 16);
+                self.pushUndo();
+                self.getCurrentItems().push(item);
+                self.renderCanvas();
+                self.markDirty();
+                hideModalDialog();
+            },
+            function() { hideModalDialog(); },
+            { size: { width: '500px' }, allowHtml: true }
+        );
+    },
+
+    // =========================================
+    // Font Properties Dialog (폰트 속성 팝업)
+    // =========================================
+
+    showFontPropertiesDialog: function() {
+        var items = this.getCurrentItems();
+        var item = items[this.selectedIdx];
+        if (!item || item.type !== 'text') { toastError('텍스트 요소를 선택하세요.'); return; }
+
+        var weightsOpts = [
+            { v: 'normal', l: 'Normal' }, { v: 'bold', l: 'Bold' },
+            { v: '100', l: '100 Thin' }, { v: '300', l: '300 Light' },
+            { v: '500', l: '500 Medium' }, { v: '700', l: '700 Bold' }, { v: '900', l: '900 Black' }
+        ].map(function(o) {
+            return '<option value="' + o.v + '" ' + (o.v === (item.fontweight || 'normal') ? 'selected' : '') + '>' + o.l + '</option>';
+        }).join('');
+
+        var texttypeOpts = [
+            { v: '', l: '기본 (정적)' }, { v: 'm/d', l: '날짜 (03/19)' },
+            { v: 'weekday', l: '요일 ((수))' }, { v: 'hh:mm', l: '시간 (14:30)' },
+            { v: 'hh:mm:ss', l: '시:분:초' }, { v: 'yyyy', l: '연도' },
+            { v: 'yyyymmdd', l: '전체 날짜' }, { v: 'text_notice', l: '공지사항' }
+        ].map(function(o) {
+            return '<option value="' + o.v + '" ' + (o.v === (item.texttype || '') ? 'selected' : '') + '>' + o.l + '</option>';
+        }).join('');
+
+        var currentText = typeof item.text === 'string' ? item.text : (item.text && item.text.KO ? item.text.KO.message : '');
+        var previewColor = item.fontcolor || '#ffffff';
+        var previewSize = (item.fontsize || 24);
+        var previewWeight = item.fontweight || 'normal';
+
+        var html = '<div>' +
+            '<div class="font-prop-preview" id="fp-preview" style="color:' + escapeHtml(previewColor) + ';font-size:' + previewSize + 'px;font-weight:' + escapeHtml(previewWeight) + ';">미리보기 텍스트</div>' +
+            '<div class="font-prop-row"><span class="font-prop-label">텍스트 타입</span>' +
+            '<select class="form-control" id="fp-texttype" onchange="visualEditor.onFontPropChange()">' + texttypeOpts + '</select></div>' +
+            '<div class="font-prop-row" id="fp-text-row"><span class="font-prop-label">텍스트</span>' +
+            '<input class="form-control" id="fp-text" value="' + escapeHtml(currentText) + '" onchange="visualEditor.onFontPropChange()"></div>' +
+            '<div class="font-prop-row"><span class="font-prop-label">크기 (px)</span>' +
+            '<input class="form-control" id="fp-fontsize" type="number" min="8" max="200" value="' + (item.fontsize || 24) + '" onchange="visualEditor.onFontPropChange()" style="width:80px;">' +
+            '</div>' +
+            '<div class="font-prop-row"><span class="font-prop-label">색상</span>' +
+            '<input type="color" id="fp-fontcolor" value="' + escapeHtml(item.fontcolor || '#ffffff') + '" onchange="visualEditor.onFontPropChange()" style="width:40px;height:32px;padding:2px;border:1px solid var(--border-color);border-radius:4px;cursor:pointer;">' +
+            '<input class="form-control" id="fp-fontcolor-hex" value="' + escapeHtml(item.fontcolor || '#ffffff') + '" onchange="document.getElementById(\'fp-fontcolor\').value=this.value;visualEditor.onFontPropChange()" style="width:90px;">' +
+            '</div>' +
+            '<div class="font-prop-row"><span class="font-prop-label">굵기</span>' +
+            '<select class="form-control" id="fp-fontweight" onchange="visualEditor.onFontPropChange()">' + weightsOpts + '</select></div>' +
+            '<div class="font-prop-row"><span class="font-prop-label">정렬</span>' +
+            '<div class="align-btn-group">' +
+            '<button type="button" onclick="visualEditor.setFontAlign(\'left\')" id="fp-align-left" class="' + (item.textalign === 'left' || !item.textalign ? 'active' : '') + '"><i class="fas fa-align-left"></i></button>' +
+            '<button type="button" onclick="visualEditor.setFontAlign(\'center\')" id="fp-align-center" class="' + (item.textalign === 'center' ? 'active' : '') + '"><i class="fas fa-align-center"></i></button>' +
+            '<button type="button" onclick="visualEditor.setFontAlign(\'right\')" id="fp-align-right" class="' + (item.textalign === 'right' ? 'active' : '') + '"><i class="fas fa-align-right"></i></button>' +
+            '</div></div>' +
+            '</div>';
+
+        var self = this;
+        showModalDialog(document.body, '폰트 속성', html, '적용', '취소',
+            function() { self.applyFontProperties(); hideModalDialog(); },
+            function() { hideModalDialog(); },
+            { size: { width: '450px' }, allowHtml: true }
+        );
+    },
+
+    onFontPropChange: function() {
+        // Real-time preview update
+        var preview = document.getElementById('fp-preview');
+        if (!preview) return;
+
+        var fontsize = document.getElementById('fp-fontsize').value || '24';
+        var fontcolor = document.getElementById('fp-fontcolor').value || '#ffffff';
+        var fontweight = document.getElementById('fp-fontweight').value || 'normal';
+        var texttype = document.getElementById('fp-texttype').value;
+        var text = document.getElementById('fp-text').value;
+
+        preview.style.fontSize = fontsize + 'px';
+        preview.style.color = fontcolor;
+        preview.style.fontWeight = fontweight;
+
+        var textMap = { 'm/d': '03/19', 'hh:mm': '14:30', 'weekday': '(수)', 'yyyy': '2026', 'hh:mm:ss': '14:30:00', 'yyyymmdd': '2026.03.19', 'text_notice': '공지사항' };
+        preview.textContent = texttype ? (textMap[texttype] || texttype) : (text || '미리보기 텍스트');
+
+        // Update hex input sync
+        var hexInput = document.getElementById('fp-fontcolor-hex');
+        if (hexInput) hexInput.value = fontcolor;
+    },
+
+    setFontAlign: function(align) {
+        document.querySelectorAll('.align-btn-group button').forEach(function(b) { b.classList.remove('active'); });
+        var btn = document.getElementById('fp-align-' + align);
+        if (btn) btn.classList.add('active');
+    },
+
+    applyFontProperties: function() {
+        var items = this.getCurrentItems();
+        var item = items[this.selectedIdx];
+        if (!item) return;
+
+        this.pushUndo();
+
+        item.fontsize = parseInt(document.getElementById('fp-fontsize').value) || 24;
+        item.fontcolor = document.getElementById('fp-fontcolor').value || '#ffffff';
+        item.fontweight = document.getElementById('fp-fontweight').value || 'normal';
+        item.texttype = document.getElementById('fp-texttype').value || undefined;
+        if (!item.texttype) delete item.texttype;
+
+        var text = document.getElementById('fp-text').value.trim();
+        if (text && !item.texttype) {
+            item.text = text;
+        } else if (item.texttype) {
+            delete item.text;
+        }
+
+        // Get align from active button
+        var alignBtn = document.querySelector('.align-btn-group button.active');
+        if (alignBtn) {
+            var alignId = alignBtn.id.replace('fp-align-', '');
+            item.textalign = alignId;
+        }
+
+        // Update h based on fontsize
+        item.h = String((parseInt(item.fontsize) || 24) + 16);
+
+        this.renderCanvas();
+        this.markDirty();
+    },
+
+    // =========================================
+    // Context Menu Actions
+    // =========================================
+
+    addTextOverlay: function() {
+        var items = this.getCurrentItems();
+        var item = items[this.selectedIdx];
+        if (!item) return;
+
+        var texttypeOpts = '<option value="">기본 (정적)</option>' +
+            '<option value="m/d">날짜 (03/19)</option>' +
+            '<option value="weekday">요일 ((수))</option>' +
+            '<option value="hh:mm">시간 (14:30)</option>' +
+            '<option value="hh:mm:ss">시:분:초</option>' +
+            '<option value="yyyy">연도</option>' +
+            '<option value="yyyymmdd">전체 날짜</option>';
+
+        var html = '<div style="display:grid;gap:12px;">' +
+            '<div class="form-group"><label class="form-label">텍스트 타입</label>' +
+            '<select class="form-control" id="ot-texttype">' + texttypeOpts + '</select></div>' +
+            '<div class="form-group"><label class="form-label">텍스트 (기본 타입일 때)</label>' +
+            '<input class="form-control" id="ot-text" placeholder="표시할 텍스트"></div>' +
+            '<div style="display:flex;gap:8px;">' +
+            '<div class="form-group" style="flex:1"><label class="form-label">크기</label>' +
+            '<input class="form-control" id="ot-fontsize" type="number" value="20"></div>' +
+            '<div class="form-group" style="flex:1"><label class="form-label">색상</label>' +
+            '<input class="form-control" id="ot-fontcolor" type="color" value="#ffffff"></div>' +
+            '<div class="form-group" style="flex:1"><label class="form-label">굵기</label>' +
+            '<select class="form-control" id="ot-fontweight">' +
+            '<option value="normal">Normal</option><option value="bold">Bold</option>' +
+            '</select></div></div></div>';
+
+        var self = this;
+        showModalDialog(document.body, item.name + ' 위에 텍스트 추가', html, '추가', '취소',
+            function() {
+                var texttype = document.getElementById('ot-texttype').value;
+                var fontSize = parseInt(document.getElementById('ot-fontsize').value) || 20;
+                var newText = {
+                    id: item.id + '_text_' + Date.now(),
+                    name: item.name + ' 텍스트',
+                    type: 'text',
+                    x: item.x,
+                    y: item.y,
+                    w: '300',
+                    h: String(fontSize + 16),
+                    fontsize: fontSize,
+                    fontcolor: document.getElementById('ot-fontcolor').value || '#ffffff',
+                    fontweight: document.getElementById('ot-fontweight').value || 'normal',
+                    textalign: 'center'
+                };
+                if (texttype) {
+                    newText.texttype = texttype;
+                } else {
+                    var txt = document.getElementById('ot-text').value.trim();
+                    if (txt) newText.text = txt;
+                }
+                self.pushUndo();
+                self.getCurrentItems().push(newText);
+                self.renderCanvas();
+                self.markDirty();
+                hideModalDialog();
+            },
+            function() { hideModalDialog(); },
+            { size: { width: '450px' }, allowHtml: true }
+        );
+    },
+
+    duplicateSelected: function() {
+        if (this.selectedIdx < 0) return;
+        var items = this.getCurrentItems();
+        var item = items[this.selectedIdx];
+        if (!item) return;
+
+        this.pushUndo();
+        var clone = JSON.parse(JSON.stringify(item));
+        clone.id = item.id + '_copy_' + Date.now();
+        clone.name = item.name + ' 복사';
+        clone.x = String((parseInt(item.x) || 0) + 20);
+        clone.y = String((parseInt(item.y) || 0) + 20);
+        items.push(clone);
+
+        this.renderCanvas();
+        this.selectElement(items.length - 1);
+        this.markDirty();
+    },
+
+    bringToFront: function() {
+        if (this.selectedIdx < 0) return;
+        var items = this.getCurrentItems();
+        if (this.selectedIdx >= items.length - 1) return;
+
+        this.pushUndo();
+        var item = items.splice(this.selectedIdx, 1)[0];
+        items.push(item);
+        this.selectedIdx = items.length - 1;
+        this.renderCanvas();
+        this.markDirty();
+    },
+
+    sendToBack: function() {
+        if (this.selectedIdx <= 0) return;
+        var items = this.getCurrentItems();
+
+        this.pushUndo();
+        var item = items.splice(this.selectedIdx, 1)[0];
+        items.unshift(item);
+        this.selectedIdx = 0;
+        this.renderCanvas();
+        this.markDirty();
     }
 };

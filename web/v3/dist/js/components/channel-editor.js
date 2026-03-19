@@ -21,32 +21,10 @@ var channelEditor = {
 
     /**
      * Initialize the editor
+     * Project selection is handled by the global header selector
      */
     init() {
-        this.loadProjects();
-    },
-
-    /**
-     * Load project list for selector
-     */
-    async loadProjects() {
-        try {
-            var res = await V3Api.get('/homes');
-            if (res.code === 100 && res.data) {
-                var select = document.getElementById('channel-project-select');
-                res.data.forEach(function(home) {
-                    var opt = document.createElement('option');
-                    opt.value = home.hm_idx;
-                    opt.textContent = home.hm_projectname
-                        ? home.hm_projectname + ' (' + home.hm_projectid + ')'
-                        : home.hm_projectid;
-                    opt.dataset.projectId = home.hm_projectid;
-                    select.appendChild(opt);
-                });
-            }
-        } catch (err) {
-            cerror('Failed to load projects:', err);
-        }
+        // No internal project loading — uses global project selector in header
     },
 
     /**
@@ -54,10 +32,16 @@ var channelEditor = {
      */
     async onProjectChange(hmIdx) {
         if (!hmIdx) {
-            document.getElementById('channel-main').style.display = 'none';
-            document.getElementById('channel-empty').style.display = 'block';
-            document.getElementById('channel-safety-toggle').style.display = 'none';
-            document.getElementById('channel-shorturl-box').style.display = 'none';
+            var mainEl = document.getElementById('channel-main');
+            var emptyEl = document.getElementById('channel-empty');
+            var safetyEl = document.getElementById('channel-safety-toggle');
+            var shortEl = document.getElementById('channel-shorturl-box');
+            var infoBar = document.getElementById('channel-project-info-bar');
+            if (mainEl) mainEl.style.display = 'none';
+            if (emptyEl) emptyEl.style.display = 'block';
+            if (safetyEl) safetyEl.style.display = 'none';
+            if (shortEl) shortEl.style.display = 'none';
+            if (infoBar) infoBar.style.display = 'none';
             return;
         }
 
@@ -78,8 +62,10 @@ var channelEditor = {
                 this.renderAllTables();
                 this.initPreview();
 
-                document.getElementById('channel-main').style.display = 'block';
-                document.getElementById('channel-empty').style.display = 'none';
+                var mainEl = document.getElementById('channel-main');
+                var emptyEl = document.getElementById('channel-empty');
+                if (mainEl) mainEl.style.display = 'block';
+                if (emptyEl) emptyEl.style.display = 'none';
             }
         } catch (err) {
             cerror('Failed to load home data:', err);
@@ -93,10 +79,12 @@ var channelEditor = {
      * Update project info display
      */
     updateProjectInfo() {
-        var info = document.getElementById('channel-project-info');
+        var infoBar = document.getElementById('channel-project-info-bar');
         var orient = document.getElementById('channel-orientation-badge');
         var reso = document.getElementById('channel-resolution-text');
         var lang = document.getElementById('channel-language-text');
+
+        if (!infoBar || !orient || !reso || !lang) return;
 
         var d = this.homeData;
         orient.textContent = d.hm_orientation === 'L' ? '가로' : '세로';
@@ -109,7 +97,7 @@ var channelEditor = {
         var langMap = { KO: '한국어', EN: 'English', ZH: '中文', VI: 'Tiếng Việt', MS: 'Bahasa' };
         lang.textContent = langMap[d.hm_language] || d.hm_language || 'KO';
 
-        info.style.display = 'flex';
+        infoBar.style.display = 'block';
     },
 
     // =========================================
@@ -122,6 +110,7 @@ var channelEditor = {
     updateSafetyToggle() {
         var toggle = document.getElementById('channel-safety-toggle');
         var checkbox = document.getElementById('channel-safety-checkbox');
+        if (!toggle || !checkbox) return;
         if (this.homeData.hm_region) {
             toggle.style.display = 'flex';
             checkbox.checked = this.homeData.hm_safety_onoff == 1;
@@ -209,7 +198,8 @@ var channelEditor = {
      * Copy short URL
      */
     copyShortUrl() {
-        var text = document.getElementById('channel-shorturl-text').textContent;
+        var el = document.getElementById('channel-shorturl-text');
+        var text = el ? el.textContent : '';
         if (text) {
             navigator.clipboard.writeText(text).then(function() {
                 toastSuccess('숏URL이 복사되었습니다.');
@@ -230,6 +220,7 @@ var channelEditor = {
         var d = this.homeData;
         var container = document.getElementById('channel-preview-container');
         var iframe = document.getElementById('channel-preview-iframe');
+        if (!container || !iframe) return;
 
         var swidth = d.hm_width > 0 ? parseInt(d.hm_width) : (d.hm_orientation === 'L' ? 1920 : 1080);
         var sheight = d.hm_height > 0 ? parseInt(d.hm_height) : (d.hm_orientation === 'L' ? 1080 : 1920);
@@ -245,8 +236,11 @@ var channelEditor = {
         iframe.style.transform = 'scale(' + scale + ')';
         iframe.style.transformOrigin = '0 0';
 
-        container.querySelector('.card-body').style.width = displayW + 'px';
-        container.querySelector('.card-body').style.height = displayH + 'px';
+        var cardBody = container.querySelector('.card-body');
+        if (cardBody) {
+            cardBody.style.width = displayW + 'px';
+            cardBody.style.height = displayH + 'px';
+        }
 
         // Build preview URL via game-preview proxy
         iframe.src = './api/game-preview.php?hm_idx=' + this.hmIdx + '&t=' + Date.now();

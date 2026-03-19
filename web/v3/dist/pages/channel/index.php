@@ -35,22 +35,12 @@
     </div>
 </div>
 
-<!-- Project Selector -->
-<div class="card" style="margin-bottom: 16px;">
-    <div class="card-body" style="padding: 12px 20px;">
-        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <label style="font-weight: 500; white-space: nowrap;">프로젝트:</label>
-                <select id="channel-project-select" class="form-control" style="width: 250px;" onchange="channelEditor.onProjectChange(this.value)">
-                    <option value="">프로젝트를 선택하세요</option>
-                </select>
-            </div>
-            <div id="channel-project-info" style="display: none; font-size: 13px; color: var(--text-gray);">
-                <span id="channel-orientation-badge" class="badge badge-secondary"></span>
-                <span id="channel-resolution-text" style="margin-left: 8px;"></span>
-                <span id="channel-language-text" style="margin-left: 8px;"></span>
-            </div>
-        </div>
+<!-- Project Info (read from global selector) -->
+<div id="channel-project-info-bar" class="card" style="margin-bottom:16px; display:none;">
+    <div class="card-body" style="padding:10px 20px; font-size:13px; color:var(--text-gray);">
+        <span id="channel-orientation-badge" class="badge badge-secondary"></span>
+        <span id="channel-resolution-text" style="margin-left:8px;"></span>
+        <span id="channel-language-text" style="margin-left:8px;"></span>
     </div>
 </div>
 
@@ -306,6 +296,17 @@
 
 <script src="./js/components/channel-editor.js?v=<?php echo time(); ?>"></script>
 <script>
-    // Initialize after page load
+    // Initialize - use global project selector
     channelEditor.init();
+
+    // Listen for global project changes
+    document.addEventListener('globalProjectChanged', function(e) {
+        channelEditor.onProjectChange(e.detail.hmIdx);
+    });
+
+    // Auto-load if global project already selected
+    (function() {
+        var hmIdx = getGlobalProjectHmIdx();
+        if (hmIdx) channelEditor.onProjectChange(hmIdx);
+    })();
 </script>

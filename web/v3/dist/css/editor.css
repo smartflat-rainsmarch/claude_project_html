@@ -5,11 +5,11 @@
 /* Editor Layout */
 .editor-container {
     display: flex;
-    height: calc(100vh - 140px);
-    min-height: 700px;
     gap: 0;
     background: var(--bg-main);
     overflow: hidden;
+    /* 정사각형 캔버스 영역 확보를 위해 고정 높이 대신 vw 기반 */
+    height: max(calc(100vh - 140px), 700px);
 }
 
 /* Toolbar */
@@ -77,16 +77,16 @@
     color: var(--text-dark);
 }
 
-/* Canvas Area - 넓은 작업 영역 */
+/* Canvas Area - 가로/세로 프로젝트 모두 수용하는 정사각형 작업 영역 */
 .editor-canvas-area {
-    flex: 1;
     overflow: auto;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #2d2d3d;
     position: relative;
-    min-width: 0;
+    /* JS(ensureSquareArea)가 width/minHeight를 정사각형으로 설정 */
+    flex: 1 1 auto;
 }
 
 .editor-canvas-wrapper {
@@ -362,4 +362,114 @@
 
 .save-indicator.error {
     color: var(--color-danger);
+}
+
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    padding: 4px 0;
+    min-width: 180px;
+    z-index: 9999;
+    font-size: 13px;
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    color: var(--text-dark);
+    transition: background 0.1s;
+}
+
+.context-menu-item:hover {
+    background: var(--bg-hover);
+}
+
+.context-menu-item.danger {
+    color: var(--color-danger);
+}
+
+.context-menu-item.danger:hover {
+    background: rgba(220,53,69,0.08);
+}
+
+.context-menu-item i {
+    width: 16px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.context-menu-item.danger i {
+    color: var(--color-danger);
+}
+
+.context-menu-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 4px 0;
+}
+
+/* Font Properties Popup */
+.font-prop-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.font-prop-row:last-child {
+    margin-bottom: 0;
+}
+
+.font-prop-label {
+    width: 70px;
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-gray);
+}
+
+.font-prop-preview {
+    padding: 16px;
+    background: #1a1a2e;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 16px;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.align-btn-group {
+    display: flex;
+    gap: 2px;
+}
+
+.align-btn-group button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-gray);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.align-btn-group button:first-child { border-radius: 4px 0 0 4px; }
+.align-btn-group button:last-child { border-radius: 0 4px 4px 0; }
+.align-btn-group button.active {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
 }

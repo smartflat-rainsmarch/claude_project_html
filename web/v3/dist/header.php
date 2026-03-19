@@ -15,6 +15,18 @@
         </nav>
     </div>
 
+    <!-- Center: Global Project Selector -->
+    <div class="header-center" style="display:flex; align-items:center; gap:8px; margin-left:16px; flex:1;">
+        <i class="fas fa-folder-open" style="color:var(--text-muted); font-size:13px;"></i>
+        <select id="global-project-select" class="form-control" style="width:260px; font-size:13px; height:34px; border-radius:6px;" onchange="onGlobalProjectChange(this.value)">
+            <option value="">프로젝트를 선택하세요</option>
+        </select>
+        <span id="global-project-info" style="font-size:12px; color:var(--text-muted); display:none;">
+            <span id="global-project-badge" class="badge badge-secondary" style="font-size:11px;"></span>
+            <span id="global-project-resolution" style="margin-left:6px;"></span>
+        </span>
+    </div>
+
     <!-- Right Section -->
     <div class="header-right">
         <!-- Add Project -->
@@ -94,6 +106,95 @@
 </header>
 
 <script>
+/**
+ * Global Project Selector
+ */
+var globalProjectData = []; // cached project list
+
+async function loadGlobalProjects() {
+    var select = document.getElementById('global-project-select');
+    if (!select || select.options.length > 1) return; // already loaded
+
+    try {
+        var res = await V3Api.get('/homes');
+        if (res.code === 100 && res.data) {
+            globalProjectData = res.data;
+            res.data.forEach(function(home) {
+                var opt = document.createElement('option');
+                opt.value = home.hm_idx;
+                opt.textContent = home.hm_projectname
+                    ? home.hm_projectname + ' (' + home.hm_projectid + ')'
+                    : home.hm_projectid;
+                opt.dataset.projectId = home.hm_projectid;
+                opt.dataset.orientation = home.hm_orientation || 'P';
+                opt.dataset.width = home.hm_width || '';
+                opt.dataset.height = home.hm_height || '';
+                opt.dataset.language = home.hm_language || 'KO';
+                select.appendChild(opt);
+            });
+
+            // Restore last selected project
+            var savedIdx = getData('globalProjectHmIdx');
+            if (savedIdx) {
+                select.value = savedIdx;
+                if (select.value === savedIdx) {
+                    updateGlobalProjectInfo(savedIdx);
+                }
+            }
+        }
+    } catch (err) {
+        cerror('Failed to load global projects:', err);
+    }
+}
+
+function onGlobalProjectChange(hmIdx) {
+    saveData('globalProjectHmIdx', hmIdx || '');
+    updateGlobalProjectInfo(hmIdx);
+
+    // Dispatch custom event so channel editor / visual editor can react
+    document.dispatchEvent(new CustomEvent('globalProjectChanged', {
+        detail: { hmIdx: hmIdx }
+    }));
+}
+
+function updateGlobalProjectInfo(hmIdx) {
+    var info = document.getElementById('global-project-info');
+    var badge = document.getElementById('global-project-badge');
+    var reso = document.getElementById('global-project-resolution');
+    if (!info || !badge || !reso) return;
+
+    if (!hmIdx) {
+        info.style.display = 'none';
+        return;
+    }
+
+    var select = document.getElementById('global-project-select');
+    var opt = select ? select.querySelector('option[value="' + hmIdx + '"]') : null;
+    if (!opt) { info.style.display = 'none'; return; }
+
+    var orient = opt.dataset.orientation;
+    badge.textContent = orient === 'L' ? '가로' : '세로';
+    badge.className = 'badge ' + (orient === 'L' ? 'badge-info' : 'badge-primary');
+    badge.style.fontSize = '11px';
+
+    var w = opt.dataset.width || (orient === 'L' ? '1920' : '1080');
+    var h = opt.dataset.height || (orient === 'L' ? '1080' : '1920');
+    reso.textContent = w + ' x ' + h;
+
+    info.style.display = 'inline';
+}
+
+/**
+ * Get currently selected global project hmIdx
+ */
+function getGlobalProjectHmIdx() {
+    var select = document.getElementById('global-project-select');
+    return select ? select.value : '';
+}
+
+// Load projects on init
+setTimeout(function() { loadGlobalProjects(); }, 100);
+
 /**
  * Show user profile modal
  */

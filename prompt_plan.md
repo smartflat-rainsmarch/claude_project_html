@@ -1,7 +1,7 @@
 # SmartFlat CMS v3 구현 계획
 
 > 생성일: 2026-03-18
-> 상태: **Phase 1~3 구현 완료** (2026-03-18)
+> 상태: **Phase 1~3 구현 완료** (2026-03-18), Phase 2-B 계획 추가 (2026-03-19)
 
 ---
 
@@ -141,6 +141,167 @@ DB: `smartflat_claude_html.tb_home` 테이블
 - 스케일링 좌표 변환 (캔버스 크기 ↔ 실제 1080x1920)
 - 다양한 요소 타입별 렌더링/편집
 - Undo/Redo 상태 관리
+
+---
+
+## Phase 2-B: 비주얼 에디터 추가 기능 (**미구현**, 2026-03-19 추가)
+
+### 목표
+캔버스에서 새 요소(이미지/버튼/텍스트)를 추가하고, 우클릭 컨텍스트 메뉴로 속성을 편집할 수 있게 한다.
+
+### 2-B-1: 요소 추가 기능
+
+캔버스 툴바에 "요소 추가" 버튼 3개:
+
+| # | 추가 타입 | 생성되는 JSON | 설명 |
+|---|----------|--------------|------|
+| 1 | **이미지 (img)** | `{id, name, type:"img", imgurl, x, y, scale}` | 정적 이미지 배치 |
+| 2 | **버튼 (button)** | `{id, name, type:"button", imgurl, clickurl, x, y, event:{page,tab,sub}}` | 클릭 가능한 버튼 이미지 |
+| 3 | **텍스트 (text)** | `{id, name, type:"text", texttype, fontsize, fontcolor, textalign, x, y}` | 동적 텍스트 표시 |
+
+**텍스트 타입 (texttype) 정의:**
+
+| texttype | 표시 예시 | 설명 |
+|----------|----------|------|
+| (없음/기본) | "안녕하세요" | 정적 텍스트, `text` 속성의 문자열 표시 |
+| `m/d` | "03/19" | 현재 월/일 자동 표시 |
+| `weekday` | "(수)" | 현재 요일 자동 표시 |
+| `hh:mm` | "14:30" | 현재 시:분 자동 표시 |
+| `hh:mm:ss` | "14:30:00" | 현재 시:분:초 자동 표시 |
+| `yyyy` | "2026" | 현재 연도 표시 |
+| `yyyymmdd` | "2026.03.19" | 현재 전체 날짜 표시 |
+| `text_notice` | 공지사항 | 공지 게시판 연동 텍스트 |
+
+**요소 추가 다이얼로그:**
+- 이미지: ID, 이름, 이미지 URL 입력 → 캔버스 중앙에 배치
+- 버튼: ID, 이름, 이미지 URL, 클릭 이미지 URL, 이벤트(page/tab/sub) → 캔버스 중앙에 배치
+- 텍스트: ID, 이름, texttype 선택, fontsize, fontcolor, textalign → 캔버스 중앙에 배치
+
+### 2-B-2: 우클릭 컨텍스트 메뉴
+
+캔버스 요소를 **마우스 오른쪽 버튼**으로 클릭하면 컨텍스트 메뉴 표시:
+
+| 메뉴 항목 | 대상 타입 | 동작 |
+|----------|----------|------|
+| 속성 편집 | 모두 | 속성 패널에 선택 요소 표시 (현재 좌클릭과 동일) |
+| **폰트 속성** | **text** | 폰트 속성 편집 팝업 열기 (아래 상세) |
+| 텍스트 추가 | img, button | 선택된 이미지/버튼 위에 텍스트 오버레이 요소 추가 |
+| 복제 | 모두 | 선택 요소를 복사하여 (x+20, y+20) 위치에 생성 |
+| 맨 앞으로 | 모두 | 배열 순서를 맨 뒤로 이동 (z-index 최상단) |
+| 맨 뒤로 | 모두 | 배열 순서를 맨 앞으로 이동 (z-index 최하단) |
+| 삭제 | 모두 | 선택 요소 삭제 (확인 다이얼로그) |
+
+**"폰트 속성" 팝업 (text 타입 요소 전용):**
+
+우클릭 → "폰트 속성" 선택 시 모달 다이얼로그 표시:
+
+| 속성 | 입력 UI | JSON 필드 | 예시 값 |
+|------|---------|-----------|---------|
+| 폰트 크기 | number input (8~200px) | `fontsize` | `24` |
+| 폰트 색상 | color picker + hex input | `fontcolor` | `#FFFFFF` |
+| 폰트 굵기 | select (normal/bold/100~900) | `fontweight` | `bold`, `700` |
+| 텍스트 정렬 | 버튼 3개 (좌/중/우) | `textalign` | `center` |
+| 텍스트 타입 | select (기본/날짜/요일/시간 등) | `texttype` | `hh:mm` |
+| 텍스트 내용 | textarea (기본 타입일 때만) | `text` | `안녕하세요` |
+
+- 변경 즉시 캔버스에 미리보기 반영 (실시간)
+- "적용" 버튼으로 확정 → JSON 업데이트 + 자동 저장
+- `fontweight` 속성은 게임 렌더러에서 이미 사용 중 (예: `"fontweight":"bold"`), 에디터에서 매핑만 하면 됨
+
+**"텍스트 추가" 동작:**
+- 선택된 img/button 요소의 위치(x,y)를 기반으로 새 text 요소 생성
+- texttype 선택 다이얼로그: 기본(정적), 날짜(m/d), 요일(weekday), 시간(hh:mm)
+- 생성된 text 요소는 부모 img/button과 같은 x,y 좌표에 배치
+
+### 2-B-3: 전체 JSON 속성 스펙 (게임 렌더러 기준)
+
+**img (이미지):**
+```json
+{
+  "id": "home_logo", "name": "로고", "type": "img",
+  "imgurl": "../../../game/school/{projectid}/v{idx}/res/n_home/logo.png",
+  "clickurl": "",
+  "x": 540, "y": 230,
+  "scale": 1,
+  "animationtype": "showani|righttoleft|scale",
+  "animationscale": 1.1,
+  "event": {"page":"main","tab":"0","sub":"0"}
+}
+```
+
+**button (버튼):**
+```json
+{
+  "id": "home_btn0", "name": "메뉴버튼", "type": "button",
+  "imgurl": ".../res/n_home/mbtn0.png",
+  "clickurl": ".../res/n_home/mbtn0_click.png",
+  "x": 305, "y": 795,
+  "scale": 1,
+  "event": {
+    "page": "main|home|popup|popup_board|map|speak|lyrics|language_popup",
+    "tab": "0", "sub": "0",
+    "index": 0,
+    "data": "",
+    "data_id": ""
+  },
+  "animationtype": "showani"
+}
+```
+
+**text (텍스트):**
+```json
+{
+  "id": "home_date", "name": "날짜", "type": "text",
+  "x": 100, "y": 50,
+  "texttype": "m/d|hh:mm|weekday|yyyy|hh:mm:ss|yyyymmdd|text_notice",
+  "fontsize": 24,
+  "fontcolor": "#000000",
+  "textalign": "left|center|right",
+  "text": "정적 텍스트 또는 {KO:{message:'...'}, EN:{message:'...'}}"
+}
+```
+
+**공통 속성 (모든 타입):**
+
+| 속성 | 타입 | 설명 |
+|------|------|------|
+| `scale` | number | 요소 스케일 배율 (기본 1) |
+| `animationtype` | string | 등장 애니메이션: `showani`(확대), `righttoleft`(슬라이드), `scale`(펄스) |
+| `animationscale` | number | scale 애니메이션 배율값 |
+| `text` | string\|object | 텍스트 오버레이 (다국어: {KO:{message:...}}) |
+| `event` | object | 클릭 이벤트 핸들러 |
+
+### 구현 파일
+
+| 파일 | 변경 내용 |
+|------|----------|
+| `pages/channel/editor.php` | 툴바에 "요소 추가" 버튼 3개 추가 |
+| `js/components/visual-editor.js` | 요소 추가 다이얼로그, 우클릭 컨텍스트 메뉴, 복제/순서변경 기능 |
+| `css/editor.css` | 컨텍스트 메뉴 스타일 |
+
+### 세부 작업
+
+| # | 작업 | 설명 |
+|---|------|------|
+| 2B-1 | 툴바 "추가" 버튼 | 이미지/버튼/텍스트 추가 버튼 3개 |
+| 2B-2 | 이미지 추가 다이얼로그 | ID, 이름, imgurl → JSON 생성 → 캔버스 중앙 배치 |
+| 2B-3 | 버튼 추가 다이얼로그 | ID, 이름, imgurl, clickurl, event → JSON 생성 |
+| 2B-4 | 텍스트 추가 다이얼로그 | ID, 이름, texttype 선택, fontsize, fontcolor → JSON 생성 |
+| 2B-5 | 우클릭 컨텍스트 메뉴 | contextmenu 이벤트 → 메뉴 표시 |
+| 2B-6 | 속성 편집 (우클릭) | 컨텍스트 메뉴에서 속성 패널 열기 |
+| 2B-7 | 텍스트 오버레이 추가 | img/button 위에 text 요소 추가 (같은 좌표) |
+| 2B-8 | 요소 복제 | 선택 요소 deep copy → (x+20, y+20) |
+| 2B-9 | 순서 변경 (앞/뒤) | 배열 내 인덱스 이동 → z-index 변경 |
+| 2B-10 | 컨텍스트 메뉴 CSS | 드롭다운 스타일, 위치 계산 |
+| 2B-11 | **폰트 속성 팝업** | text 요소 우클릭 → fontsize, fontcolor, fontweight, textalign, texttype, text 편집 모달 |
+| 2B-12 | **폰트 실시간 미리보기** | 폰트 속성 변경 시 캔버스 요소에 즉시 반영 |
+| 2B-13 | **fontweight 지원** | 기존 JSON `fontweight` 필드 매핑 (게임 렌더러에서 이미 사용 중), 캔버스 렌더링 + 속성 패널에 반영 |
+
+### 복잡도: **MEDIUM**
+- 컨텍스트 메뉴는 CSS + JS로 간단 구현 가능
+- 요소 추가는 기존 JSON 구조 활용
+- 텍스트 오버레이는 별도 text 요소로 생성 (부모 연결 없음, 좌표만 동일)
+- 폰트 속성 팝업은 모달 다이얼로그로 구현, 실시간 미리보기는 onChange 이벤트로 즉시 반영
 
 ---
 
