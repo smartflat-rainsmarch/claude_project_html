@@ -297,14 +297,14 @@ var visualEditor = {
             case 'airapi':
                 el.style.background = 'rgba(76,175,80,0.1)';
                 el.style.border = '1px dashed rgba(76,175,80,0.3)';
-                el.innerHTML += '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#4caf50;font-size:12px;">' +
+                el.innerHTML += '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#4caf50;font-size:24px;">' +
                     '<i class="fas fa-wind"></i>&nbsp;공기질</div>';
                 break;
 
             case 'weatherapi':
                 el.style.background = 'rgba(33,150,243,0.1)';
                 el.style.border = '1px dashed rgba(33,150,243,0.3)';
-                el.innerHTML += '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#2196f3;font-size:12px;">' +
+                el.innerHTML += '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#2196f3;font-size:24px;">' +
                     '<i class="fas fa-cloud-sun"></i>&nbsp;날씨</div>';
                 break;
 
