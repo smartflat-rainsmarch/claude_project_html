@@ -473,3 +473,26 @@
     color: white;
     border-color: var(--color-primary);
 }
+
+/* Image picker button in panel */
+.panel-img-btn {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    cursor: pointer;
+    font-size: 11px;
+    color: var(--text-gray);
+    transition: all 0.15s;
+}
+
+.panel-img-btn:hover {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}

@@ -549,9 +549,17 @@ var visualEditor = {
         if (item.type === 'img' || item.type === 'button' || item.type === 'animation') {
             html += '<div class="panel-section"><div class="panel-section-title">이미지</div>' +
                 '<div class="panel-row"><span class="panel-label">URL</span>' +
-                '<input class="panel-input" id="ve-prop-imgurl" value="' + escapeHtml(item.imgurl || '') + '" onchange="visualEditor.onPropChange(\'imgurl\',this.value)"></div>' +
+                '<div style="flex:1;display:flex;gap:4px;">' +
+                '<input class="panel-input" id="ve-prop-imgurl" value="' + escapeHtml(item.imgurl || '') + '" onchange="visualEditor.onPropChange(\'imgurl\',this.value)" style="flex:1;">' +
+                '<button class="panel-img-btn" onclick="visualEditor.pickImage(\'imgurl\')" title="이미지 변경"><i class="fas fa-folder-open"></i></button>' +
+                '</div></div>' +
                 '<div class="panel-row"><span class="panel-label">클릭</span>' +
-                '<input class="panel-input" id="ve-prop-clickurl" value="' + escapeHtml(item.clickurl || '') + '" onchange="visualEditor.onPropChange(\'clickurl\',this.value)"></div></div>';
+                '<div style="flex:1;display:flex;gap:4px;">' +
+                '<input class="panel-input" id="ve-prop-clickurl" value="' + escapeHtml(item.clickurl || '') + '" onchange="visualEditor.onPropChange(\'clickurl\',this.value)" style="flex:1;">' +
+                '<button class="panel-img-btn" onclick="visualEditor.pickImage(\'clickurl\')" title="클릭 이미지 변경"><i class="fas fa-folder-open"></i></button>' +
+                '</div></div>' +
+                (item.imgurl ? '<div class="panel-row"><span class="panel-label"></span><img src="' + escapeHtml(item.imgurl) + '" style="max-width:100%;max-height:60px;border-radius:4px;border:1px solid var(--border-color);" onerror="this.style.display=\'none\'"></div>' : '') +
+                '</div>';
         }
         if (item.type === 'text') {
             var ttOpts = ['text_notice','m/d','hh:mm','weekday','yyyy','hh:mm:ss','yyyymmdd']
@@ -1423,5 +1431,117 @@ var visualEditor = {
         this.selectedIdx = 0;
         this.renderCanvas();
         this.markDirty();
+    },
+
+    // =========================================
+    // Image Picker (이미지 변경)
+    // =========================================
+
+    pickImage: function(propName) {
+        var items = this.getCurrentItems();
+        var item = items[this.selectedIdx];
+        if (!item) return;
+
+        var currentUrl = item[propName] || '';
+        var self = this;
+
+        // Hidden file input for image upload
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+
+        // Build dialog with file upload + URL input
+        var html = '<div style="display:grid;gap:16px;">' +
+            // Current image preview
+            (currentUrl ? '<div style="text-align:center;padding:12px;background:#1a1a2e;border-radius:8px;">' +
+            '<img src="' + escapeHtml(currentUrl) + '" style="max-width:100%;max-height:120px;border-radius:4px;" onerror="this.parentElement.innerHTML=\'<span style=color:#999>이미지를 불러올 수 없습니다</span>\'">' +
+            '<div style="font-size:11px;color:#999;margin-top:6px;word-break:break-all;">' + escapeHtml(currentUrl) + '</div></div>' : '') +
+            // Upload button
+            '<div class="form-group">' +
+            '<label class="form-label">파일 업로드</label>' +
+            '<div style="display:flex;gap:8px;">' +
+            '<button class="btn btn-light" style="flex:1;" onclick="document.getElementById(\'ve-img-file-input\').click()">' +
+            '<i class="fas fa-upload"></i> 파일 선택</button>' +
+            '<span id="ve-img-file-name" style="flex:1;font-size:12px;color:var(--text-muted);display:flex;align-items:center;">선택된 파일 없음</span>' +
+            '</div>' +
+            '<input type="file" id="ve-img-file-input" accept="image/*" style="display:none;" onchange="visualEditor.onImageFileSelected(this)">' +
+            '</div>' +
+            // URL input
+            '<div class="form-group">' +
+            '<label class="form-label">또는 URL 직접 입력</label>' +
+            '<input class="form-control" id="ve-img-url-input" value="' + escapeHtml(currentUrl) + '" placeholder="이미지 경로">' +
+            '</div></div>';
+
+        showModalDialog(document.body, (propName === 'clickurl' ? '클릭 ' : '') + '이미지 변경', html, '적용', '취소',
+            function() {
+                // Check if file was uploaded
+                var uploadedUrl = document.getElementById('ve-img-file-input').dataset.uploadedUrl;
+                var manualUrl = document.getElementById('ve-img-url-input').value.trim();
+                var newUrl = uploadedUrl || manualUrl;
+
+                if (newUrl && newUrl !== currentUrl) {
+                    self.pushUndo();
+                    item[propName] = newUrl;
+                    self.renderCanvas();
+                    self.showPropertyPanel(self.selectedIdx);
+                    self.markDirty();
+                }
+                hideModalDialog();
+            },
+            function() { hideModalDialog(); },
+            { size: { width: '500px' }, allowHtml: true }
+        );
+
+        // Cleanup
+        if (fileInput.parentElement) fileInput.parentElement.removeChild(fileInput);
+    },
+
+    onImageFileSelected: function(input) {
+        if (!input.files || !input.files[0]) return;
+        var file = input.files[0];
+        var nameSpan = document.getElementById('ve-img-file-name');
+        if (nameSpan) nameSpan.textContent = file.name;
+
+        // Upload to server
+        var formData = new FormData();
+        formData.append('file', file);
+        formData.append('projectid', this.currentProjectId || '');
+        formData.append('groupidx', this.homeData ? (this.homeData.hm_gr_idx || '0') : '0');
+
+        var urlInput = document.getElementById('ve-img-url-input');
+
+        // Try upload via API
+        fetch('./api/v3/upload.php', {
+            method: 'POST',
+            body: formData
+        }).then(function(res) { return res.json(); })
+        .then(function(data) {
+            if (data.code === 100 && data.data && data.data.url) {
+                input.dataset.uploadedUrl = data.data.url;
+                if (urlInput) urlInput.value = data.data.url;
+                if (nameSpan) nameSpan.textContent = file.name + ' (업로드 완료)';
+                nameSpan.style.color = 'var(--color-success)';
+            } else {
+                // Fallback: use local file path (for development)
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    input.dataset.uploadedUrl = e.target.result;
+                    if (urlInput) urlInput.value = '(로컬 미리보기)';
+                    if (nameSpan) nameSpan.textContent = file.name + ' (로컬)';
+                };
+                reader.readAsDataURL(file);
+            }
+        }).catch(function() {
+            // No upload endpoint: use data URL as fallback
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                input.dataset.uploadedUrl = e.target.result;
+                if (urlInput) urlInput.value = '(로컬 미리보기)';
+                if (nameSpan) nameSpan.textContent = file.name + ' (로컬)';
+            };
+            reader.readAsDataURL(file);
+        });
     }
 };
