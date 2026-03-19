@@ -496,3 +496,21 @@
     color: white;
     border-color: var(--color-primary);
 }
+
+/* Text overlay on img/button elements */
+.canvas-text-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 4px 6px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 0 0 2px 2px;
+}

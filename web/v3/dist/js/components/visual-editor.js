@@ -230,6 +230,17 @@ var visualEditor = {
                     el.innerHTML += '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:#999;font-size:12px;">' +
                         '<i class="fas fa-image"></i></div>';
                 }
+                // text overlay on img/button
+                if (item.text && typeof item.text === 'object') {
+                    var langCode = (this.homeData && this.homeData.hm_language) || 'KO';
+                    var textObj = item.text[langCode];
+                    if (textObj && textObj.message) {
+                        var overlay = document.createElement('div');
+                        overlay.className = 'canvas-text-overlay';
+                        overlay.textContent = textObj.message.replace(/\|/g, ' ');
+                        el.appendChild(overlay);
+                    }
+                }
                 break;
 
             case 'text':
@@ -597,7 +608,123 @@ var visualEditor = {
                 '<input class="panel-color-input" type="color" id="ve-prop-color" value="' + escapeHtml(item.color || '#000000') + '" onchange="visualEditor.onPropChange(\'color\',this.value)">' +
                 '<input class="panel-input" value="' + escapeHtml(item.color || '#000000') + '" onchange="visualEditor.onPropChange(\'color\',this.value)" style="flex:1;"></div></div>';
         }
+
+        // Multilingual text data section (for img/button types)
+        if (item.type === 'img' || item.type === 'button' || item.type === 'button_empty') {
+            html += this.buildPanelTextDataSection(item);
+        }
+
         return html;
+    },
+
+    /**
+     * Build multilingual text data panel section
+     * text: {KO: {message: "..."}, EN: {message: "..."}, ...}
+     */
+    buildPanelTextDataSection: function(item) {
+        var languages = this.getSupportedLanguages();
+        var hasText = item.text && typeof item.text === 'object';
+        var html = '<div class="panel-section">' +
+            '<div class="panel-section-title" style="display:flex;align-items:center;justify-content:space-between;">' +
+            '<span>텍스트 데이터</span>' +
+            (hasText
+                ? '<button class="panel-img-btn" onclick="visualEditor.removeTextData()" title="텍스트 제거" style="width:22px;height:22px;font-size:10px;"><i class="fas fa-times"></i></button>'
+                : '<button class="panel-img-btn" onclick="visualEditor.addTextData()" title="텍스트 추가" style="width:22px;height:22px;font-size:10px;"><i class="fas fa-plus"></i></button>'
+            ) +
+            '</div>';
+
+        if (hasText) {
+            languages.forEach(function(lang) {
+                var msg = (item.text[lang.code] && item.text[lang.code].message) ? item.text[lang.code].message.replace(/\|/g, '\n') : '';
+                html += '<div class="panel-row">' +
+                    '<span class="panel-label" style="width:28px;font-size:11px;font-weight:600;color:var(--color-primary);">' + escapeHtml(lang.code) + '</span>' +
+                    '<textarea class="panel-input" id="ve-prop-text-' + lang.code + '" rows="1" ' +
+                    'style="font-size:11px;resize:vertical;min-height:28px;" ' +
+                    'onchange="visualEditor.onTextDataChange(\'' + lang.code + '\',this.value)" ' +
+                    'placeholder="' + escapeHtml(lang.label) + '">' + escapeHtml(msg) + '</textarea></div>';
+            });
+        } else {
+            html += '<div style="padding:4px 0;font-size:11px;color:var(--text-muted);">텍스트 없음 (+ 버튼으로 추가)</div>';
+        }
+
+        html += '</div>';
+        return html;
+    },
+
+    /**
+     * Get supported languages based on homeData or defaults
+     */
+    getSupportedLanguages: function() {
+        var all = [
+            { code: 'KO', label: '한국어' },
+            { code: 'EN', label: 'English' },
+            { code: 'ZH', label: '中文' },
+            { code: 'VI', label: 'Tiếng Việt' },
+            { code: 'MS', label: 'Bahasa' }
+        ];
+        // If homeData has hm_language, put it first
+        if (this.homeData && this.homeData.hm_language) {
+            var primary = this.homeData.hm_language;
+            all.sort(function(a, b) {
+                if (a.code === primary) return -1;
+                if (b.code === primary) return 1;
+                return 0;
+            });
+        }
+        return all;
+    },
+
+    /**
+     * Add empty text data to current item
+     */
+    addTextData: function() {
+        var items = this.getCurrentItems();
+        var item = items[this.selectedIdx];
+        if (!item) return;
+
+        this.pushUndo();
+        var languages = this.getSupportedLanguages();
+        item.text = {};
+        languages.forEach(function(lang) {
+            item.text[lang.code] = { message: '' };
+        });
+        this.showPropertyPanel(this.selectedIdx);
+        this.renderCanvas();
+        this.markDirty();
+    },
+
+    /**
+     * Remove text data from current item
+     */
+    removeTextData: function() {
+        var items = this.getCurrentItems();
+        var item = items[this.selectedIdx];
+        if (!item) return;
+
+        var self = this;
+        confirmMsg('텍스트 데이터를 제거하시겠습니까?', function() {
+            self.pushUndo();
+            delete item.text;
+            self.showPropertyPanel(self.selectedIdx);
+            self.renderCanvas();
+            self.markDirty();
+        });
+    },
+
+    /**
+     * Handle text data change for a specific language
+     */
+    onTextDataChange: function(langCode, value) {
+        var items = this.getCurrentItems();
+        var item = items[this.selectedIdx];
+        if (!item || !item.text) return;
+
+        this.pushUndo();
+        if (!item.text[langCode]) item.text[langCode] = {};
+        // Replace newlines with pipe for storage
+        item.text[langCode].message = value.replace(/\n/g, '|');
+        this.renderCanvas();
+        this.markDirty();
     },
 
     buildPanelEventSection: function(item) {
