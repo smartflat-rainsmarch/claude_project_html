@@ -832,10 +832,10 @@ var channelEditor = {
             // 회의실 예약: iframe으로 upload 페이지 표시
             var iframeUrl = '/claude_project/html/game/webpage/type_reservation_upload.html?projectid=' + this.currentProjectId + '&groupidx=' + grIdx;
             var screenH = window.innerHeight;
-            var html = '<iframe src="' + escapeHtml(iframeUrl) + '" style="border:none;width:100%;height:' + Math.round(screenH * 0.7) + 'px;"></iframe>';
+            var html = '<iframe src="' + escapeHtml(iframeUrl) + '" style="border:none;width:1000px;height:' + Math.round(screenH * 0.7) + 'px;"></iframe>';
             showModalDialog(document.body, '[' + escapeHtml(item.name) + '] 회의실 예약', html, '확인', null,
                 function() { hideModalDialog(); }, null,
-                { size: { width: '90%', height: Math.round(screenH * 0.9) + 'px' }, allowHtml: true }
+                { size: { width: '1100px', height: Math.round(screenH * 0.9) + 'px' }, allowHtml: true }
             );
             return;
         }
