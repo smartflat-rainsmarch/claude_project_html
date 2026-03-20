@@ -252,16 +252,20 @@ function showProfile() {
  * Power Control Popup (전원 설정)
  */
 function showPowerControlPopup() {
+    // 선택된 프로젝트 확인
+    var hmIdx = getGlobalProjectHmIdx();
+    if (!hmIdx) {
+        toastError('프로젝트를 먼저 선택하세요.');
+        return;
+    }
+    var select = document.getElementById('global-project-select');
+    var projectName = select ? select.options[select.selectedIndex].textContent : '';
+
     var html = '<div style="display:grid;gap:16px;">' +
-        // Target selection
-        '<div class="form-group"><label class="form-label">대상 선택</label>' +
-        '<div style="display:flex;gap:8px;">' +
-        '<select class="form-control" id="pwr-target-type" style="width:130px;" onchange="onPwrTargetChange()">' +
-        '<option value="all">전체 기기</option>' +
-        '<option value="device">특정 기기</option>' +
-        '</select>' +
-        '<select class="form-control" id="pwr-target-id" style="flex:1;display:none;"><option value="">선택하세요</option></select>' +
-        '</div></div>' +
+        // Project info
+        '<div style="padding:10px 14px;background:var(--bg-input);border-radius:8px;display:flex;align-items:center;gap:8px;">' +
+        '<i class="fas fa-folder-open" style="color:var(--color-primary);"></i>' +
+        '<span style="font-size:13px;font-weight:500;">' + escapeHtml(projectName) + '</span></div>' +
         // Immediate controls
         '<div class="form-group"><label class="form-label">즉시 제어</label>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
@@ -272,7 +276,7 @@ function showPowerControlPopup() {
         '</div></div>' +
         // Separator
         '<hr style="border:none;border-top:1px solid var(--border-color);margin:0;">' +
-        // Schedule shortcut
+        // Schedule
         '<div class="form-group"><label class="form-label"><i class="fas fa-clock"></i> 전원 예약</label>' +
         '<div style="display:flex;gap:8px;align-items:center;">' +
         '<div style="flex:1;text-align:center;">' +
@@ -298,61 +302,39 @@ function showPowerControlPopup() {
         function() { hideModalDialog(); }, null,
         { size: { width: '420px' }, allowHtml: true }
     );
-
-    // Load device list for target selector
-    loadPwrDevices();
-}
-
-function onPwrTargetChange() {
-    var type = document.getElementById('pwr-target-type').value;
-    var sel = document.getElementById('pwr-target-id');
-    if (sel) sel.style.display = type === 'all' ? 'none' : 'block';
-}
-
-async function loadPwrDevices() {
-    try {
-        var res = await V3Api.get('/devices');
-        var devices = (res.data && res.data.items) || res.data || [];
-        var sel = document.getElementById('pwr-target-id');
-        if (!sel || !Array.isArray(devices)) return;
-        devices.forEach(function(d) {
-            var opt = document.createElement('option');
-            opt.value = d.id;
-            opt.textContent = d.name || d.device_name || d.device_key || d.id;
-            sel.appendChild(opt);
-        });
-    } catch (e) { /* ignore */ }
 }
 
 async function sendPwrCmd(command) {
-    var targetType = document.getElementById('pwr-target-type').value;
-    var targetId = document.getElementById('pwr-target-id').value;
+    var hmIdx = getGlobalProjectHmIdx();
+    if (!hmIdx) { toastError('프로젝트를 선택하세요.'); return; }
     var labels = { power_on:'전원 켜기', power_off:'전원 끄기', reboot:'재부팅', restart_app:'앱 재시작' };
 
-    confirmMsg('"' + escapeHtml(labels[command] || command) + '" 명령을 전송하시겠습니까?', async function() {
+    confirmMsg('"' + escapeHtml(labels[command] || command) + '" 명령을 선택한 프로젝트 기기에 전송하시겠습니까?', async function() {
         C_ShowLoadingProgress();
         try {
-            if (targetType === 'all') {
-                var res = await V3Api.get('/devices');
-                var devices = (res.data && res.data.items) || res.data || [];
-                var count = 0;
-                for (var i = 0; i < devices.length; i++) {
-                    try { await V3Api.post('/devices/' + devices[i].id + '/command', { command: command }); count++; }
-                    catch (e) { /* continue */ }
-                }
-                toastSuccess(count + '대 기기에 명령 전송 완료');
-            } else {
-                if (!targetId) { toastError('기기를 선택하세요.'); C_HideLoadingProgress(); return; }
-                var res = await V3Api.post('/devices/' + targetId + '/command', { command: command });
-                if (res.code === 100) toastSuccess('명령 전송 완료');
-                else toastError(res.message || '전송 실패');
+            // 선택된 프로젝트의 기기들에 명령 전송
+            var res = await V3Api.get('/devices?project_id=' + hmIdx);
+            var devices = (res.data && res.data.items) || res.data || [];
+            if (!Array.isArray(devices) || devices.length === 0) {
+                toastError('해당 프로젝트에 등록된 기기가 없습니다.');
+                C_HideLoadingProgress();
+                return;
             }
+            var count = 0;
+            for (var i = 0; i < devices.length; i++) {
+                try { await V3Api.post('/devices/' + devices[i].id + '/command', { command: command }); count++; }
+                catch (e) { /* continue */ }
+            }
+            toastSuccess(count + '대 기기에 명령 전송 완료');
         } catch (err) { toastError('명령 전송 실패'); }
         finally { C_HideLoadingProgress(); }
     });
 }
 
 async function savePwrSchedule() {
+    var hmIdx = getGlobalProjectHmIdx();
+    if (!hmIdx) { toastError('프로젝트를 선택하세요.'); return; }
+
     var onTime = document.getElementById('pwr-sched-on').value;
     var offTime = document.getElementById('pwr-sched-off').value;
     var days = [];
@@ -364,8 +346,9 @@ async function savePwrSchedule() {
         var res = await V3Api.post('/schedules', {
             name: '전원 예약 (' + onTime + '~' + offTime + ')',
             schedule_type: 'power',
+            project_id: parseInt(hmIdx),
             is_active: 1,
-            target_type: document.getElementById('pwr-target-type').value,
+            target_type: 'all',
             schedule_data: { power_on: onTime, power_off: offTime, days: days }
         });
         if (res.code === 100) {
