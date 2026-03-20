@@ -14,9 +14,6 @@
             <span style="color:var(--color-danger); font-weight:500;">숏URL:</span>
             <span id="channel-shorturl-text" style="color:var(--text-dark); text-decoration:underline; cursor:pointer;" onclick="channelEditor.copyShortUrl()" title="클릭하여 복사"></span>
         </div>
-        <button class="btn btn-light" onclick="channelEditor.copyPageUrl()" title="프로젝트 페이지 주소 복사">
-            <i class="fas fa-link"></i> 페이지 주소
-        </button>
         <button class="btn btn-light" onclick="channelEditor.copyPreviewUrl()" title="미리보기 주소 복사">
             <i class="fas fa-copy"></i> 주소 복사
         </button>
