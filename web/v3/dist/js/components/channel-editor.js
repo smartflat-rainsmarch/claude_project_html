@@ -810,6 +810,29 @@ var channelEditor = {
                 '<input class="form-control" id="edit-color" type="color" value="' + (item.color || '#000000') + '"></div>';
         }
 
+        var isText = item.type === 'text';
+
+        // 이미지 URL (text 타입이 아닐 때만)
+        var imgFields = '';
+        if (!isText) {
+            imgFields = '<div class="form-group"><label class="form-label">이미지 URL</label>' +
+                '<div style="display:flex;gap:4px;">' +
+                '<input class="form-control" id="edit-imgurl" value="' + escapeHtml(item.imgurl || '') + '" style="flex:1;">' +
+                '<button type="button" class="btn btn-sm btn-light" onclick="channelEditor.pickImage(\'edit-imgurl\')" title="이미지 선택" style="white-space:nowrap;"><i class="fas fa-folder-open"></i></button>' +
+                '</div></div>' +
+                '<div class="form-group"><label class="form-label">클릭 이미지 URL</label>' +
+                '<div style="display:flex;gap:4px;">' +
+                '<input class="form-control" id="edit-clickurl" value="' + escapeHtml(item.clickurl || '') + '" style="flex:1;">' +
+                '<button type="button" class="btn btn-sm btn-light" onclick="channelEditor.pickImage(\'edit-clickurl\')" title="이미지 선택" style="white-space:nowrap;"><i class="fas fa-folder-open"></i></button>' +
+                '</div></div>';
+        }
+
+        // 텍스트 타입: 언어별 text 입력 (hm_all_language 기반)
+        var textLangFields = '';
+        if (isText && item.text && typeof item.text === 'object') {
+            textLangFields = this.buildTextLangFields(item);
+        }
+
         return '<div style="display:grid;gap:12px;">' +
             '<div class="form-group"><label class="form-label">ID</label>' +
             '<input class="form-control" id="edit-id" value="' + escapeHtml(item.id || '') + '" readonly style="background:var(--bg-input);"></div>' +
@@ -826,20 +849,56 @@ var channelEditor = {
             '<input class="form-control" id="edit-w" type="number" value="' + (item.w || '') + '"></div>' +
             '<div class="form-group" style="flex:1"><label class="form-label">H</label>' +
             '<input class="form-control" id="edit-h" type="number" value="' + (item.h || '') + '"></div></div>' +
-            '<div class="form-group"><label class="form-label">이미지 URL</label>' +
-            '<div style="display:flex;gap:4px;">' +
-            '<input class="form-control" id="edit-imgurl" value="' + escapeHtml(item.imgurl || '') + '" style="flex:1;">' +
-            '<button type="button" class="btn btn-sm btn-light" onclick="channelEditor.pickImage(\'edit-imgurl\')" title="이미지 선택" style="white-space:nowrap;"><i class="fas fa-folder-open"></i></button>' +
-            '</div></div>' +
-            '<div class="form-group"><label class="form-label">클릭 이미지 URL</label>' +
-            '<div style="display:flex;gap:4px;">' +
-            '<input class="form-control" id="edit-clickurl" value="' + escapeHtml(item.clickurl || '') + '" style="flex:1;">' +
-            '<button type="button" class="btn btn-sm btn-light" onclick="channelEditor.pickImage(\'edit-clickurl\')" title="이미지 선택" style="white-space:nowrap;"><i class="fas fa-folder-open"></i></button>' +
-            '</div></div>' +
+            imgFields +
             typeFields +
+            textLangFields +
             '<div class="form-group"><label class="form-label">이벤트 (JSON)</label>' +
             '<textarea class="form-control" id="edit-event" rows="3" style="font-family:monospace;font-size:12px;">' + escapeHtml(eventStr) + '</textarea></div>' +
             '</div>';
+    },
+
+    /**
+     * Build language-specific text input fields for text type elements
+     */
+    buildTextLangFields(item) {
+        var languages = this.getLanguages();
+        var html = '<div class="form-group"><label class="form-label">텍스트 (언어별)</label>';
+
+        // 기존 text 키에서 언어 추가
+        if (item.text && typeof item.text === 'object') {
+            for (var k in item.text) {
+                if (item.text.hasOwnProperty(k) && languages.indexOf(k) === -1) {
+                    languages.push(k);
+                }
+            }
+        }
+
+        languages.forEach(function(lang) {
+            var td = (item.text && item.text[lang]) ? item.text[lang] : {};
+            var msg = td.message ? td.message.replace(/\|/g, '\n') : '';
+            html += '<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;">' +
+                '<span style="width:28px;font-size:12px;font-weight:600;color:var(--color-primary);flex-shrink:0;">' + escapeHtml(lang) + '</span>' +
+                '<textarea class="form-control" id="edit-text-' + lang + '" rows="1" style="font-size:12px;resize:vertical;min-height:28px;flex:1;" placeholder="' + escapeHtml(lang) + ' 텍스트">' + escapeHtml(msg) + '</textarea>' +
+                '</div>';
+        });
+
+        html += '</div>';
+        return html;
+    },
+
+    /**
+     * Get supported languages from homeData
+     */
+    getLanguages() {
+        var codes = ['KO'];
+        if (this.homeData) {
+            if (this.homeData.hm_all_language) {
+                codes = this.homeData.hm_all_language.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+            } else if (this.homeData.hm_language) {
+                codes = [this.homeData.hm_language];
+            }
+        }
+        return codes;
     },
 
     /**
@@ -859,8 +918,30 @@ var channelEditor = {
         var h = document.getElementById('edit-h').value;
         if (h) item.h = h;
 
-        item.imgurl = document.getElementById('edit-imgurl').value;
-        item.clickurl = document.getElementById('edit-clickurl').value;
+        var imgurlEl = document.getElementById('edit-imgurl');
+        if (imgurlEl) item.imgurl = imgurlEl.value;
+        var clickurlEl = document.getElementById('edit-clickurl');
+        if (clickurlEl) item.clickurl = clickurlEl.value;
+
+        // Save language-specific text (for text type)
+        if (item.type === 'text') {
+            var languages = this.getLanguages();
+            if (item.text && typeof item.text === 'object') {
+                for (var k in item.text) {
+                    if (item.text.hasOwnProperty(k) && languages.indexOf(k) === -1) {
+                        languages.push(k);
+                    }
+                }
+            }
+            languages.forEach(function(lang) {
+                var el = document.getElementById('edit-text-' + lang);
+                if (el) {
+                    if (!item.text || typeof item.text !== 'object') item.text = {};
+                    if (!item.text[lang]) item.text[lang] = {};
+                    item.text[lang].message = el.value.replace(/\n/g, '|');
+                }
+            });
+        }
 
         var videoEl = document.getElementById('edit-videourl');
         if (videoEl) item.videourl = videoEl.value;
