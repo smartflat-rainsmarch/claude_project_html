@@ -392,12 +392,10 @@ function pwrSetTime(isOn, isWeek, name) {
             var h = parseInt(parts[0]), m = parseInt(parts[1]);
             pwrApplyTime(isOn, isWeek, name, h, m);
             hideModalDialog();
-            setTimeout(function() { showPowerControlPopup(); }, 200);
         },
         function() {
             pwrApplyTime(isOn, isWeek, name, -1, -1);
             hideModalDialog();
-            setTimeout(function() { showPowerControlPopup(); }, 200);
         },
         { size: { width: '320px' }, allowHtml: true }
     );
