@@ -1043,6 +1043,7 @@ var channelEditor = {
                     this.contentdatas = res.data.content_data || [];
                 }
                 this.renderAllTables();
+                this.refreshPreview();
                 toastSuccess('저장되었습니다.');
             } else {
                 toastError(res.message || '저장에 실패했습니다.');
