@@ -29,6 +29,13 @@
 
     <!-- Right Section -->
     <div class="header-right">
+        <!-- Power Settings -->
+        <div class="header-toolbar-item">
+            <button class="toolbar-btn" onclick="showPowerControlPopup()" title="전원 설정">
+                <i class="fas fa-power-off" style="color:var(--color-danger);"></i>
+            </button>
+        </div>
+
         <!-- Add Project -->
         <div class="header-toolbar-item">
             <button class="toolbar-btn" onclick="showAddProjectModal()" title="새 프로젝트 추가">
@@ -241,6 +248,135 @@ function showProfile() {
 /**
  * Show add project modal
  */
+/**
+ * Power Control Popup (전원 설정)
+ */
+function showPowerControlPopup() {
+    var html = '<div style="display:grid;gap:16px;">' +
+        // Target selection
+        '<div class="form-group"><label class="form-label">대상 선택</label>' +
+        '<div style="display:flex;gap:8px;">' +
+        '<select class="form-control" id="pwr-target-type" style="width:130px;" onchange="onPwrTargetChange()">' +
+        '<option value="all">전체 기기</option>' +
+        '<option value="device">특정 기기</option>' +
+        '</select>' +
+        '<select class="form-control" id="pwr-target-id" style="flex:1;display:none;"><option value="">선택하세요</option></select>' +
+        '</div></div>' +
+        // Immediate controls
+        '<div class="form-group"><label class="form-label">즉시 제어</label>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+        '<button class="btn btn-success" onclick="sendPwrCmd(\'power_on\')" style="padding:12px;"><i class="fas fa-power-off"></i><br><span style="font-size:12px;margin-top:4px;display:block;">전원 켜기</span></button>' +
+        '<button class="btn btn-danger" onclick="sendPwrCmd(\'power_off\')" style="padding:12px;"><i class="fas fa-power-off"></i><br><span style="font-size:12px;margin-top:4px;display:block;">전원 끄기</span></button>' +
+        '<button class="btn btn-light" onclick="sendPwrCmd(\'reboot\')" style="padding:12px;"><i class="fas fa-redo"></i><br><span style="font-size:12px;margin-top:4px;display:block;">재부팅</span></button>' +
+        '<button class="btn btn-light" onclick="sendPwrCmd(\'restart_app\')" style="padding:12px;"><i class="fas fa-sync-alt"></i><br><span style="font-size:12px;margin-top:4px;display:block;">앱 재시작</span></button>' +
+        '</div></div>' +
+        // Separator
+        '<hr style="border:none;border-top:1px solid var(--border-color);margin:0;">' +
+        // Schedule shortcut
+        '<div class="form-group"><label class="form-label"><i class="fas fa-clock"></i> 전원 예약</label>' +
+        '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<div style="flex:1;text-align:center;">' +
+        '<label style="font-size:11px;color:var(--color-success);font-weight:600;display:block;margin-bottom:4px;">켜기 시간</label>' +
+        '<input type="time" class="form-control" id="pwr-sched-on" value="08:00" style="text-align:center;font-size:16px;font-weight:600;"></div>' +
+        '<div style="flex:1;text-align:center;">' +
+        '<label style="font-size:11px;color:var(--color-danger);font-weight:600;display:block;margin-bottom:4px;">끄기 시간</label>' +
+        '<input type="time" class="form-control" id="pwr-sched-off" value="22:00" style="text-align:center;font-size:16px;font-weight:600;"></div>' +
+        '</div>' +
+        '<div style="display:flex;gap:4px;margin-top:8px;justify-content:center;" id="pwr-days">' +
+        '<div class="pwr-day active" data-day="mon" onclick="this.classList.toggle(\'active\')">월</div>' +
+        '<div class="pwr-day active" data-day="tue" onclick="this.classList.toggle(\'active\')">화</div>' +
+        '<div class="pwr-day active" data-day="wed" onclick="this.classList.toggle(\'active\')">수</div>' +
+        '<div class="pwr-day active" data-day="thu" onclick="this.classList.toggle(\'active\')">목</div>' +
+        '<div class="pwr-day active" data-day="fri" onclick="this.classList.toggle(\'active\')">금</div>' +
+        '<div class="pwr-day" data-day="sat" onclick="this.classList.toggle(\'active\')">토</div>' +
+        '<div class="pwr-day" data-day="sun" onclick="this.classList.toggle(\'active\')">일</div>' +
+        '</div>' +
+        '<button class="btn btn-primary btn-sm" onclick="savePwrSchedule()" style="width:100%;margin-top:8px;"><i class="fas fa-save"></i> 예약 저장</button>' +
+        '</div></div>';
+
+    showModalDialog(document.body, '전원 설정', html, '닫기', null,
+        function() { hideModalDialog(); }, null,
+        { size: { width: '420px' }, allowHtml: true }
+    );
+
+    // Load device list for target selector
+    loadPwrDevices();
+}
+
+function onPwrTargetChange() {
+    var type = document.getElementById('pwr-target-type').value;
+    var sel = document.getElementById('pwr-target-id');
+    if (sel) sel.style.display = type === 'all' ? 'none' : 'block';
+}
+
+async function loadPwrDevices() {
+    try {
+        var res = await V3Api.get('/devices');
+        var devices = (res.data && res.data.items) || res.data || [];
+        var sel = document.getElementById('pwr-target-id');
+        if (!sel || !Array.isArray(devices)) return;
+        devices.forEach(function(d) {
+            var opt = document.createElement('option');
+            opt.value = d.id;
+            opt.textContent = d.name || d.device_name || d.device_key || d.id;
+            sel.appendChild(opt);
+        });
+    } catch (e) { /* ignore */ }
+}
+
+async function sendPwrCmd(command) {
+    var targetType = document.getElementById('pwr-target-type').value;
+    var targetId = document.getElementById('pwr-target-id').value;
+    var labels = { power_on:'전원 켜기', power_off:'전원 끄기', reboot:'재부팅', restart_app:'앱 재시작' };
+
+    confirmMsg('"' + escapeHtml(labels[command] || command) + '" 명령을 전송하시겠습니까?', async function() {
+        C_ShowLoadingProgress();
+        try {
+            if (targetType === 'all') {
+                var res = await V3Api.get('/devices');
+                var devices = (res.data && res.data.items) || res.data || [];
+                var count = 0;
+                for (var i = 0; i < devices.length; i++) {
+                    try { await V3Api.post('/devices/' + devices[i].id + '/command', { command: command }); count++; }
+                    catch (e) { /* continue */ }
+                }
+                toastSuccess(count + '대 기기에 명령 전송 완료');
+            } else {
+                if (!targetId) { toastError('기기를 선택하세요.'); C_HideLoadingProgress(); return; }
+                var res = await V3Api.post('/devices/' + targetId + '/command', { command: command });
+                if (res.code === 100) toastSuccess('명령 전송 완료');
+                else toastError(res.message || '전송 실패');
+            }
+        } catch (err) { toastError('명령 전송 실패'); }
+        finally { C_HideLoadingProgress(); }
+    });
+}
+
+async function savePwrSchedule() {
+    var onTime = document.getElementById('pwr-sched-on').value;
+    var offTime = document.getElementById('pwr-sched-off').value;
+    var days = [];
+    document.querySelectorAll('#pwr-days .pwr-day.active').forEach(function(d) { days.push(d.dataset.day); });
+
+    if (days.length === 0) { toastError('반복 요일을 선택하세요.'); return; }
+
+    try {
+        var res = await V3Api.post('/schedules', {
+            name: '전원 예약 (' + onTime + '~' + offTime + ')',
+            schedule_type: 'power',
+            is_active: 1,
+            target_type: document.getElementById('pwr-target-type').value,
+            schedule_data: { power_on: onTime, power_off: offTime, days: days }
+        });
+        if (res.code === 100) {
+            toastSuccess('전원 예약이 저장되었습니다.');
+            hideModalDialog();
+        } else {
+            toastError(res.message || '저장 실패');
+        }
+    } catch (err) { toastError('저장 실패'); }
+}
+
 function showAddProjectModal() {
     var html = '<div style="display:grid;gap:12px;">' +
         '<div class="form-group"><label class="form-label">프로젝트 ID</label>' +
