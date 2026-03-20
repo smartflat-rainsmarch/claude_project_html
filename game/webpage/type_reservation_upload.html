@@ -79,8 +79,8 @@
 <!-- Date Selector -->
 <div class="ru-date-row">
     <span style="font-weight:600;">날짜:</span>
-    <input type="date" class="ru-date-input" id="ru-date">
-    <button class="ru-btn ru-btn-light" onclick="ruLoad()">조회</button>
+    <input type="date" class="ru-date-input" id="ru-date" onchange="ruSwitchDate()">
+    <button class="ru-btn ru-btn-light" onclick="ruLoad()">새로고침</button>
 </div>
 
 <!-- Form -->
@@ -201,15 +201,35 @@ function ruLoad() {
         var code = parseInt(res.code);
         if (code == 100) {
             var homedata = res.message;
-            ru.hmIdx = homedata.hm_idx; // hm_idx를 서버에서 가져옴
+            ru.hmIdx = homedata.hm_idx;
 
+            // hm_other 파싱 (기존 데이터 보존)
             var other = homedata.hm_other || '';
             if (typeof other === 'string' && other.length > 4) {
                 try { other = JSON.parse(other); } catch(e) { other = {}; }
             } else {
                 other = {};
             }
-            ru.allReservations = (other && other.reservations) ? other.reservations : [];
+            ru.otherData = other; // 기존 hm_other 전체 보존
+
+            // reservations: 날짜별 객체 또는 배열 지원
+            var reservations = other.reservations || {};
+            if (Array.isArray(reservations)) {
+                // 배열 → 날짜별 객체로 변환 (하위 호환)
+                var byDate = {};
+                reservations.forEach(function(r) {
+                    var d = r.start_datetime ? r.start_datetime.slice(0, 10) : '';
+                    if (d) {
+                        if (!byDate[d]) byDate[d] = [];
+                        byDate[d].push(r);
+                    }
+                });
+                reservations = byDate;
+            }
+            ru.reservationsByDate = reservations;
+
+            // 선택 날짜의 예약만 allReservations에 로드
+            ru.allReservations = ru.reservationsByDate[ru.date] || [];
             ruRenderList();
         } else {
             ruToast('데이터 로드 실패', 'error');
@@ -218,6 +238,18 @@ function ruLoad() {
 }
 
 // 목록 렌더링
+// 날짜 전환 (서버 재호출 없이)
+function ruSwitchDate() {
+    // 현재 날짜 데이터를 저장
+    if (ru.date && ru.reservationsByDate) {
+        ru.reservationsByDate[ru.date] = ru.allReservations;
+    }
+    ru.date = document.getElementById('ru-date').value;
+    ru.allReservations = (ru.reservationsByDate && ru.reservationsByDate[ru.date]) ? ru.reservationsByDate[ru.date] : [];
+    ruClear();
+    ruRenderList();
+}
+
 function ruRenderList() {
     var tbody = document.getElementById('ru-list-body');
     var now = new Date();
@@ -360,12 +392,28 @@ function ruCleanup(list) {
     });
 }
 
-// 저장 (hm_other) - ssapi 방식으로 저장
+// 저장 (hm_other) - 날짜별 구조로 저장, 기존 hm_other 데이터 보존
 function ruSaveToServer(callback) {
-    // 7일 cleanup
-    ru.allReservations = ruCleanup(ru.allReservations);
+    // 현재 날짜의 예약을 날짜별 객체에 반영
+    ru.reservationsByDate[ru.date] = ru.allReservations;
 
-    var otherJson = JSON.stringify({ reservations: ru.allReservations });
+    // 7일 지난 날짜 키 cleanup
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 7);
+    var cutoffStr = cutoff.toISOString().slice(0, 10);
+    var cleaned = {};
+    for (var dateKey in ru.reservationsByDate) {
+        if (ru.reservationsByDate.hasOwnProperty(dateKey) && dateKey >= cutoffStr) {
+            cleaned[dateKey] = ru.reservationsByDate[dateKey];
+        }
+    }
+    ru.reservationsByDate = cleaned;
+
+    // 기존 hm_other 보존 + reservations만 업데이트
+    var otherData = ru.otherData || {};
+    otherData.reservations = ru.reservationsByDate;
+
+    var otherJson = JSON.stringify(otherData);
 
     var _data = {
         "projectid": ru.projectid,
