@@ -827,9 +827,15 @@ var channelEditor = {
             '<div class="form-group" style="flex:1"><label class="form-label">H</label>' +
             '<input class="form-control" id="edit-h" type="number" value="' + (item.h || '') + '"></div></div>' +
             '<div class="form-group"><label class="form-label">이미지 URL</label>' +
-            '<input class="form-control" id="edit-imgurl" value="' + escapeHtml(item.imgurl || '') + '"></div>' +
+            '<div style="display:flex;gap:4px;">' +
+            '<input class="form-control" id="edit-imgurl" value="' + escapeHtml(item.imgurl || '') + '" style="flex:1;">' +
+            '<button type="button" class="btn btn-sm btn-light" onclick="channelEditor.pickImage(\'edit-imgurl\')" title="이미지 선택" style="white-space:nowrap;"><i class="fas fa-folder-open"></i></button>' +
+            '</div></div>' +
             '<div class="form-group"><label class="form-label">클릭 이미지 URL</label>' +
-            '<input class="form-control" id="edit-clickurl" value="' + escapeHtml(item.clickurl || '') + '"></div>' +
+            '<div style="display:flex;gap:4px;">' +
+            '<input class="form-control" id="edit-clickurl" value="' + escapeHtml(item.clickurl || '') + '" style="flex:1;">' +
+            '<button type="button" class="btn btn-sm btn-light" onclick="channelEditor.pickImage(\'edit-clickurl\')" title="이미지 선택" style="white-space:nowrap;"><i class="fas fa-folder-open"></i></button>' +
+            '</div></div>' +
             typeFields +
             '<div class="form-group"><label class="form-label">이벤트 (JSON)</label>' +
             '<textarea class="form-control" id="edit-event" rows="3" style="font-family:monospace;font-size:12px;">' + escapeHtml(eventStr) + '</textarea></div>' +
@@ -991,5 +997,65 @@ var channelEditor = {
         var fieldMap = { content: 'content-data', home: 'home-data', main: 'main-data' };
         hideModalDialog();
         await this.saveField(fieldMap[key], parsed);
+    },
+
+    // =========================================
+    // Image Picker (이미지 선택)
+    // =========================================
+
+    /**
+     * Open file picker and set selected image to target input
+     * @param {string} inputId - target input element ID
+     */
+    pickImage(inputId) {
+        var input = document.getElementById(inputId);
+        if (!input) return;
+
+        var fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+
+        fileInput.onchange = function() {
+            if (!fileInput.files || !fileInput.files[0]) return;
+            var file = fileInput.files[0];
+
+            // Try upload via API
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('projectid', channelEditor.currentProjectId || '');
+            formData.append('groupidx', channelEditor.homeData ? (channelEditor.homeData.hm_gr_idx || '0') : '0');
+
+            fetch('./api/v3/upload.php', {
+                method: 'POST',
+                body: formData
+            }).then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data.code === 100 && data.data && data.data.url) {
+                    input.value = data.data.url;
+                    toastSuccess(file.name + ' 업로드 완료');
+                } else {
+                    // Fallback: use data URL
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        input.value = e.target.result;
+                        toastSuccess(file.name + ' 선택 완료 (로컬)');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }).catch(function() {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    input.value = e.target.result;
+                    toastSuccess(file.name + ' 선택 완료 (로컬)');
+                };
+                reader.readAsDataURL(file);
+            });
+
+            fileInput.remove();
+        };
+
+        document.body.appendChild(fileInput);
+        fileInput.click();
     }
 };
