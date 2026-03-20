@@ -48,12 +48,12 @@ $provider = $config['provider'] ?? 'gemini';
 if ($provider === 'gemini') {
     $apiKey = $config['gemini']['api_key'] ?? '';
     if (empty($apiKey)) {
-        ApiResponse::error('Gemini API 키가 설정되지 않았습니다. config/ai.php를 확인하세요.', 500);
+        ApiResponse::error('AI API 키가 설정되지 않았습니다. 관리자에게 문의하세요.', 500);
     }
 } else {
     $apiKey = $config['anthropic']['api_key'] ?? '';
     if (empty($apiKey)) {
-        ApiResponse::error('AI API 키가 설정되지 않았습니다. config/ai.php를 확인하세요.', 500);
+        ApiResponse::error('AI API 키가 설정되지 않았습니다. 관리자에게 문의하세요.', 500);
     }
 }
 
@@ -167,12 +167,18 @@ function callGeminiAPI($apiKey, $modelConfig, $systemPrompt, $messages) {
     curl_close($ch);
 
     if ($error) {
-        return ['error' => ['message' => 'cURL error: ' . $error]];
+        error_log('AI Gemini cURL error: ' . $error);
+        return ['error' => ['message' => 'AI 서버에 연결할 수 없습니다.']];
     }
 
     $decoded = json_decode($body, true);
+    if ($decoded === null) {
+        error_log('AI Gemini invalid JSON response');
+        return ['error' => ['message' => 'AI 서버 응답을 처리할 수 없습니다.']];
+    }
     if ($httpCode !== 200) {
-        $errMsg = $decoded['error']['message'] ?? "HTTP $httpCode";
+        $errMsg = $decoded['error']['message'] ?? "요청 처리 실패 (코드: $httpCode)";
+        error_log('AI Gemini HTTP error: ' . $errMsg);
         return ['error' => ['message' => $errMsg]];
     }
 

@@ -189,7 +189,11 @@ var aiPrompt = {
         var div = document.createElement('div');
         div.className = 'ai-msg ai-msg-ai';
         if (type === 'html') {
-            div.innerHTML = '<div class="ai-bubble">' + text + '</div>';
+            // steps HTML은 내부에서 escapeHtml 처리된 것만 허용
+            var bubble = document.createElement('div');
+            bubble.className = 'ai-bubble';
+            bubble.innerHTML = text; // ai-step은 내부에서 escapeHtml 적용됨
+            div.appendChild(bubble);
         } else if (type === 'error') {
             div.innerHTML = '<div class="ai-bubble" style="border-color:var(--color-danger);color:var(--color-danger);"><i class="fas fa-exclamation-triangle"></i> ' + escapeHtml(text) + '</div>';
         } else {

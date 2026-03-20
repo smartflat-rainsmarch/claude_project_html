@@ -254,8 +254,11 @@ function executeSetHomeData($input) {
     $elements = $input['elements'] ?? [];
 
     if ($hmIdx <= 0) return ['success' => false, 'error' => 'hm_idx required'];
+    $exists = db()->fetchOne("SELECT hm_idx FROM tb_home WHERE hm_idx = ?", [$hmIdx]);
+    if (!$exists) return ['success' => false, 'error' => 'project not found'];
 
     $json = json_encode($elements, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if (!$json || strlen($json) > 5242880) return ['success' => false, 'error' => 'data too large'];
     db()->update('tb_home', ['hm_home_data' => $json], 'hm_idx = ?', [$hmIdx]);
 
     return [
@@ -271,8 +274,11 @@ function executeSetMainData($input) {
     $elements = $input['elements'] ?? [];
 
     if ($hmIdx <= 0) return ['success' => false, 'error' => 'hm_idx required'];
+    $exists = db()->fetchOne("SELECT hm_idx FROM tb_home WHERE hm_idx = ?", [$hmIdx]);
+    if (!$exists) return ['success' => false, 'error' => 'project not found'];
 
     $json = json_encode($elements, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if (!$json || strlen($json) > 5242880) return ['success' => false, 'error' => 'data too large'];
     db()->update('tb_home', ['hm_main_data' => $json], 'hm_idx = ?', [$hmIdx]);
 
     return [
@@ -288,8 +294,11 @@ function executeSetContentData($input) {
     $contents = $input['contents'] ?? [];
 
     if ($hmIdx <= 0) return ['success' => false, 'error' => 'hm_idx required'];
+    $exists = db()->fetchOne("SELECT hm_idx FROM tb_home WHERE hm_idx = ?", [$hmIdx]);
+    if (!$exists) return ['success' => false, 'error' => 'project not found'];
 
     $json = json_encode($contents, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if (!$json || strlen($json) > 5242880) return ['success' => false, 'error' => 'data too large'];
     db()->update('tb_home', ['hm_content_data' => $json], 'hm_idx = ?', [$hmIdx]);
 
     return [
