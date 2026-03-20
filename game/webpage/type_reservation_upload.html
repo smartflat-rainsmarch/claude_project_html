@@ -74,7 +74,12 @@
 </div>
 
 <!-- Room Selector -->
-<div class="ru-rooms" id="ru-rooms"></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <div class="ru-rooms" id="ru-rooms" style="margin-bottom:0;"></div>
+    <button class="ru-btn ru-btn-light" onclick="ruShowRoomManager()" title="회의실 관리" style="padding:10px 14px;">
+        <i class="fas fa-cog" style="margin-right:4px;"></i> 회의실 관리
+    </button>
+</div>
 
 <!-- Date Selector -->
 <div class="ru-date-row">
@@ -154,27 +159,40 @@ var ru = {
     projectid: '',
     groupidx: 0,
     date: '',
-    allReservations: [], // 전체 (모든 회의실, 모든 날짜)
-    editId: ''
+    allReservations: [],
+    editId: '',
+    rooms: [], // 동적 회의실 목록 [{id:1, name:"회의실 1"}, ...]
+    otherData: {},
+    reservationsByDate: {}
 };
 
-// type_pdf_upload.html과 동일한 파라미터 방식
+var DEFAULT_ROOMS = [
+    {id:1, name:'회의실 1'}, {id:2, name:'회의실 2'}, {id:3, name:'회의실 3'},
+    {id:4, name:'회의실 4'}, {id:5, name:'회의실 5'}, {id:6, name:'회의실 6'}
+];
+
 function ruInit() {
     ru.projectid = getParam("projectid") ? getParam("projectid") : "sample";
     ru.groupidx = getParam("groupidx") ? getParam("groupidx") : 0;
 
-    // 오늘 날짜
     var today = new Date().toISOString().slice(0, 10);
     document.getElementById('ru-date').value = today;
     ru.date = today;
 
-    // 회의실 버튼 생성 (1~6)
+    ruLoad();
+}
+
+// 회의실 버튼 렌더링
+function ruRenderRoomButtons() {
     var roomsDiv = document.getElementById('ru-rooms');
-    for (var i = 1; i <= 6; i++) {
+    roomsDiv.innerHTML = '';
+    var rooms = ru.rooms.length > 0 ? ru.rooms : DEFAULT_ROOMS;
+
+    rooms.forEach(function(room, i) {
         var btn = document.createElement('button');
-        btn.className = 'ru-room-btn' + (i === 1 ? ' active' : '');
-        btn.textContent = '회의실 ' + i;
-        btn.dataset.room = i;
+        btn.className = 'ru-room-btn' + (room.id === ru.roomNo ? ' active' : '');
+        btn.textContent = room.name;
+        btn.dataset.room = room.id;
         btn.onclick = function() {
             ru.roomNo = parseInt(this.dataset.room);
             document.querySelectorAll('.ru-room-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -183,9 +201,102 @@ function ruInit() {
             ruRenderList();
         };
         roomsDiv.appendChild(btn);
-    }
+    });
 
-    ruLoad();
+    // 첫 번째 회의실 선택
+    if (!rooms.find(function(r) { return r.id === ru.roomNo; }) && rooms.length > 0) {
+        ru.roomNo = rooms[0].id;
+    }
+}
+
+// 회의실 관리 팝업
+function ruShowRoomManager() {
+    var rooms = ru.rooms.length > 0 ? ru.rooms : DEFAULT_ROOMS.slice();
+    var listHtml = rooms.map(function(r, i) {
+        return '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;" data-room-idx="' + i + '">' +
+            '<input class="ru-form-input" value="' + esc(r.name) + '" id="rm-name-' + i + '" style="flex:1;">' +
+            '<button class="ru-btn ru-btn-danger" onclick="ruRemoveRoomInManager(' + i + ')" style="padding:8px 12px;font-size:13px;">삭제</button>' +
+            '</div>';
+    }).join('');
+
+    var html = '<div id="rm-list">' + listHtml + '</div>' +
+        '<div style="display:flex;gap:8px;margin-top:12px;">' +
+        '<input class="ru-form-input" id="rm-new-name" placeholder="새 회의실 이름" style="flex:1;">' +
+        '<button class="ru-btn ru-btn-primary" onclick="ruAddRoomInManager()" style="padding:8px 16px;">추가</button>' +
+        '</div>';
+
+    // 임시 저장용
+    window._rmRooms = JSON.parse(JSON.stringify(rooms));
+
+    showModalDialog(document.body, '회의실 관리', html, '저장', '취소',
+        function() {
+            // 이름 업데이트 반영
+            var updated = [];
+            for (var i = 0; i < window._rmRooms.length; i++) {
+                var nameEl = document.getElementById('rm-name-' + i);
+                if (nameEl) {
+                    window._rmRooms[i].name = nameEl.value.trim() || ('회의실 ' + window._rmRooms[i].id);
+                }
+                updated.push(window._rmRooms[i]);
+            }
+            ru.rooms = updated;
+            ruSaveRooms();
+            hideModalDialog();
+        },
+        function() { hideModalDialog(); },
+        { size: { width: '500px' }, allowHtml: true }
+    );
+}
+
+function ruAddRoomInManager() {
+    var nameInput = document.getElementById('rm-new-name');
+    var name = nameInput ? nameInput.value.trim() : '';
+    if (!name) { ruToast('회의실 이름을 입력하세요.', 'error'); return; }
+
+    // 새 ID: 기존 최대 + 1
+    var maxId = 0;
+    window._rmRooms.forEach(function(r) { if (r.id > maxId) maxId = r.id; });
+    window._rmRooms.push({ id: maxId + 1, name: name });
+
+    // 리스트 다시 그리기
+    nameInput.value = '';
+    var listDiv = document.getElementById('rm-list');
+    var i = window._rmRooms.length - 1;
+    var r = window._rmRooms[i];
+    var itemHtml = '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;" data-room-idx="' + i + '">' +
+        '<input class="ru-form-input" value="' + esc(r.name) + '" id="rm-name-' + i + '" style="flex:1;">' +
+        '<button class="ru-btn ru-btn-danger" onclick="ruRemoveRoomInManager(' + i + ')" style="padding:8px 12px;font-size:13px;">삭제</button>' +
+        '</div>';
+    listDiv.insertAdjacentHTML('beforeend', itemHtml);
+}
+
+function ruRemoveRoomInManager(idx) {
+    if (!confirm(window._rmRooms[idx].name + '을(를) 삭제하시겠습니까?')) return;
+    window._rmRooms.splice(idx, 1);
+    // 팝업 재렌더
+    ruShowRoomManager();
+}
+
+// 회의실 목록 저장 (hm_other에 rooms 키로)
+function ruSaveRooms() {
+    ru.otherData.rooms = ru.rooms;
+    ru.otherData.reservations = ru.reservationsByDate;
+
+    var otherJson = JSON.stringify(ru.otherData);
+    var _data = {
+        "projectid": ru.projectid,
+        "groupidx": ru.groupidx,
+        "hm_other": otherJson
+    };
+
+    AJAX_AdmGetGame("updatehmother", _data, function(res) {
+        if (parseInt(res.code) == 100) {
+            ruToast('회의실 목록이 저장되었습니다.', 'success');
+            ruRenderRoomButtons();
+        } else {
+            ruToast('저장 실패', 'error');
+        }
+    });
 }
 
 // 데이터 로드 - type_pdf_upload.html과 동일한 AJAX_AdmGetGame 방식
@@ -210,7 +321,11 @@ function ruLoad() {
             } else {
                 other = {};
             }
-            ru.otherData = other; // 기존 hm_other 전체 보존
+            ru.otherData = other;
+
+            // rooms 목록 로드
+            ru.rooms = (other && other.rooms && Array.isArray(other.rooms)) ? other.rooms : [];
+            ruRenderRoomButtons();
 
             // reservations: 날짜별 객체 또는 배열 지원
             var reservations = other.reservations || {};

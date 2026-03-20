@@ -318,6 +318,13 @@ function rvLoadData() {
                 other = {};
             }
 
+            // rooms 목록에서 현재 회의실 이름 가져오기
+            var rooms = (other && other.rooms && Array.isArray(other.rooms)) ? other.rooms : [];
+            var roomObj = rooms.find(function(r) { return r.id == rvData.roomNo; });
+            if (roomObj) {
+                document.getElementById('rv-room-name').textContent = roomObj.name;
+            }
+
             var reservations = (other && other.reservations) ? other.reservations : {};
             var today = new Date().toISOString().slice(0, 10);
             var todayList = [];
