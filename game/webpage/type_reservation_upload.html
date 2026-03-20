@@ -151,19 +151,17 @@
 <script>
 var ru = {
     roomNo: 1,
-    hmIdx: 0,
+    projectid: '',
+    groupidx: 0,
     date: '',
     allReservations: [], // 전체 (모든 회의실, 모든 날짜)
     editId: ''
 };
 
-function ruGetParam(name) {
-    var url = new URL(window.location.href);
-    return url.searchParams.get(name);
-}
-
+// type_pdf_upload.html과 동일한 파라미터 방식
 function ruInit() {
-    ru.hmIdx = parseInt(ruGetParam('hm_idx')) || 0;
+    ru.projectid = getParam("projectid") ? getParam("projectid") : "sample";
+    ru.groupidx = getParam("groupidx") ? getParam("groupidx") : 0;
 
     // 오늘 날짜
     var today = new Date().toISOString().slice(0, 10);
@@ -190,30 +188,30 @@ function ruInit() {
     ruLoad();
 }
 
-// 데이터 로드
+// 데이터 로드 - type_pdf_upload.html과 동일한 AJAX_AdmGetGame 방식
 function ruLoad() {
     ru.date = document.getElementById('ru-date').value;
 
-    if (!ru.hmIdx) {
-        ruToast('hm_idx 파라미터가 필요합니다.', 'error');
-        return;
-    }
+    var _data = {
+        "projectid": ru.projectid,
+        "groupidx": ru.groupidx
+    };
 
-    $.ajax({
-        url: '../web/v3/dist/api/v3/router.php?route=homes/' + ru.hmIdx,
-        type: 'GET',
-        dataType: 'json',
-        success: function(res) {
-            if (res.code === 100 && res.data) {
-                var other = res.data.hm_other || '';
-                if (typeof other === 'string') {
-                    try { other = JSON.parse(other); } catch(e) { other = {}; }
-                }
-                ru.allReservations = (other && other.reservations) ? other.reservations : [];
-                ruRenderList();
+    AJAX_AdmGetGame("newgethomedata", _data, function(res) {
+        var code = parseInt(res.code);
+        if (code == 100) {
+            var homedata = res.message;
+            ru.hmIdx = homedata.hm_idx; // hm_idx를 서버에서 가져옴
+
+            var other = homedata.hm_other || '';
+            if (typeof other === 'string' && other.length > 4) {
+                try { other = JSON.parse(other); } catch(e) { other = {}; }
+            } else {
+                other = {};
             }
-        },
-        error: function() {
+            ru.allReservations = (other && other.reservations) ? other.reservations : [];
+            ruRenderList();
+        } else {
             ruToast('데이터 로드 실패', 'error');
         }
     });
@@ -362,28 +360,25 @@ function ruCleanup(list) {
     });
 }
 
-// 저장 (hm_other)
+// 저장 (hm_other) - ssapi 방식으로 저장
 function ruSaveToServer(callback) {
     // 7일 cleanup
     ru.allReservations = ruCleanup(ru.allReservations);
 
     var otherJson = JSON.stringify({ reservations: ru.allReservations });
 
-    $.ajax({
-        url: '../web/v3/dist/api/v3/router.php?route=homes/' + ru.hmIdx,
-        type: 'PUT',
-        contentType: 'application/json',
-        data: JSON.stringify({ hm_other: otherJson }),
-        dataType: 'json',
-        success: function(res) {
-            if (res.code === 100) {
-                if (callback) callback();
-            } else {
-                ruToast(res.message || '저장 실패', 'error');
-            }
-        },
-        error: function() {
-            ruToast('서버 저장 실패', 'error');
+    var _data = {
+        "projectid": ru.projectid,
+        "groupidx": ru.groupidx,
+        "hm_other": otherJson
+    };
+
+    AJAX_AdmGetGame("updatehmother", _data, function(res) {
+        var code = parseInt(res.code);
+        if (code == 100) {
+            if (callback) callback();
+        } else {
+            ruToast(res.message || '저장 실패', 'error');
         }
     });
 }

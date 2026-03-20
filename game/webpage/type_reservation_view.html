@@ -256,22 +256,18 @@
 <script>
 var rvData = {
     roomNo: 1,
-    hmIdx: 0,
+    projectid: '',
+    groupidx: 0,
     reservations: [],
     refreshTimer: null,
     clockTimer: null
 };
 
-// URL 파라미터
-function rvGetParam(name) {
-    var url = new URL(window.location.href);
-    return url.searchParams.get(name);
-}
-
-// 초기화
+// 초기화 - type_pdf_gallery.html과 동일한 파라미터 방식
 function rvInit() {
-    rvData.roomNo = parseInt(rvGetParam('room_no')) || 1;
-    rvData.hmIdx = parseInt(rvGetParam('hm_idx')) || 0;
+    rvData.projectid = getParam("projectid") ? getParam("projectid") : "sample";
+    rvData.groupidx = getParam("groupidx") ? getParam("groupidx") : 0;
+    rvData.roomNo = parseInt(getParam("room_no")) || 1;
 
     document.getElementById('rv-room-name').textContent = '회의실 ' + rvData.roomNo;
 
@@ -304,37 +300,34 @@ function rvUpdateClock() {
     }
 }
 
-// 데이터 로드
+// 데이터 로드 - type_pdf_gallery.html과 동일한 AJAX_AdmGetGame 방식
 function rvLoadData() {
-    if (!rvData.hmIdx) {
-        rvData.reservations = getDemoData();
-        rvRender();
-        return;
-    }
+    var _data = {
+        "projectid": rvData.projectid,
+        "groupidx": rvData.groupidx
+    };
 
-    // v3 API로 hm_other 조회
-    $.ajax({
-        url: '../web/v3/dist/api/v3/router.php?route=homes/' + rvData.hmIdx,
-        type: 'GET',
-        dataType: 'json',
-        success: function(res) {
-            if (res.code === 100 && res.data) {
-                var other = res.data.hm_other;
-                if (other && typeof other === 'string') {
-                    try { other = JSON.parse(other); } catch(e) { other = {}; }
-                }
-                var allReservations = (other && other.reservations) ? other.reservations : [];
-                // 해당 회의실만 필터 + 오늘 날짜만
-                var today = new Date().toISOString().slice(0, 10);
-                rvData.reservations = allReservations.filter(function(r) {
-                    return r.room_no == rvData.roomNo && r.start_datetime && r.start_datetime.slice(0, 10) === today;
-                }).sort(function(a, b) {
-                    return a.start_datetime.localeCompare(b.start_datetime);
-                });
-                rvRender();
+    AJAX_AdmGetGame("newgethomedata", _data, function(res) {
+        var code = parseInt(res.code);
+        if (code == 100) {
+            var homedata = res.message;
+            var other = homedata.hm_other;
+            if (other && typeof other === 'string' && other.length > 4) {
+                try { other = JSON.parse(other); } catch(e) { other = {}; }
+            } else {
+                other = {};
             }
-        },
-        error: function() {
+
+            var allReservations = (other && other.reservations) ? other.reservations : [];
+            // 해당 회의실만 필터 + 오늘 날짜만
+            var today = new Date().toISOString().slice(0, 10);
+            rvData.reservations = allReservations.filter(function(r) {
+                return r.room_no == rvData.roomNo && r.start_datetime && r.start_datetime.slice(0, 10) === today;
+            }).sort(function(a, b) {
+                return a.start_datetime.localeCompare(b.start_datetime);
+            });
+            rvRender();
+        } else {
             rvData.reservations = getDemoData();
             rvRender();
         }
