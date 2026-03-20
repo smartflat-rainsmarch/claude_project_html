@@ -797,7 +797,10 @@ var channelEditor = {
                 '<input class="form-control" id="edit-fontsize" value="' + (item.fontsize || '') + '"></div></div>' +
                 '<div style="display:flex;gap:8px;">' +
                 '<div class="form-group" style="flex:1"><label class="form-label">폰트 색상</label>' +
-                '<input class="form-control" id="edit-fontcolor" type="color" value="' + (item.fontcolor || '#ffffff') + '"></div>' +
+                '<div style="display:flex;gap:4px;">' +
+                '<input type="color" id="edit-fontcolor" value="' + escapeHtml(item.fontcolor || '#ffffff') + '" onchange="document.getElementById(\'edit-fontcolor-hex\').value=this.value" style="width:36px;height:32px;padding:2px;border:1px solid var(--border-color);border-radius:4px;cursor:pointer;">' +
+                '<input class="form-control" id="edit-fontcolor-hex" value="' + escapeHtml(item.fontcolor || '#ffffff') + '" onchange="document.getElementById(\'edit-fontcolor\').value=this.value" style="flex:1;" placeholder="#000000">' +
+                '</div></div>' +
                 '<div class="form-group" style="flex:1"><label class="form-label">정렬</label>' +
                 '<select class="form-control" id="edit-textalign">' +
                 '<option value="left" ' + (item.textalign === 'left' ? 'selected' : '') + '>왼쪽</option>' +
@@ -952,8 +955,13 @@ var channelEditor = {
         var fontSizeEl = document.getElementById('edit-fontsize');
         if (fontSizeEl) item.fontsize = fontSizeEl.value;
 
+        var fontColorHexEl = document.getElementById('edit-fontcolor-hex');
         var fontColorEl = document.getElementById('edit-fontcolor');
-        if (fontColorEl) item.fontcolor = fontColorEl.value;
+        if (fontColorHexEl && fontColorHexEl.value) {
+            item.fontcolor = fontColorHexEl.value;
+        } else if (fontColorEl) {
+            item.fontcolor = fontColorEl.value;
+        }
 
         var textAlignEl = document.getElementById('edit-textalign');
         if (textAlignEl) item.textalign = textAlignEl.value;
