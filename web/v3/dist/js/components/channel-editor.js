@@ -828,6 +828,18 @@ var channelEditor = {
             return;
         }
 
+        if (type === 'reservation') {
+            // 회의실 예약: iframe으로 upload 페이지 표시
+            var iframeUrl = '/claude_project/html/game/webpage/type_reservation_upload.html?projectid=' + this.currentProjectId + '&groupidx=' + grIdx;
+            var screenH = window.innerHeight;
+            var html = '<iframe src="' + escapeHtml(iframeUrl) + '" style="border:none;width:100%;height:' + Math.round(screenH * 0.7) + 'px;"></iframe>';
+            showModalDialog(document.body, '[' + escapeHtml(item.name) + '] 회의실 예약', html, '확인', null,
+                function() { hideModalDialog(); }, null,
+                { size: { width: '90%', height: Math.round(screenH * 0.9) + 'px' }, allowHtml: true }
+            );
+            return;
+        }
+
         if (type === 'html' || type === 'img' || type === 'mapimg') {
             // HTML/이미지/지도: 이미지 업로드 + 미리보기 (v1 방식)
             var maxLen = (type === 'mapimg') ? 1 : 5;
