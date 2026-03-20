@@ -242,8 +242,12 @@ var channelEditor = {
             cardBody.style.height = displayH + 'px';
         }
 
-        // Build preview URL via game-preview proxy
-        iframe.src = './api/game-preview.php?hm_idx=' + this.hmIdx + '&t=' + Date.now();
+        // Build preview URL (v1 방식: 게임 직접 URL + cb=timestamp)
+        var grIdx = this.homeData.hm_gr_idx || 0;
+        var cacheBuster = Date.now();
+        iframe.src = '/claude_project/html/game/school/' + this.currentProjectId + '/v' + grIdx +
+            '/?projectid=' + this.currentProjectId + '&groupidx=' + grIdx +
+            '&cb=' + cacheBuster + '&sw=' + swidth + '&sh=' + sheight;
     },
 
     /**
@@ -251,9 +255,14 @@ var channelEditor = {
      */
     refreshPreview() {
         var iframe = document.getElementById('channel-preview-iframe');
-        if (!iframe) return;
-        // 항상 깨끗한 URL로 재설정
-        iframe.src = './api/game-preview.php?hm_idx=' + this.hmIdx + '&t=' + Date.now();
+        if (!iframe || !this.currentProjectId || !this.homeData) return;
+        var grIdx = this.homeData.hm_gr_idx || 0;
+        var swidth = this.homeData.hm_width > 0 ? parseInt(this.homeData.hm_width) : (this.homeData.hm_orientation === 'L' ? 1920 : 1080);
+        var sheight = this.homeData.hm_height > 0 ? parseInt(this.homeData.hm_height) : (this.homeData.hm_orientation === 'L' ? 1080 : 1920);
+        var cacheBuster = Date.now();
+        iframe.src = '/claude_project/html/game/school/' + this.currentProjectId + '/v' + grIdx +
+            '/?projectid=' + this.currentProjectId + '&groupidx=' + grIdx +
+            '&cb=' + cacheBuster + '&sw=' + swidth + '&sh=' + sheight;
     },
 
     /**
