@@ -251,9 +251,9 @@ var channelEditor = {
      */
     refreshPreview() {
         var iframe = document.getElementById('channel-preview-iframe');
-        if (iframe.src) {
-            iframe.src = iframe.src.replace(/[?&]t=\d+/, '') + '?t=' + Date.now();
-        }
+        if (!iframe) return;
+        // 항상 깨끗한 URL로 재설정
+        iframe.src = './api/game-preview.php?hm_idx=' + this.hmIdx + '&t=' + Date.now();
     },
 
     /**
