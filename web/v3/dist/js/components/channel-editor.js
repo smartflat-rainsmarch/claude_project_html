@@ -347,9 +347,17 @@ var channelEditor = {
      * Only one item can be first scene - uncheck all others
      */
     setFirstScene(idx, checked) {
-        for (var i = 0; i < this.contentdatas.length; i++) {
-            this.contentdatas[i].isfirstscene = (i === idx && checked) ? '1' : '0';
-        }
+        // 모든 항목을 "0"으로 초기화 후, 체크된 항목만 "1"
+        var updated = this.contentdatas.map(function(item, i) {
+            var copy = Object.assign({}, item);
+            if (i === idx && checked) {
+                copy.isfirstscene = '1';
+            } else {
+                copy.isfirstscene = '0';
+            }
+            return copy;
+        });
+        this.contentdatas = updated;
         this.saveField('content-data', this.contentdatas);
     },
 
