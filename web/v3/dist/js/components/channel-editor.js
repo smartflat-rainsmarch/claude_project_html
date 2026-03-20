@@ -622,7 +622,7 @@ var channelEditor = {
         showModalDialog(document.body, '새 콘텐츠 추가', html, '추가', '취소',
             function() { self.doAddContentItem(); hideModalDialog(); },
             function() { hideModalDialog(); },
-            { size: { width: '1000px' }, allowHtml: true }
+            { size: { width: '2000px' }, allowHtml: true }
         );
     },
 
@@ -680,7 +680,7 @@ var channelEditor = {
         showModalDialog(document.body, title, html, '추가', '취소',
             function() { self.doAddLayoutItem(tabType); hideModalDialog(); },
             function() { hideModalDialog(); },
-            { size: { width: '1000px' }, allowHtml: true }
+            { size: { width: '2000px' }, allowHtml: true }
         );
     },
 
@@ -823,7 +823,7 @@ var channelEditor = {
                     hideModalDialog();
                 },
                 function() { hideModalDialog(); },
-                { size: { width: '1000px' }, allowHtml: true }
+                { size: { width: '2000px' }, allowHtml: true }
             );
             return;
         }
@@ -884,7 +884,7 @@ var channelEditor = {
                     hideModalDialog();
                 },
                 function() { hideModalDialog(); },
-                { size: { width: '1500px' }, allowHtml: true }
+                { size: { width: '3000px' }, allowHtml: true }
             );
             return;
         }
@@ -907,7 +907,7 @@ var channelEditor = {
         showModalDialog(document.body, '콘텐츠 편집: ' + (item.name || ''), html, '저장', '취소',
             function() { self.saveContentItem(idx); hideModalDialog(); },
             function() { hideModalDialog(); },
-            { size: { width: '1100px' }, allowHtml: true }
+            { size: { width: '2200px' }, allowHtml: true }
         );
     },
 
