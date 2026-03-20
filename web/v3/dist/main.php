@@ -32,6 +32,7 @@ $version = time();
     <link href="./css/layout.css?v=<?php echo $version; ?>" rel="stylesheet">
     <link href="./css/components.css?v=<?php echo $version; ?>" rel="stylesheet">
     <link href="./css/responsive.css?v=<?php echo $version; ?>" rel="stylesheet">
+    <link href="./css/ai-prompt.css?v=<?php echo $version; ?>" rel="stylesheet">
 
     <!-- Libraries (from v1) -->
     <link href="./libs/tables/dataTables.bootstrap4.min.css" rel="stylesheet">
@@ -66,6 +67,32 @@ $version = time();
                     </div>
                 </div>
             </main>
+
+            <!-- AI Prompt Bar -->
+            <div id="ai-prompt-bar" class="ai-prompt-bar">
+                <div id="ai-response-area" class="ai-response-area" style="display:none;">
+                    <div class="ai-response-header">
+                        <span><i class="fas fa-robot"></i> AI 어시스턴트</span>
+                        <button class="ai-close-btn" onclick="aiPrompt.toggleResponse()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div id="ai-response-content" class="ai-response-content"></div>
+                </div>
+                <div class="ai-input-area">
+                    <div class="ai-input-wrapper">
+                        <div class="ai-input-prefix"><i class="fas fa-terminal"></i></div>
+                        <textarea id="ai-input" placeholder="AI에게 요청하세요... (예: 초등학교 키오스크를 만들어줘)" rows="1" onkeydown="aiPrompt.onKeyDown(event)" oninput="aiPrompt.autoResize(this)"></textarea>
+                        <button id="ai-send-btn" class="ai-send-btn" onclick="aiPrompt.send()" title="전송 (Enter)">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="ai-quick-chips" id="ai-quick-chips">
+                        <button class="ai-chip" onclick="aiPrompt.setPrompt('초등학교 키오스크를 만들어줘')">🏫 학교형</button>
+                        <button class="ai-chip" onclick="aiPrompt.setPrompt('도서관 안내 키오스크를 만들어줘')">📚 도서관형</button>
+                        <button class="ai-chip" onclick="aiPrompt.setPrompt('공공기관 민원안내 키오스크를 만들어줘')">🏛️ 기관형</button>
+                        <button class="ai-chip" onclick="aiPrompt.setPrompt('홈화면 버튼을 4개로 바꿔줘')">🔧 수정</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Footer -->
             <footer class="app-footer">
@@ -115,6 +142,7 @@ $version = time();
     <script src="./js/ui.js?v=<?php echo $version; ?>"></script>
     <script src="./js/components/data-table.js?v=<?php echo $version; ?>"></script>
     <script src="./js/app.js?v=<?php echo $version; ?>"></script>
+    <script src="./js/ai-prompt.js?v=<?php echo $version; ?>"></script>
 
     <script>
         /**

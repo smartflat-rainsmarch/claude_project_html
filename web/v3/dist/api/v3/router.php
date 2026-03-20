@@ -98,7 +98,8 @@ $resources = [
     'audit-logs' => 'audit.php',
     'common-codes' => 'common_code.php',
     'homes' => 'home.php',
-    'schedules' => 'schedule.php'
+    'schedules' => 'schedule.php',
+    'ai' => 'ai.php'
 ];
 
 // Check resource exists
