@@ -254,15 +254,36 @@ var channelEditor = {
      * Refresh preview iframe
      */
     refreshPreview() {
-        var iframe = document.getElementById('channel-preview-iframe');
-        if (!iframe || !this.currentProjectId || !this.homeData) return;
-        var grIdx = this.homeData.hm_gr_idx || 0;
-        var swidth = this.homeData.hm_width > 0 ? parseInt(this.homeData.hm_width) : (this.homeData.hm_orientation === 'L' ? 1920 : 1080);
-        var sheight = this.homeData.hm_height > 0 ? parseInt(this.homeData.hm_height) : (this.homeData.hm_orientation === 'L' ? 1080 : 1920);
-        var cacheBuster = Date.now();
-        iframe.src = '/claude_project/html/game/school/' + this.currentProjectId + '/v' + grIdx +
+        if (!this.currentProjectId || !this.homeData) return;
+        var container = document.getElementById('channel-preview-container');
+        if (!container) return;
+        var cardBody = container.querySelector('.card-body');
+        if (!cardBody) return;
+
+        // iframe을 완전히 제거 후 재생성 (브라우저 캐시 우회)
+        var oldIframe = document.getElementById('channel-preview-iframe');
+        if (oldIframe) oldIframe.remove();
+
+        var d = this.homeData;
+        var grIdx = d.hm_gr_idx || 0;
+        var swidth = d.hm_width > 0 ? parseInt(d.hm_width) : (d.hm_orientation === 'L' ? 1920 : 1080);
+        var sheight = d.hm_height > 0 ? parseInt(d.hm_height) : (d.hm_orientation === 'L' ? 1080 : 1920);
+        var maxW = d.hm_orientation === 'L' ? 500 : 360;
+        var scale = maxW / swidth;
+
+        var newIframe = document.createElement('iframe');
+        newIframe.id = 'channel-preview-iframe';
+        newIframe.style.border = 'none';
+        newIframe.style.display = 'block';
+        newIframe.style.width = swidth + 'px';
+        newIframe.style.height = sheight + 'px';
+        newIframe.style.transform = 'scale(' + scale + ')';
+        newIframe.style.transformOrigin = '0 0';
+        newIframe.src = '/claude_project/html/game/school/' + this.currentProjectId + '/v' + grIdx +
             '/?projectid=' + this.currentProjectId + '&groupidx=' + grIdx +
-            '&cb=' + cacheBuster + '&sw=' + swidth + '&sh=' + sheight;
+            '&cb=' + Date.now() + '&sw=' + swidth + '&sh=' + sheight;
+
+        cardBody.appendChild(newIframe);
     },
 
     /**
