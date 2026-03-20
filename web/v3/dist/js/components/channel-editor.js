@@ -287,6 +287,23 @@ var channelEditor = {
     },
 
     /**
+     * Copy project page URL (게임 페이지 주소)
+     */
+    copyPageUrl() {
+        if (!this.currentProjectId || !this.homeData) {
+            toastError('프로젝트를 먼저 선택하세요.');
+            return;
+        }
+        var grIdx = this.homeData.hm_gr_idx || 0;
+        var url = window.location.origin + '/claude_project/html/game/school/' + this.currentProjectId + '/v' + grIdx + '/';
+        navigator.clipboard.writeText(url).then(function() {
+            toastSuccess('페이지 주소가 복사되었습니다.');
+        }).catch(function() {
+            toastError('복사에 실패했습니다.');
+        });
+    },
+
+    /**
      * Copy preview URL
      */
     copyPreviewUrl() {
