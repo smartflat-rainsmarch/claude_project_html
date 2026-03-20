@@ -16,6 +16,20 @@ $prompt = $request['input']['prompt'] ?? '';
 $context = $request['input']['context'] ?? [];
 $messages = $request['input']['messages'] ?? [];
 
+// Rate Limiting (분당 10회)
+$userId = Auth::id() ?: session_id();
+$rateLimitKey = 'ai_rate_' . $userId;
+$now = time();
+$rateData = isset($_SESSION[$rateLimitKey]) ? $_SESSION[$rateLimitKey] : ['count' => 0, 'reset' => $now + 60];
+if ($now > $rateData['reset']) {
+    $rateData = ['count' => 0, 'reset' => $now + 60];
+}
+$rateData['count']++;
+$_SESSION[$rateLimitKey] = $rateData;
+if ($rateData['count'] > 10) {
+    ApiResponse::error('요청이 너무 많습니다. 1분 후 다시 시도하세요.', 429);
+}
+
 if (empty($prompt)) {
     ApiResponse::error('프롬프트를 입력하세요.', 400);
 }
