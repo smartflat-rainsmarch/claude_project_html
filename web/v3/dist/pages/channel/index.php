@@ -69,7 +69,7 @@
             <!-- Tabs + Add Button -->
             <div class="card">
                 <div class="card-header" style="padding: 0; border-bottom: none;">
-                    <div style="display: flex; align-items: center;">
+                    <div style="display:flex; align-items:center; width:100%;">
                         <button class="tab-btn active" data-tab="content" onclick="channelEditor.switchTab('content')">
                             <i class="fas fa-th-large"></i> 콘텐츠 데이터
                             <span id="tab-count-content" class="badge badge-secondary" style="margin-left: 4px;">0</span>
@@ -82,11 +82,11 @@
                             <i class="fas fa-bars"></i> 메인화면
                             <span id="tab-count-main" class="badge badge-secondary" style="margin-left: 4px;">0</span>
                         </button>
-                        <div style="margin-left: auto; padding-right: 12px;">
-                            <button class="btn btn-sm btn-primary" onclick="channelEditor.addNewItem()" title="새 항목 추가">
-                                <i class="fas fa-plus"></i> 추가
-                            </button>
-                        </div>
+                    </div>
+                    <div style="flex-shrink:0; padding-right:12px;">
+                        <button class="btn btn-sm btn-primary" onclick="channelEditor.addNewItem()" title="새 항목 추가">
+                            <i class="fas fa-plus"></i> 추가
+                        </button>
                     </div>
                 </div>
 
