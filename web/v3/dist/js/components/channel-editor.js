@@ -314,7 +314,7 @@ var channelEditor = {
     renderContentTable() {
         var tbody = document.getElementById('content-data-tbody');
         if (this.contentdatas.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">콘텐츠 데이터가 없습니다.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted);">콘텐츠 데이터가 없습니다.</td></tr>';
             return;
         }
 
@@ -323,9 +323,11 @@ var channelEditor = {
             var typeClass = self.getTypeClass(item.type);
             var name = escapeHtml(item.name || '');
             var type = escapeHtml(item.type || '');
+            var isFirst = item.isfirstscene === '1' || item.isfirstscene === 1;
 
             return '<tr draggable="true" data-idx="' + idx + '" data-tab="content">' +
                 '<td><span class="drag-handle" title="드래그하여 순서 변경"><i class="fas fa-grip-vertical"></i></span></td>' +
+                '<td style="text-align:center;"><input type="checkbox" ' + (isFirst ? 'checked' : '') + ' onchange="event.stopPropagation();channelEditor.setFirstScene(' + idx + ',this.checked)" title="첫화면 설정" style="width:16px;height:16px;cursor:pointer;"></td>' +
                 '<td>' + (idx + 1) + '</td>' +
                 '<td onclick="channelEditor.editContentItem(' + idx + ')"><strong>' + name + '</strong><br><span style="font-size:11px;color:var(--text-muted);">' + escapeHtml(item.id || '') + '</span></td>' +
                 '<td><span class="type-badge ' + typeClass + '">' + type + '</span></td>' +
@@ -338,6 +340,17 @@ var channelEditor = {
         }).join('');
 
         this.initDragReorder(tbody);
+    },
+
+    /**
+     * Set first scene (첫화면 정하기)
+     * Only one item can be first scene - uncheck all others
+     */
+    setFirstScene(idx, checked) {
+        for (var i = 0; i < this.contentdatas.length; i++) {
+            this.contentdatas[i].isfirstscene = (i === idx && checked) ? '1' : '0';
+        }
+        this.saveField('content-data', this.contentdatas);
     },
 
     /**

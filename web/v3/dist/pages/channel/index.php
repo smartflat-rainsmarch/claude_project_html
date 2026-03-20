@@ -97,6 +97,7 @@
                             <thead>
                                 <tr>
                                     <th style="width:30px" title="드래그하여 순서 변경"></th>
+                                    <th style="width:50px">첫화면</th>
                                     <th style="width:40px">#</th>
                                     <th>이름</th>
                                     <th style="width:120px">타입</th>
