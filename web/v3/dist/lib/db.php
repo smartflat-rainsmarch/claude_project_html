@@ -64,7 +64,7 @@ class Database {
         error_log('WARNING: Using default database credentials. This should only happen in development.');
         return [
             'host' => 'localhost',
-            'name' => 'smartflat_claude_html',
+            'name' => 'smartflat_html',
             'user' => 'root',
             'pass' => ''
         ];
