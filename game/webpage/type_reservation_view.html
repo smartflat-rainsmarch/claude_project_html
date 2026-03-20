@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회의실 예약 현황</title>
+    <script src="./libs/jquery/jquery-3.5.1.min.js"></script>
+    <script src="./js/scripts.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #0f172a;
+            color: #fff;
+            width: 1080px;
+            height: 1920px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .rv-header {
+            padding: 40px 50px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .rv-room-name {
+            font-size: 52px;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+        .rv-datetime {
+            font-size: 28px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.7);
+            text-align: right;
+        }
+        .rv-date { font-size: 26px; }
+        .rv-time { font-size: 36px; font-weight: 600; color: #fff; }
+
+        /* Status Card */
+        .rv-status-card {
+            margin: 30px 50px;
+            border-radius: 28px;
+            padding: 50px 60px;
+            text-align: center;
+            transition: background 0.5s;
+        }
+        .rv-status-card.meeting {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 8px 40px rgba(220,38,38,0.4);
+        }
+        .rv-status-card.available {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            box-shadow: 0 8px 40px rgba(22,163,74,0.4);
+        }
+        .rv-status-card.soon {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 8px 40px rgba(245,158,11,0.4);
+        }
+        .rv-status-card.none {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            box-shadow: 0 8px 40px rgba(71,85,105,0.3);
+        }
+
+        .rv-status-icon { font-size: 48px; margin-bottom: 16px; }
+        .rv-status-label {
+            font-size: 72px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1.1;
+        }
+        .rv-status-sub {
+            font-size: 30px;
+            font-weight: 400;
+            margin-top: 12px;
+            opacity: 0.9;
+        }
+
+        /* Meeting Info */
+        .rv-meeting-info {
+            margin: 0 50px;
+            padding: 40px 50px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .rv-team {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #60a5fa;
+        }
+        .rv-time-range {
+            font-size: 44px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: rgba(255,255,255,0.9);
+            letter-spacing: 2px;
+        }
+        .rv-title {
+            font-size: 36px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 8px;
+        }
+        .rv-subtitle {
+            font-size: 28px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 16px;
+        }
+        .rv-meta {
+            font-size: 24px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Next Reservation */
+        .rv-next {
+            margin: 24px 50px;
+            padding: 28px 40px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .rv-next-label {
+            font-size: 22px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+        .rv-next-info {
+            font-size: 32px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
+        }
+        .rv-next-team {
+            color: #60a5fa;
+            font-weight: 700;
+        }
+
+        /* Today Schedule */
+        .rv-schedule {
+            flex: 1;
+            margin: 20px 50px 40px;
+            overflow: hidden;
+        }
+        .rv-schedule-title {
+            font-size: 22px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.35);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .rv-schedule-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-size: 26px;
+            transition: opacity 0.3s;
+        }
+        .rv-schedule-item.past {
+            opacity: 0.25;
+            text-decoration: line-through;
+        }
+        .rv-schedule-item.current {
+            background: rgba(96,165,250,0.15);
+            border: 1px solid rgba(96,165,250,0.3);
+            font-weight: 700;
+        }
+        .rv-schedule-item.future {
+            opacity: 0.7;
+        }
+        .rv-sched-time {
+            width: 260px;
+            font-weight: 500;
+            flex-shrink: 0;
+            font-size: 24px;
+            color: rgba(255,255,255,0.6);
+        }
+        .rv-sched-team {
+            flex: 1;
+            font-weight: 600;
+            font-size: 26px;
+        }
+        .rv-sched-title-text {
+            font-size: 22px;
+            color: rgba(255,255,255,0.4);
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .rv-schedule-item.current .rv-sched-time,
+        .rv-schedule-item.current .rv-sched-team { color: #60a5fa; }
+        .rv-schedule-item.current .rv-sched-title-text { color: rgba(96,165,250,0.7); }
+
+        /* Empty schedule */
+        .rv-empty {
+            text-align: center;
+            padding: 60px 0;
+            color: rgba(255,255,255,0.3);
+            font-size: 28px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="rv-header">
+        <div class="rv-room-name" id="rv-room-name">회의실 1</div>
+        <div class="rv-datetime">
+            <div class="rv-date" id="rv-date">2026.03.20 (목)</div>
+            <div class="rv-time" id="rv-time">13:25</div>
+        </div>
+    </div>
+
+    <!-- Status Card -->
+    <div class="rv-status-card available" id="rv-status-card">
+        <div class="rv-status-icon" id="rv-status-icon">🟢</div>
+        <div class="rv-status-label" id="rv-status-label">현재 사용 가능</div>
+        <div class="rv-status-sub" id="rv-status-sub"></div>
+    </div>
+
+    <!-- Meeting Info -->
+    <div class="rv-meeting-info" id="rv-meeting-info" style="display:none;">
+        <div class="rv-team" id="rv-team"></div>
+        <div class="rv-time-range" id="rv-time-range"></div>
+        <div class="rv-title" id="rv-title"></div>
+        <div class="rv-subtitle" id="rv-subtitle"></div>
+        <div class="rv-meta" id="rv-meta"></div>
+    </div>
+
+    <!-- Next Reservation -->
+    <div class="rv-next" id="rv-next" style="display:none;">
+        <div class="rv-next-label">다음 예약</div>
+        <div class="rv-next-info" id="rv-next-info"></div>
+    </div>
+
+    <!-- Today Schedule -->
+    <div class="rv-schedule">
+        <div class="rv-schedule-title">오늘 전체 일정</div>
+        <div id="rv-schedule-list"></div>
+    </div>
+
+<script>
+var rvData = {
+    roomNo: 1,
+    hmIdx: 0,
+    reservations: [],
+    refreshTimer: null,
+    clockTimer: null
+};
+
+// URL 파라미터
+function rvGetParam(name) {
+    var url = new URL(window.location.href);
+    return url.searchParams.get(name);
+}
+
+// 초기화
+function rvInit() {
+    rvData.roomNo = parseInt(rvGetParam('room_no')) || 1;
+    rvData.hmIdx = parseInt(rvGetParam('hm_idx')) || 0;
+
+    document.getElementById('rv-room-name').textContent = '회의실 ' + rvData.roomNo;
+
+    rvUpdateClock();
+    rvLoadData();
+
+    // 30초마다 시간 갱신
+    rvData.clockTimer = setInterval(rvUpdateClock, 30000);
+    // 1분마다 데이터 갱신
+    rvData.refreshTimer = setInterval(rvLoadData, 60000);
+}
+
+// 시계 업데이트
+function rvUpdateClock() {
+    var now = new Date();
+    var days = ['일','월','화','수','목','금','토'];
+    var y = now.getFullYear();
+    var m = String(now.getMonth() + 1).padStart(2, '0');
+    var d = String(now.getDate()).padStart(2, '0');
+    var day = days[now.getDay()];
+    var h = String(now.getHours()).padStart(2, '0');
+    var min = String(now.getMinutes()).padStart(2, '0');
+
+    document.getElementById('rv-date').textContent = y + '.' + m + '.' + d + ' (' + day + ')';
+    document.getElementById('rv-time').textContent = h + ':' + min;
+
+    // 상태도 함께 갱신
+    if (rvData.reservations.length > 0) {
+        rvRender();
+    }
+}
+
+// 데이터 로드
+function rvLoadData() {
+    if (!rvData.hmIdx) {
+        rvData.reservations = getDemoData();
+        rvRender();
+        return;
+    }
+
+    // v3 API로 hm_other 조회
+    $.ajax({
+        url: '../web/v3/dist/api/v3/router.php?route=homes/' + rvData.hmIdx,
+        type: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            if (res.code === 100 && res.data) {
+                var other = res.data.hm_other;
+                if (other && typeof other === 'string') {
+                    try { other = JSON.parse(other); } catch(e) { other = {}; }
+                }
+                var allReservations = (other && other.reservations) ? other.reservations : [];
+                // 해당 회의실만 필터 + 오늘 날짜만
+                var today = new Date().toISOString().slice(0, 10);
+                rvData.reservations = allReservations.filter(function(r) {
+                    return r.room_no == rvData.roomNo && r.start_datetime && r.start_datetime.slice(0, 10) === today;
+                }).sort(function(a, b) {
+                    return a.start_datetime.localeCompare(b.start_datetime);
+                });
+                rvRender();
+            }
+        },
+        error: function() {
+            rvData.reservations = getDemoData();
+            rvRender();
+        }
+    });
+}
+
+// 렌더링
+function rvRender() {
+    var now = new Date();
+    var nowStr = now.getHours() * 60 + now.getMinutes(); // 현재 시간 (분)
+    var list = rvData.reservations;
+
+    var current = null;
+    var next = null;
+
+    for (var i = 0; i < list.length; i++) {
+        var startMin = parseTimeToMin(list[i].start_datetime);
+        var endMin = parseTimeToMin(list[i].end_datetime);
+        if (nowStr >= startMin && nowStr < endMin) {
+            current = list[i];
+        } else if (nowStr < startMin && !next) {
+            next = list[i];
+        }
+    }
+
+    var card = document.getElementById('rv-status-card');
+    var icon = document.getElementById('rv-status-icon');
+    var label = document.getElementById('rv-status-label');
+    var sub = document.getElementById('rv-status-sub');
+    var info = document.getElementById('rv-meeting-info');
+    var nextDiv = document.getElementById('rv-next');
+
+    // 상태 결정
+    if (current) {
+        // 회의중
+        card.className = 'rv-status-card meeting';
+        icon.textContent = '🔴';
+        label.textContent = '현재 회의중';
+        sub.textContent = fmtTime(current.start_datetime) + ' ~ ' + fmtTime(current.end_datetime);
+        showMeetingInfo(current);
+        info.style.display = 'block';
+    } else if (next) {
+        var startMin = parseTimeToMin(next.start_datetime);
+        var diff = startMin - nowStr;
+
+        if (diff <= 15) {
+            // 곧 시작
+            card.className = 'rv-status-card soon';
+            icon.textContent = '🟡';
+            label.textContent = diff + '분 후 시작';
+            sub.textContent = next.team_name;
+            showMeetingInfo(next);
+            info.style.display = 'block';
+        } else {
+            // 사용 가능
+            card.className = 'rv-status-card available';
+            icon.textContent = '🟢';
+            label.textContent = '현재 사용 가능';
+            sub.textContent = '';
+            info.style.display = 'none';
+        }
+    } else if (list.length === 0) {
+        // 예약 없음
+        card.className = 'rv-status-card none';
+        icon.textContent = '⚪';
+        label.textContent = '오늘 예약 없음';
+        sub.textContent = '자유롭게 사용 가능합니다';
+        info.style.display = 'none';
+    } else {
+        // 모든 회의 종료
+        card.className = 'rv-status-card available';
+        icon.textContent = '🟢';
+        label.textContent = '현재 사용 가능';
+        sub.textContent = '오늘 예약이 모두 종료되었습니다';
+        info.style.display = 'none';
+    }
+
+    // 다음 예약
+    if (next && !(current === null && next && parseTimeToMin(next.start_datetime) - nowStr <= 15)) {
+        nextDiv.style.display = 'block';
+        document.getElementById('rv-next-info').innerHTML =
+            fmtTime(next.start_datetime) + ' ~ ' + fmtTime(next.end_datetime) +
+            '  <span class="rv-next-team">' + escHtml(next.team_name) + '</span>';
+    } else if (next && current) {
+        nextDiv.style.display = 'block';
+        document.getElementById('rv-next-info').innerHTML =
+            fmtTime(next.start_datetime) + ' ~ ' + fmtTime(next.end_datetime) +
+            '  <span class="rv-next-team">' + escHtml(next.team_name) + '</span>';
+    } else {
+        nextDiv.style.display = 'none';
+    }
+
+    // 오늘 전체 일정
+    renderScheduleList(list, nowStr);
+}
+
+function showMeetingInfo(r) {
+    document.getElementById('rv-team').textContent = r.team_name || '';
+    document.getElementById('rv-time-range').textContent = fmtTime(r.start_datetime) + ' ~ ' + fmtTime(r.end_datetime);
+
+    var title = document.getElementById('rv-title');
+    if (r.meeting_title && !r.is_hide_meeting_title) {
+        title.textContent = r.meeting_title;
+        title.style.display = 'block';
+    } else { title.style.display = 'none'; }
+
+    var subtitle = document.getElementById('rv-subtitle');
+    if (r.meeting_subtitle && !r.is_hide_meeting_subtitle) {
+        subtitle.textContent = r.meeting_subtitle;
+        subtitle.style.display = 'block';
+    } else { subtitle.style.display = 'none'; }
+
+    var meta = document.getElementById('rv-meta');
+    var parts = [];
+    if (r.reserved_by && !r.is_hide_reserved_by) parts.push(r.reserved_by);
+    if (r.attendee_count && !r.is_hide_attendee_count) parts.push(r.attendee_count + '명');
+    meta.textContent = parts.join(' · ');
+    meta.style.display = parts.length > 0 ? 'block' : 'none';
+}
+
+function renderScheduleList(list, nowMin) {
+    var container = document.getElementById('rv-schedule-list');
+    if (list.length === 0) {
+        container.innerHTML = '<div class="rv-empty">오늘 예정된 회의가 없습니다</div>';
+        return;
+    }
+
+    container.innerHTML = list.map(function(r) {
+        var startMin = parseTimeToMin(r.start_datetime);
+        var endMin = parseTimeToMin(r.end_datetime);
+        var cls = 'future';
+        if (nowMin >= endMin) cls = 'past';
+        else if (nowMin >= startMin && nowMin < endMin) cls = 'current';
+
+        var titleText = '';
+        if (r.meeting_title && !r.is_hide_meeting_title) titleText = r.meeting_title;
+
+        return '<div class="rv-schedule-item ' + cls + '">' +
+            '<span class="rv-sched-time">' + fmtTime(r.start_datetime) + ' ~ ' + fmtTime(r.end_datetime) + '</span>' +
+            '<span class="rv-sched-team">' + escHtml(r.team_name || '') + '</span>' +
+            '<span class="rv-sched-title-text">' + escHtml(titleText) + '</span>' +
+            '</div>';
+    }).join('');
+}
+
+// 유틸
+function parseTimeToMin(dt) {
+    if (!dt) return 0;
+    var t = dt.split(' ')[1] || dt;
+    var parts = t.split(':');
+    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+}
+
+function fmtTime(dt) {
+    if (!dt) return '';
+    var t = dt.split(' ')[1] || dt;
+    return t.slice(0, 5);
+}
+
+function escHtml(s) {
+    if (!s) return '';
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// 데모 데이터 (hm_idx 없을 때)
+function getDemoData() {
+    var today = new Date().toISOString().slice(0, 10);
+    return [
+        { room_no: rvData.roomNo, team_name: '기획팀', start_datetime: today+' 09:00', end_datetime: today+' 10:00', meeting_title: '주간 기획 회의', reserved_by: '김철수', attendee_count: 4 },
+        { room_no: rvData.roomNo, team_name: '개발팀', start_datetime: today+' 13:00', end_datetime: today+' 14:00', meeting_title: '스프린트 리뷰', meeting_subtitle: '신규 기능 점검', reserved_by: '홍길동', attendee_count: 6 },
+        { room_no: rvData.roomNo, team_name: '운영팀', start_datetime: today+' 14:30', end_datetime: today+' 15:30', meeting_title: '운영 회의', reserved_by: '이영희', attendee_count: 3 },
+        { room_no: rvData.roomNo, team_name: '디자인팀', start_datetime: today+' 16:00', end_datetime: today+' 17:00', meeting_title: 'UI 리뷰', attendee_count: 5 }
+    ];
+}
+
+// 시작
+rvInit();
+</script>
+</body>
+</html>

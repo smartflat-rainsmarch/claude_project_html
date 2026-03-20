@@ -125,7 +125,8 @@ function updateHome($id, $input) {
     $data = [];
     $allowedFields = [
         'hm_projectname', 'hm_orientation', 'hm_width', 'hm_height',
-        'hm_language', 'hm_all_language', 'hm_region', 'hm_safety_onoff', 'hm_safety_closetime', 'hm_autoupdate'
+        'hm_language', 'hm_all_language', 'hm_region', 'hm_safety_onoff', 'hm_safety_closetime', 'hm_autoupdate',
+        'hm_other'
     ];
 
     foreach ($allowedFields as $field) {

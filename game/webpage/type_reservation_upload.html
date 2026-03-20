@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회의실 예약 관리</title>
+    <script src="./libs/jquery/jquery-3.5.1.min.js"></script>
+    <script src="./js/scripts.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Noto Sans KR',sans-serif; background:#f8fafc; color:#1e293b; padding:20px; font-size:16px; }
+
+        .ru-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .ru-title { font-size:28px; font-weight:700; }
+
+        /* Room Selector */
+        .ru-rooms { display:flex; gap:8px; margin-bottom:16px; }
+        .ru-room-btn { padding:10px 20px; border:2px solid #e2e8f0; border-radius:10px; background:#fff; font-size:16px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+        .ru-room-btn.active { background:#3b82f6; color:#fff; border-color:#3b82f6; }
+        .ru-room-btn:hover { border-color:#3b82f6; }
+
+        /* Date Selector */
+        .ru-date-row { display:flex; gap:12px; align-items:center; margin-bottom:20px; }
+        .ru-date-input { padding:10px 16px; border:1px solid #e2e8f0; border-radius:8px; font-size:16px; }
+
+        /* Form */
+        .ru-form-card { background:#fff; border-radius:16px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,0.06); margin-bottom:20px; }
+        .ru-form-title { font-size:18px; font-weight:700; margin-bottom:16px; color:#1e40af; }
+        .ru-form-row { display:flex; gap:12px; margin-bottom:12px; align-items:center; }
+        .ru-form-label { width:80px; font-size:14px; font-weight:600; color:#64748b; flex-shrink:0; }
+        .ru-form-input { flex:1; padding:10px 14px; border:1px solid #e2e8f0; border-radius:8px; font-size:15px; outline:none; }
+        .ru-form-input:focus { border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,0.1); }
+        .ru-hide-check { display:flex; align-items:center; gap:4px; font-size:13px; color:#94a3b8; cursor:pointer; flex-shrink:0; }
+        .ru-hide-check input { width:16px; height:16px; }
+
+        .ru-btn-row { display:flex; gap:8px; margin-top:16px; }
+        .ru-btn { padding:12px 24px; border:none; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+        .ru-btn-primary { background:#3b82f6; color:#fff; }
+        .ru-btn-primary:hover { background:#2563eb; }
+        .ru-btn-warning { background:#f59e0b; color:#fff; }
+        .ru-btn-warning:hover { background:#d97706; }
+        .ru-btn-danger { background:#ef4444; color:#fff; }
+        .ru-btn-danger:hover { background:#dc2626; }
+        .ru-btn-light { background:#f1f5f9; color:#64748b; }
+        .ru-btn-light:hover { background:#e2e8f0; }
+
+        /* List */
+        .ru-list-card { background:#fff; border-radius:16px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+        .ru-list-title { font-size:18px; font-weight:700; margin-bottom:16px; color:#1e40af; }
+        .ru-list-table { width:100%; border-collapse:collapse; font-size:14px; }
+        .ru-list-table th { background:#f8fafc; padding:12px 10px; text-align:left; font-weight:600; color:#64748b; border-bottom:2px solid #e2e8f0; }
+        .ru-list-table td { padding:12px 10px; border-bottom:1px solid #f1f5f9; }
+        .ru-list-table tr:hover { background:#f0f9ff; }
+        .ru-list-table tr { cursor:pointer; }
+        .ru-list-table tr.past { opacity:0.35; text-decoration:line-through; }
+        .ru-list-table tr.current { background:#eff6ff; font-weight:600; }
+        .ru-list-empty { text-align:center; padding:40px; color:#94a3b8; font-size:16px; }
+
+        .ru-edit-btn { padding:4px 10px; border:1px solid #e2e8f0; border-radius:6px; background:#fff; cursor:pointer; font-size:12px; }
+        .ru-edit-btn:hover { background:#f1f5f9; }
+        .ru-del-btn { padding:4px 10px; border:1px solid #fecaca; border-radius:6px; background:#fff; color:#ef4444; cursor:pointer; font-size:12px; }
+        .ru-del-btn:hover { background:#fef2f2; }
+
+        .ru-toast { position:fixed; top:20px; right:20px; padding:14px 24px; border-radius:10px; font-size:15px; font-weight:500; color:#fff; z-index:9999; display:none; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+        .ru-toast.success { background:#16a34a; }
+        .ru-toast.error { background:#dc2626; }
+    </style>
+</head>
+<body>
+
+<div class="ru-header">
+    <div class="ru-title">회의실 예약 관리</div>
+</div>
+
+<!-- Room Selector -->
+<div class="ru-rooms" id="ru-rooms"></div>
+
+<!-- Date Selector -->
+<div class="ru-date-row">
+    <span style="font-weight:600;">날짜:</span>
+    <input type="date" class="ru-date-input" id="ru-date">
+    <button class="ru-btn ru-btn-light" onclick="ruLoad()">조회</button>
+</div>
+
+<!-- Form -->
+<div class="ru-form-card">
+    <div class="ru-form-title" id="ru-form-mode">예약 등록</div>
+    <input type="hidden" id="ru-edit-id" value="">
+    <div class="ru-form-row">
+        <span class="ru-form-label">팀명 *</span>
+        <input class="ru-form-input" id="ru-team" placeholder="예: 개발팀">
+    </div>
+    <div class="ru-form-row">
+        <span class="ru-form-label">예약자</span>
+        <input class="ru-form-input" id="ru-person" placeholder="예: 홍길동">
+        <label class="ru-hide-check"><input type="checkbox" id="ru-hide-person"> 숨김</label>
+    </div>
+    <div class="ru-form-row">
+        <span class="ru-form-label">인원</span>
+        <input class="ru-form-input" id="ru-count" type="number" min="1" placeholder="명" style="width:100px;flex:none;">
+        <label class="ru-hide-check"><input type="checkbox" id="ru-hide-count"> 숨김</label>
+    </div>
+    <div class="ru-form-row">
+        <span class="ru-form-label">시간 *</span>
+        <input type="time" class="ru-form-input" id="ru-start" style="width:140px;flex:none;">
+        <span style="font-size:20px;color:#94a3b8;">~</span>
+        <input type="time" class="ru-form-input" id="ru-end" style="width:140px;flex:none;">
+    </div>
+    <div class="ru-form-row">
+        <span class="ru-form-label">회의 제목</span>
+        <input class="ru-form-input" id="ru-title" placeholder="예: 주간 회의">
+        <label class="ru-hide-check"><input type="checkbox" id="ru-hide-title"> 숨김</label>
+    </div>
+    <div class="ru-form-row">
+        <span class="ru-form-label">부제목</span>
+        <input class="ru-form-input" id="ru-subtitle" placeholder="예: 신규 기능 점검">
+        <label class="ru-hide-check"><input type="checkbox" id="ru-hide-subtitle"> 숨김</label>
+    </div>
+    <div class="ru-btn-row">
+        <button class="ru-btn ru-btn-primary" onclick="ruSave()">등록</button>
+        <button class="ru-btn ru-btn-warning" id="ru-btn-update" onclick="ruUpdate()" style="display:none;">수정</button>
+        <button class="ru-btn ru-btn-danger" id="ru-btn-delete" onclick="ruDelete()" style="display:none;">삭제</button>
+        <button class="ru-btn ru-btn-light" onclick="ruClear()">초기화</button>
+    </div>
+</div>
+
+<!-- List -->
+<div class="ru-list-card">
+    <div class="ru-list-title">예약 목록</div>
+    <table class="ru-list-table">
+        <thead>
+            <tr>
+                <th>시간</th>
+                <th>팀명</th>
+                <th>제목</th>
+                <th>예약자</th>
+                <th>인원</th>
+                <th>작업</th>
+            </tr>
+        </thead>
+        <tbody id="ru-list-body">
+            <tr><td colspan="6" class="ru-list-empty">조회할 예약이 없습니다</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Toast -->
+<div class="ru-toast" id="ru-toast"></div>
+
+<script>
+var ru = {
+    roomNo: 1,
+    hmIdx: 0,
+    date: '',
+    allReservations: [], // 전체 (모든 회의실, 모든 날짜)
+    editId: ''
+};
+
+function ruGetParam(name) {
+    var url = new URL(window.location.href);
+    return url.searchParams.get(name);
+}
+
+function ruInit() {
+    ru.hmIdx = parseInt(ruGetParam('hm_idx')) || 0;
+
+    // 오늘 날짜
+    var today = new Date().toISOString().slice(0, 10);
+    document.getElementById('ru-date').value = today;
+    ru.date = today;
+
+    // 회의실 버튼 생성 (1~6)
+    var roomsDiv = document.getElementById('ru-rooms');
+    for (var i = 1; i <= 6; i++) {
+        var btn = document.createElement('button');
+        btn.className = 'ru-room-btn' + (i === 1 ? ' active' : '');
+        btn.textContent = '회의실 ' + i;
+        btn.dataset.room = i;
+        btn.onclick = function() {
+            ru.roomNo = parseInt(this.dataset.room);
+            document.querySelectorAll('.ru-room-btn').forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            ruClear();
+            ruRenderList();
+        };
+        roomsDiv.appendChild(btn);
+    }
+
+    ruLoad();
+}
+
+// 데이터 로드
+function ruLoad() {
+    ru.date = document.getElementById('ru-date').value;
+
+    if (!ru.hmIdx) {
+        ruToast('hm_idx 파라미터가 필요합니다.', 'error');
+        return;
+    }
+
+    $.ajax({
+        url: '../web/v3/dist/api/v3/router.php?route=homes/' + ru.hmIdx,
+        type: 'GET',
+        dataType: 'json',
+        success: function(res) {
+            if (res.code === 100 && res.data) {
+                var other = res.data.hm_other || '';
+                if (typeof other === 'string') {
+                    try { other = JSON.parse(other); } catch(e) { other = {}; }
+                }
+                ru.allReservations = (other && other.reservations) ? other.reservations : [];
+                ruRenderList();
+            }
+        },
+        error: function() {
+            ruToast('데이터 로드 실패', 'error');
+        }
+    });
+}
+
+// 목록 렌더링
+function ruRenderList() {
+    var tbody = document.getElementById('ru-list-body');
+    var now = new Date();
+    var nowMin = now.getHours() * 60 + now.getMinutes();
+    var today = now.toISOString().slice(0, 10);
+
+    // 필터: 선택된 회의실 + 날짜
+    var filtered = ru.allReservations.filter(function(r) {
+        return r.room_no == ru.roomNo && r.start_datetime && r.start_datetime.slice(0, 10) === ru.date;
+    }).sort(function(a, b) {
+        return a.start_datetime.localeCompare(b.start_datetime);
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="ru-list-empty">예약이 없습니다</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(function(r) {
+        var startMin = parseMin(r.start_datetime);
+        var endMin = parseMin(r.end_datetime);
+        var cls = '';
+        if (ru.date === today) {
+            if (nowMin >= endMin) cls = 'past';
+            else if (nowMin >= startMin && nowMin < endMin) cls = 'current';
+        }
+        return '<tr class="' + cls + '" onclick="ruLoadItem(\'' + esc(r.id) + '\')">' +
+            '<td>' + fmtT(r.start_datetime) + ' ~ ' + fmtT(r.end_datetime) + '</td>' +
+            '<td><strong>' + esc(r.team_name) + '</strong></td>' +
+            '<td>' + esc(r.meeting_title || '') + '</td>' +
+            '<td>' + (r.is_hide_reserved_by ? '-' : esc(r.reserved_by || '')) + '</td>' +
+            '<td>' + (r.is_hide_attendee_count ? '-' : (r.attendee_count || '')) + '</td>' +
+            '<td>' +
+                '<button class="ru-edit-btn" onclick="event.stopPropagation();ruLoadItem(\'' + esc(r.id) + '\')">수정</button> ' +
+                '<button class="ru-del-btn" onclick="event.stopPropagation();ruDeleteById(\'' + esc(r.id) + '\')">삭제</button>' +
+            '</td></tr>';
+    }).join('');
+}
+
+// 폼에 로드
+function ruLoadItem(id) {
+    var item = ru.allReservations.find(function(r) { return r.id === id; });
+    if (!item) return;
+
+    ru.editId = id;
+    document.getElementById('ru-edit-id').value = id;
+    document.getElementById('ru-team').value = item.team_name || '';
+    document.getElementById('ru-person').value = item.reserved_by || '';
+    document.getElementById('ru-hide-person').checked = !!item.is_hide_reserved_by;
+    document.getElementById('ru-count').value = item.attendee_count || '';
+    document.getElementById('ru-hide-count').checked = !!item.is_hide_attendee_count;
+    document.getElementById('ru-start').value = fmtT(item.start_datetime);
+    document.getElementById('ru-end').value = fmtT(item.end_datetime);
+    document.getElementById('ru-title').value = item.meeting_title || '';
+    document.getElementById('ru-hide-title').checked = !!item.is_hide_meeting_title;
+    document.getElementById('ru-subtitle').value = item.meeting_subtitle || '';
+    document.getElementById('ru-hide-subtitle').checked = !!item.is_hide_meeting_subtitle;
+
+    document.getElementById('ru-form-mode').textContent = '예약 수정';
+    document.getElementById('ru-btn-update').style.display = 'inline-block';
+    document.getElementById('ru-btn-delete').style.display = 'inline-block';
+}
+
+// 폼 초기화
+function ruClear() {
+    ru.editId = '';
+    document.getElementById('ru-edit-id').value = '';
+    document.getElementById('ru-team').value = '';
+    document.getElementById('ru-person').value = '';
+    document.getElementById('ru-hide-person').checked = false;
+    document.getElementById('ru-count').value = '';
+    document.getElementById('ru-hide-count').checked = false;
+    document.getElementById('ru-start').value = '';
+    document.getElementById('ru-end').value = '';
+    document.getElementById('ru-title').value = '';
+    document.getElementById('ru-hide-title').checked = false;
+    document.getElementById('ru-subtitle').value = '';
+    document.getElementById('ru-hide-subtitle').checked = false;
+
+    document.getElementById('ru-form-mode').textContent = '예약 등록';
+    document.getElementById('ru-btn-update').style.display = 'none';
+    document.getElementById('ru-btn-delete').style.display = 'none';
+}
+
+// 폼 → 객체
+function ruGetFormData() {
+    var team = document.getElementById('ru-team').value.trim();
+    var start = document.getElementById('ru-start').value;
+    var end = document.getElementById('ru-end').value;
+
+    if (!team) { ruToast('팀명을 입력하세요.', 'error'); return null; }
+    if (!start || !end) { ruToast('시간을 입력하세요.', 'error'); return null; }
+    if (start >= end) { ruToast('종료 시간이 시작 시간보다 늦어야 합니다.', 'error'); return null; }
+
+    return {
+        id: ru.editId || ('rsv_' + Date.now()),
+        room_no: ru.roomNo,
+        team_name: team,
+        reserved_by: document.getElementById('ru-person').value.trim(),
+        is_hide_reserved_by: document.getElementById('ru-hide-person').checked,
+        attendee_count: parseInt(document.getElementById('ru-count').value) || 0,
+        is_hide_attendee_count: document.getElementById('ru-hide-count').checked,
+        start_datetime: ru.date + ' ' + start,
+        end_datetime: ru.date + ' ' + end,
+        meeting_title: document.getElementById('ru-title').value.trim(),
+        is_hide_meeting_title: document.getElementById('ru-hide-title').checked,
+        meeting_subtitle: document.getElementById('ru-subtitle').value.trim(),
+        is_hide_meeting_subtitle: document.getElementById('ru-hide-subtitle').checked,
+        created_at: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    };
+}
+
+// 중복 검사
+function ruCheckOverlap(item, excludeId) {
+    var newStart = item.start_datetime;
+    var newEnd = item.end_datetime;
+
+    for (var i = 0; i < ru.allReservations.length; i++) {
+        var r = ru.allReservations[i];
+        if (r.id === excludeId) continue;
+        if (r.room_no != item.room_no) continue;
+        if (r.start_datetime.slice(0, 10) !== item.start_datetime.slice(0, 10)) continue;
+
+        // 시간 겹침: 새 시작 < 기존 종료 AND 새 종료 > 기존 시작
+        if (newStart < r.end_datetime && newEnd > r.start_datetime) {
+            return r;
+        }
+    }
+    return null;
+}
+
+// 7일 지난 데이터 cleanup
+function ruCleanup(list) {
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 7);
+    var cutoffStr = cutoff.toISOString().slice(0, 10);
+    return list.filter(function(r) {
+        var d = r.end_datetime ? r.end_datetime.slice(0, 10) : r.start_datetime.slice(0, 10);
+        return d >= cutoffStr;
+    });
+}
+
+// 저장 (hm_other)
+function ruSaveToServer(callback) {
+    // 7일 cleanup
+    ru.allReservations = ruCleanup(ru.allReservations);
+
+    var otherJson = JSON.stringify({ reservations: ru.allReservations });
+
+    $.ajax({
+        url: '../web/v3/dist/api/v3/router.php?route=homes/' + ru.hmIdx,
+        type: 'PUT',
+        contentType: 'application/json',
+        data: JSON.stringify({ hm_other: otherJson }),
+        dataType: 'json',
+        success: function(res) {
+            if (res.code === 100) {
+                if (callback) callback();
+            } else {
+                ruToast(res.message || '저장 실패', 'error');
+            }
+        },
+        error: function() {
+            ruToast('서버 저장 실패', 'error');
+        }
+    });
+}
+
+// 등록
+function ruSave() {
+    var item = ruGetFormData();
+    if (!item) return;
+
+    var overlap = ruCheckOverlap(item, null);
+    if (overlap) {
+        ruToast(fmtT(overlap.start_datetime) + '~' + fmtT(overlap.end_datetime) + ' ' + overlap.team_name + '과 시간이 겹칩니다.', 'error');
+        return;
+    }
+
+    ru.allReservations.push(item);
+    ruSaveToServer(function() {
+        ruToast('예약이 등록되었습니다.', 'success');
+        ruClear();
+        ruRenderList();
+    });
+}
+
+// 수정
+function ruUpdate() {
+    if (!ru.editId) return;
+    var item = ruGetFormData();
+    if (!item) return;
+
+    var overlap = ruCheckOverlap(item, ru.editId);
+    if (overlap) {
+        ruToast(fmtT(overlap.start_datetime) + '~' + fmtT(overlap.end_datetime) + ' ' + overlap.team_name + '과 시간이 겹칩니다.', 'error');
+        return;
+    }
+
+    // 기존 항목 교체
+    for (var i = 0; i < ru.allReservations.length; i++) {
+        if (ru.allReservations[i].id === ru.editId) {
+            ru.allReservations[i] = item;
+            break;
+        }
+    }
+
+    ruSaveToServer(function() {
+        ruToast('예약이 수정되었습니다.', 'success');
+        ruClear();
+        ruRenderList();
+    });
+}
+
+// 삭제
+function ruDelete() {
+    if (!ru.editId) return;
+    if (!confirm('이 예약을 삭제하시겠습니까?')) return;
+    ruDeleteById(ru.editId);
+}
+
+function ruDeleteById(id) {
+    if (!confirm('이 예약을 삭제하시겠습니까?')) return;
+    ru.allReservations = ru.allReservations.filter(function(r) { return r.id !== id; });
+    ruSaveToServer(function() {
+        ruToast('예약이 삭제되었습니다.', 'success');
+        ruClear();
+        ruRenderList();
+    });
+}
+
+// Toast
+function ruToast(msg, type) {
+    var el = document.getElementById('ru-toast');
+    el.textContent = msg;
+    el.className = 'ru-toast ' + (type || 'success');
+    el.style.display = 'block';
+    setTimeout(function() { el.style.display = 'none'; }, 3000);
+}
+
+// 유틸
+function parseMin(dt) {
+    if (!dt) return 0;
+    var t = dt.split(' ')[1] || dt;
+    var p = t.split(':');
+    return parseInt(p[0]) * 60 + parseInt(p[1]);
+}
+
+function fmtT(dt) {
+    if (!dt) return '';
+    var t = dt.split(' ')[1] || dt;
+    return t.slice(0, 5);
+}
+
+function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+ruInit();
+</script>
+</body>
+</html>
