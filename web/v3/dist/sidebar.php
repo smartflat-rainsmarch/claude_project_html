@@ -101,6 +101,10 @@
                         <span class="submenu-bullet"></span>
                         <span>기기 그룹</span>
                     </a>
+                    <a class="submenu-link" href="#" data-page="device/power">
+                        <span class="submenu-bullet"></span>
+                        <span>전원 설정</span>
+                    </a>
                 </div>
             </div>
         </div>

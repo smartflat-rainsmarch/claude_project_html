@@ -36,6 +36,7 @@ const V3App = {
         'content/templates': { path: 'pages/content/templates.php', title: '템플릿' },
         'content/media': { path: 'pages/content/media.php', title: '미디어' },
         'device/groups': { path: 'pages/device/groups.php', title: '기기 그룹' },
+        'device/power': { path: 'pages/device/power.php', title: '전원 설정' },
         'deployment/schedule': { path: 'pages/deployment/schedule.php', title: '배포 예약' },
         'deployment/history': { path: 'pages/deployment/history.php', title: '배포 이력' },
         'monitoring/logs': { path: 'pages/monitoring/logs.php', title: '로그' },
