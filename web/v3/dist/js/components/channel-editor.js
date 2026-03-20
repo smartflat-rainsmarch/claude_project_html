@@ -720,12 +720,165 @@ var channelEditor = {
     // =========================================
 
     /**
-     * Edit a content data item
+     * Edit a content data item - 타입별 다른 팝업 (v1 showPopupContentData 방식)
      */
     editContentItem(idx) {
         var item = Object.assign({}, this.contentdatas[idx]);
-        var fields = this.buildContentFields(item);
+        var type = item.type || 'html';
+        var self = this;
+        var grIdx = this.homeData ? (this.homeData.hm_gr_idx || 0) : 0;
+        var gamePath = '../../../game/school/' + this.currentProjectId + '/v' + grIdx + '/';
 
+        // 타입별 분기
+        if (type === 'trand' || type === 'survey') {
+            // 설문/트렌드: iframe으로 표시
+            var iframeUrl = gamePath + 'contentdata/' + (item.url || '');
+            if (type === 'trand') {
+                iframeUrl = '/claude_project/html/game/webpage/type_trand.html?projectid=' + this.currentProjectId + '&groupidx=' + grIdx;
+            } else {
+                iframeUrl = '/claude_project/html/game/webpage/type_survey.html?projectid=' + this.currentProjectId + '&groupidx=' + grIdx + '&listid=' + (item.id || '');
+            }
+            var screenH = window.innerHeight;
+            var html = '<iframe src="' + escapeHtml(iframeUrl) + '" style="border:none;width:100%;height:' + Math.round(screenH * 0.7) + 'px;"></iframe>';
+            showModalDialog(document.body, '[' + escapeHtml(item.name) + '] ' + type, html, '확인', null,
+                function() { hideModalDialog(); }, null,
+                { size: { width: '90%', height: Math.round(screenH * 0.9) + 'px' }, allowHtml: true }
+            );
+            return;
+        }
+
+        if (type === 'gallery' || type === 'gallery1' || type === 'gallery2' || type === 'video_gallery') {
+            // 갤러리/비디오 갤러리: iframe으로 표시
+            var pageMap = { gallery: 'type_gallery.html', gallery1: 'type_gallery1.html', gallery2: 'type_gallery2.html', video_gallery: 'type_video_gallery.html' };
+            var imgfoldername = item.imgfoldername || 'gallery';
+            var iframeUrl = '/claude_project/html/game/webpage/' + (pageMap[type] || 'type_gallery.html') +
+                '?projectid=' + this.currentProjectId + '&groupidx=' + grIdx + '&listid=' + (item.id || '') + '&imgfoldername=' + imgfoldername;
+            var screenH = window.innerHeight;
+            var html = '<iframe src="' + escapeHtml(iframeUrl) + '" style="border:none;width:100%;height:' + Math.round(screenH * 0.7) + 'px;"></iframe>';
+            showModalDialog(document.body, '[' + escapeHtml(item.name) + '] ' + type, html, '확인', null,
+                function() { hideModalDialog(); }, null,
+                { size: { width: '90%', height: Math.round(screenH * 0.9) + 'px' }, allowHtml: true }
+            );
+            return;
+        }
+
+        if (type === 'board') {
+            // 게시판: iframe으로 표시
+            var iframeUrl = '/claude_project/html/game/webpage/type_board.html?projectid=' + this.currentProjectId + '&groupidx=' + grIdx + '&listid=' + (item.id || '');
+            var screenH = window.innerHeight;
+            var html = '<iframe src="' + escapeHtml(iframeUrl) + '" style="border:none;width:100%;height:' + Math.round(screenH * 0.7) + 'px;"></iframe>';
+            showModalDialog(document.body, '[' + escapeHtml(item.name) + '] 게시판', html, '확인', null,
+                function() { hideModalDialog(); }, null,
+                { size: { width: '90%', height: Math.round(screenH * 0.9) + 'px' }, allowHtml: true }
+            );
+            return;
+        }
+
+        if (type === 'lyrics') {
+            // 가사: iframe으로 표시
+            var iframeUrl = '/claude_project/html/game/webpage/type_lyrics_list.html?projectid=' + this.currentProjectId + '&groupidx=' + grIdx;
+            var screenH = window.innerHeight;
+            var html = '<iframe src="' + escapeHtml(iframeUrl) + '" style="border:none;width:100%;height:' + Math.round(screenH * 0.7) + 'px;"></iframe>';
+            showModalDialog(document.body, '[' + escapeHtml(item.name) + '] 가사', html, '확인', null,
+                function() { hideModalDialog(); }, null,
+                { size: { width: '90%', height: Math.round(screenH * 0.9) + 'px' }, allowHtml: true }
+            );
+            return;
+        }
+
+        if (type === 'pdf_gallery') {
+            // PDF: iframe으로 표시
+            var iframeUrl = '/claude_project/html/game/webpage/type_pdf_upload.html?projectid=' + this.currentProjectId + '&groupidx=' + grIdx;
+            var screenH = window.innerHeight;
+            var html = '<iframe src="' + escapeHtml(iframeUrl) + '" style="border:none;width:100%;height:' + Math.round(screenH * 0.7) + 'px;"></iframe>';
+            showModalDialog(document.body, '[' + escapeHtml(item.name) + '] PDF', html, '확인', null,
+                function() { hideModalDialog(); }, null,
+                { size: { width: '90%', height: Math.round(screenH * 0.9) + 'px' }, allowHtml: true }
+            );
+            return;
+        }
+
+        if (type === 'floor') {
+            // 층별안내: iframe
+            var iframeUrl = '/claude_project/html/game/webpage/type_floor.html?projectid=' + this.currentProjectId + '&groupidx=' + grIdx;
+            var screenH = window.innerHeight;
+            var html = '<iframe src="' + escapeHtml(iframeUrl) + '" style="border:none;width:100%;height:' + Math.round(screenH * 0.7) + 'px;"></iframe>';
+            showModalDialog(document.body, '[' + escapeHtml(item.name) + '] 층별안내', html, '확인', null,
+                function() { hideModalDialog(); }, null,
+                { size: { width: '90%', height: Math.round(screenH * 0.9) + 'px' }, allowHtml: true }
+            );
+            return;
+        }
+
+        if (type === 'webpage') {
+            // 웹페이지: URL 입력
+            var html = '<div style="display:grid;gap:12px;">' +
+                '<div class="form-group"><label class="form-label">웹페이지 주소</label>' +
+                '<input class="form-control" id="edit-webpage-url" value="' + escapeHtml(item.url || '') + '" placeholder="https://..."></div></div>';
+            showModalDialog(document.body, '[' + escapeHtml(item.name) + '] 웹주소 입력', html, '저장', '취소',
+                function() {
+                    item.url = document.getElementById('edit-webpage-url').value;
+                    self.contentdatas[idx] = item;
+                    self.saveField('content-data', self.contentdatas);
+                    hideModalDialog();
+                },
+                function() { hideModalDialog(); },
+                { size: { width: '500px' }, allowHtml: true }
+            );
+            return;
+        }
+
+        if (type === 'html' || type === 'img' || type === 'mapimg') {
+            // HTML/이미지/지도: 이미지 업로드 + 미리보기 (v1 방식)
+            var maxLen = (type === 'mapimg') ? 1 : 5;
+            var images = item.images || [];
+            var imgBasePath = gamePath + 'contentdata/';
+
+            var previewHtml = '';
+            var inputsHtml = '';
+            for (var i = 0; i < maxLen; i++) {
+                var src = images.length > i ? imgBasePath + images[i] + '?' + Date.now() : '';
+                previewHtml += src ? '<img src="' + escapeHtml(src) + '" style="width:100%;margin-bottom:4px;border-radius:4px;" onerror="this.style.display=\'none\'">' : '';
+                inputsHtml += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">' +
+                    '<span style="font-weight:600;width:80px;">' + (i + 1) + '번째:</span>' +
+                    '<div style="width:80px;height:80px;border:1px solid var(--border-color);border-radius:6px;overflow:hidden;flex-shrink:0;">' +
+                    (src ? '<img src="' + escapeHtml(src) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'">' : '<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;color:var(--text-muted);"><i class="fas fa-image"></i></div>') +
+                    '</div>' +
+                    '<input class="form-control" id="edit-img-' + i + '" value="' + escapeHtml(images[i] || '') + '" placeholder="이미지 파일명" style="flex:1;">' +
+                    '<button class="btn btn-sm btn-light" onclick="channelEditor.pickContentImage(' + i + ',' + idx + ')" title="이미지 선택"><i class="fas fa-folder-open"></i></button>' +
+                    '</div>';
+            }
+
+            var html = '<div style="display:flex;gap:16px;">' +
+                '<div style="flex:1;">' +
+                '<div class="form-group"><label class="form-label">이미지 (' + maxLen + '장)</label>' + inputsHtml + '</div>' +
+                '</div>' +
+                '<div style="width:300px;flex-shrink:0;">' +
+                '<label class="form-label">미리보기</label>' +
+                '<div id="edit-content-preview" style="background:#e9e9e9;border:1px solid #a9a9a9;border-radius:8px;padding:8px;max-height:500px;overflow-y:auto;">' +
+                (previewHtml || '<div style="text-align:center;padding:40px;color:#999;">이미지 없음</div>') +
+                '</div></div></div>';
+
+            showModalDialog(document.body, '[' + escapeHtml(item.name) + '] 이미지 편집 (최대 ' + maxLen + '장)', html, '저장', '취소',
+                function() {
+                    var newImages = [];
+                    for (var j = 0; j < maxLen; j++) {
+                        var val = document.getElementById('edit-img-' + j);
+                        if (val && val.value.trim()) newImages.push(val.value.trim());
+                    }
+                    item.images = newImages;
+                    self.contentdatas[idx] = item;
+                    self.saveField('content-data', self.contentdatas);
+                    hideModalDialog();
+                },
+                function() { hideModalDialog(); },
+                { size: { width: '750px' }, allowHtml: true }
+            );
+            return;
+        }
+
+        // 기타 타입: 기본 편집 폼
+        var fields = this.buildContentFields(item);
         var html = '<div style="display:grid;gap:12px;">' +
             '<div class="form-group"><label class="form-label">ID</label>' +
             '<input class="form-control" id="edit-id" value="' + escapeHtml(item.id || '') + '" readonly style="background:var(--bg-input);"></div>' +
@@ -739,12 +892,20 @@ var channelEditor = {
             fields +
             '</div>';
 
-        var self = this;
         showModalDialog(document.body, '콘텐츠 편집: ' + (item.name || ''), html, '저장', '취소',
             function() { self.saveContentItem(idx); hideModalDialog(); },
             function() { hideModalDialog(); },
             { size: { width: '550px' }, allowHtml: true }
         );
+    },
+
+    /**
+     * Pick content image file
+     */
+    pickContentImage(imgIdx, contentIdx) {
+        var input = document.getElementById('edit-img-' + imgIdx);
+        if (!input) return;
+        this.pickImage('edit-img-' + imgIdx);
     },
 
     /**
