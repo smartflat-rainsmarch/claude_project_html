@@ -19,28 +19,13 @@ const V3App = {
     pages: {
         dashboard: { path: 'pages/dashboard/index.php', title: '대시보드' },
         project: { path: 'pages/project/index.php', title: '프로젝트' },
-        content: { path: 'pages/content/index.php', title: '콘텐츠' },
-        device: { path: 'pages/device/index.php', title: '기기' },
-        deployment: { path: 'pages/deployment/index.php', title: '배포' },
-        monitoring: { path: 'pages/monitoring/index.php', title: '모니터링' },
-        version: { path: 'pages/version/index.php', title: '버전관리' },
-        audit: { path: 'pages/audit/index.php', title: '감사로그' },
         settings: { path: 'pages/settings/index.php', title: '설정' },
         channel: { path: 'pages/channel/index.php', title: '화면 수정' }
     },
 
     // Sub-pages
     subPages: {
-        'channel/editor': { path: 'pages/channel/editor.php', title: '비주얼 에디터' },
-        'content/editor': { path: 'pages/content/editor.php', title: '화면 편집' },
-        'content/templates': { path: 'pages/content/templates.php', title: '템플릿' },
-        'content/media': { path: 'pages/content/media.php', title: '미디어' },
-        'device/groups': { path: 'pages/device/groups.php', title: '기기 그룹' },
-        'device/power': { path: 'pages/device/power.php', title: '전원 설정' },
-        'deployment/schedule': { path: 'pages/deployment/schedule.php', title: '배포 예약' },
-        'deployment/history': { path: 'pages/deployment/history.php', title: '배포 이력' },
-        'monitoring/logs': { path: 'pages/monitoring/logs.php', title: '로그' },
-        'monitoring/alerts': { path: 'pages/monitoring/alerts.php', title: '알림' }
+        'channel/editor': { path: 'pages/channel/editor.php', title: '비주얼 에디터' }
     },
 
     // Initialization flag

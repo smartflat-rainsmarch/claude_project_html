@@ -21,41 +21,13 @@ renderPageHeader('프로젝트 관리', [
 
 <!-- Filter Panel -->
 <div class="card" style="margin-bottom: 16px;">
-    <div class="card-body" style="padding: 16px;">
-        <div class="filter-inline">
-            <div class="filter-row">
-                <div class="filter-field">
-                    <label class="filter-label">상태</label>
-                    <select class="form-control form-control-sm" id="filter-status" onchange="applyProjectFilters()">
-                        <option value="">전체</option>
-                        <option value="active">운영중</option>
-                        <option value="paused">일시정지</option>
-                        <option value="archived">보관</option>
-                    </select>
-                </div>
-                <div class="filter-field">
-                    <label class="filter-label">지역</label>
-                    <select class="form-control form-control-sm" id="filter-region" onchange="applyProjectFilters()">
-                        <option value="">전체</option>
-                    </select>
-                </div>
-                <div class="filter-field">
-                    <label class="filter-label">카테고리</label>
-                    <select class="form-control form-control-sm" id="filter-category" onchange="applyProjectFilters()">
-                        <option value="">전체</option>
-                    </select>
-                </div>
-                <div class="filter-field" style="flex: 2;">
-                    <label class="filter-label">검색</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control form-control-sm" id="filter-search"
-                               placeholder="프로젝트명, 키 검색..." onkeyup="debounceSearch(this.value)">
-                        <button class="btn btn-primary btn-sm" onclick="applyProjectFilters()">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <div class="card-body" style="padding: 12px 16px;">
+        <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" class="form-control form-control-sm" id="filter-search"
+                   placeholder="프로젝트명 검색..." onkeyup="debounceSearch(this.value)" style="max-width:300px;">
+            <button class="btn btn-primary btn-sm" onclick="applyProjectFilters()">
+                <i class="fas fa-search"></i>
+            </button>
         </div>
     </div>
 </div>
