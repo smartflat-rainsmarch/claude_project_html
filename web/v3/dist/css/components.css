@@ -876,3 +876,19 @@
     color: var(--text-muted);
     cursor: not-allowed;
 }
+
+/* Language Tags */
+.lang-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: var(--color-primary);
+    color: #fff;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.lang-tag i:hover {
+    color: #fcc;
+}

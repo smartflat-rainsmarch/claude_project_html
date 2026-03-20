@@ -130,6 +130,7 @@ async function loadGlobalProjects() {
                 opt.dataset.width = home.hm_width || '';
                 opt.dataset.height = home.hm_height || '';
                 opt.dataset.language = home.hm_language || 'KO';
+                opt.dataset.allLanguage = home.hm_all_language || home.hm_language || 'KO';
                 select.appendChild(opt);
             });
 
@@ -251,10 +252,23 @@ function showAddProjectModal() {
         '<select class="form-control" id="new-project-orientation">' +
         '<option value="P">세로 (Portrait)</option>' +
         '<option value="L">가로 (Landscape)</option></select></div>' +
-        '<div class="form-group" style="flex:1"><label class="form-label">언어</label>' +
+        '<div class="form-group" style="flex:1"><label class="form-label">기본 언어</label>' +
         '<select class="form-control" id="new-project-language">' +
         '<option value="KO">한국어</option><option value="EN">English</option>' +
-        '<option value="ZH">中文</option><option value="VI">Tiếng Việt</option></select></div>' +
+        '<option value="ZH">中文</option><option value="VI">Tiếng Việt</option><option value="MS">Bahasa</option></select></div>' +
+        '</div>' +
+        // 언어 목록 (hm_all_language)
+        '<div class="form-group"><label class="form-label">지원 언어 목록</label>' +
+        '<div style="display:flex;gap:8px;align-items:center;">' +
+        '<select class="form-control" id="new-project-add-lang" style="width:150px;">' +
+        '<option value="KO">KO 한국어</option><option value="EN">EN English</option>' +
+        '<option value="ZH">ZH 中文</option><option value="VI">VI Tiếng Việt</option><option value="MS">MS Bahasa</option></select>' +
+        '<button type="button" class="btn btn-sm btn-primary" onclick="addProjectLang()">추가</button>' +
+        '</div>' +
+        '<div id="new-project-lang-tags" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">' +
+        '<span class="lang-tag" data-lang="KO">KO <i class="fas fa-times" onclick="removeProjectLang(this)" style="cursor:pointer;margin-left:4px;font-size:10px;"></i></span>' +
+        '</div>' +
+        '<input type="hidden" id="new-project-all-language" value="KO">' +
         '</div>' +
         '<div style="display:flex;gap:8px;">' +
         '<div class="form-group" style="flex:1"><label class="form-label">너비</label>' +
@@ -269,12 +283,15 @@ function showAddProjectModal() {
             var projectName = document.getElementById('new-project-name').value.trim();
             if (!projectId || !projectName) { toastError('프로젝트 ID와 이름을 입력하세요.'); return; }
 
+            var allLanguage = document.getElementById('new-project-all-language').value || 'KO';
+
             try {
                 var res = await V3Api.post('/projects', {
                     project_id: projectId,
                     name: projectName,
                     orientation: document.getElementById('new-project-orientation').value,
                     language: document.getElementById('new-project-language').value,
+                    all_language: allLanguage,
                     width: parseInt(document.getElementById('new-project-width').value) || 1080,
                     height: parseInt(document.getElementById('new-project-height').value) || 1920
                 });
@@ -292,6 +309,55 @@ function showAddProjectModal() {
         function() { hideModalDialog(); },
         { size: { width: '500px' }, allowHtml: true }
     );
+}
+
+/**
+ * Add language tag to project creation dialog
+ */
+function addProjectLang() {
+    var select = document.getElementById('new-project-add-lang');
+    var container = document.getElementById('new-project-lang-tags');
+    var hidden = document.getElementById('new-project-all-language');
+    if (!select || !container || !hidden) return;
+
+    var code = select.value;
+    // Check if already added
+    if (container.querySelector('[data-lang="' + code + '"]')) {
+        toastError(code + ' 는 이미 추가되었습니다.');
+        return;
+    }
+
+    var tag = document.createElement('span');
+    tag.className = 'lang-tag';
+    tag.dataset.lang = code;
+    tag.innerHTML = escapeHtml(code) + ' <i class="fas fa-times" onclick="removeProjectLang(this)" style="cursor:pointer;margin-left:4px;font-size:10px;"></i>';
+    container.appendChild(tag);
+
+    updateProjectLangHidden();
+}
+
+/**
+ * Remove language tag
+ */
+function removeProjectLang(icon) {
+    var tag = icon.parentElement;
+    if (!tag) return;
+    tag.remove();
+    updateProjectLangHidden();
+}
+
+/**
+ * Sync hidden input with current lang tags
+ */
+function updateProjectLangHidden() {
+    var container = document.getElementById('new-project-lang-tags');
+    var hidden = document.getElementById('new-project-all-language');
+    if (!container || !hidden) return;
+
+    var tags = container.querySelectorAll('.lang-tag');
+    var codes = [];
+    tags.forEach(function(t) { codes.push(t.dataset.lang); });
+    hidden.value = codes.join(',');
 }
 
 /**
