@@ -9,18 +9,6 @@
         <h2 class="page-title">화면 수정하기</h2>
     </div>
     <div class="page-header-right">
-        <!-- Safety Data Toggle -->
-        <div id="channel-safety-toggle" style="display:none; align-items:center; gap:8px; padding:6px 12px; border-radius:8px; background:rgba(220,53,69,0.08); margin-right:8px;">
-            <i class="fas fa-exclamation-triangle" style="color:var(--color-danger);"></i>
-            <span style="font-size:13px; color:var(--color-danger); font-weight:500;">재난안전문자</span>
-            <label class="toggle-switch" style="margin-left:4px;">
-                <input type="checkbox" id="channel-safety-checkbox" onchange="channelEditor.toggleSafety(this.checked)">
-                <span class="toggle-slider"></span>
-            </label>
-            <button class="btn btn-sm btn-light" onclick="channelEditor.showSafetySettings()" title="재난안전문자 설정" style="margin-left:4px; padding:2px 8px;">
-                <i class="fas fa-cog"></i>
-            </button>
-        </div>
         <!-- ShortURL -->
         <div id="channel-shorturl-box" style="display:none; align-items:center; gap:6px; padding:4px 12px; border-radius:6px; background:var(--bg-input); border:1px solid var(--border-color); margin-right:8px; font-size:12px;">
             <span style="color:var(--color-danger); font-weight:500;">숏URL:</span>
@@ -35,6 +23,18 @@
         <button class="btn btn-primary" onclick="channelEditor.showRawDataEditor()">
             <i class="fas fa-code"></i> 데이터 삽입/수정
         </button>
+        <!-- Safety Data Toggle -->
+        <div id="channel-safety-toggle" style="display:none; align-items:center; gap:8px; padding:6px 12px; border-radius:8px; background:rgba(220,53,69,0.08); margin-left:8px;">
+            <i class="fas fa-exclamation-triangle" style="color:var(--color-danger);"></i>
+            <span style="font-size:13px; color:var(--color-danger); font-weight:500;">재난안전문자</span>
+            <label class="toggle-switch" style="margin-left:4px;">
+                <input type="checkbox" id="channel-safety-checkbox" onchange="channelEditor.toggleSafety(this.checked)">
+                <span class="toggle-slider"></span>
+            </label>
+            <button class="btn btn-sm btn-light" onclick="channelEditor.showSafetySettings()" title="재난안전문자 설정" style="margin-left:4px; padding:2px 8px;">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
     </div>
 </div>
 
