@@ -919,3 +919,52 @@
     color: white;
     border-color: var(--color-primary);
 }
+
+/* Power mode toggle buttons */
+.pwr-mode-btn {
+    padding: 6px 16px;
+    border: none;
+    background: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-gray);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.pwr-mode-btn.active {
+    background: var(--color-primary);
+    color: white;
+}
+
+/* Power time button */
+.pwr-time-btn {
+    display: block;
+    width: 100%;
+    padding: 10px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-card);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+}
+.pwr-time-btn:hover {
+    border-color: var(--color-primary);
+    background: var(--bg-hover);
+}
+.pwr-time-btn.sm {
+    padding: 6px 4px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+/* Schedule toggle (reuse for header) */
+.schedule-toggle { position:relative; display:inline-block; width:40px; height:22px; }
+.schedule-toggle input { opacity:0; width:0; height:0; }
+.schedule-toggle .slider { position:absolute; cursor:pointer; inset:0; background:#ccc; border-radius:22px; transition:0.2s; }
+.schedule-toggle .slider:before { content:""; position:absolute; width:18px; height:18px; left:2px; bottom:2px; background:white; border-radius:50%; transition:0.2s; }
+.schedule-toggle input:checked + .slider { background:var(--color-success); }
+.schedule-toggle input:checked + .slider:before { transform:translateX(18px); }
